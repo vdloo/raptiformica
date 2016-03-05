@@ -8,7 +8,7 @@ from raptiformica.actions.machine.show import show, show_all
 from raptiformica.actions.machine.slave import slave_machine
 from raptiformica.actions.machine.spawn import spawn_machine
 from raptiformica.actions.machine.ssh import ssh
-from raptiformica.backends.vagrant.manage_machine import get_machine_config_from_machine_uuid
+from raptiformica.backends.resolve import resolve_manage_machine
 from raptiformica.log import setup_logging
 from raptiformica.settings import PROJECT_DIR, INSTANCE_BACKEND_DEFAULT
 
@@ -22,7 +22,10 @@ def generate_backend_choices():
 def parse_machine(multi_machine, parser):
     try: return load_json(multi_machine)
     except ValueError:
-        return get_machine_config_from_machine_uuid(multi_machine)
+        try:
+            return resolve_manage_machine('vagrant').get_machine_config_from_machine_uuid(multi_machine)
+        except:
+            return resolve_manage_machine('docker').get_machine_config_from_machine_uuid(multi_machine)
 
 
 def compose_main_parser():

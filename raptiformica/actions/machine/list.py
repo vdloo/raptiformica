@@ -1,8 +1,7 @@
 from logging import getLogger
 from itertools import chain
 
-from raptiformica.backends.resolve import resolve_status
-from raptiformica.backends.vagrant.manage_machine import get_machine_config_from_machine_uuid
+from raptiformica.backends.resolve import resolve_status, resolve_manage_machine
 from raptiformica.settings import LOCAL_BACKENDS, REMOTE_BACKENDS
 from raptiformica.utils import pretty_dump
 
@@ -23,7 +22,9 @@ def set_of_all_machines_on_all_backends():
 
 
 def list_of_all_machine_configs_on_all_backends():
-    return map(get_machine_config_from_machine_uuid, set_of_all_machines_on_all_backends())
+    backends = LOCAL_BACKENDS
+    return chain.from_iterable(map(lambda backend: map(lambda machine_uuid: resolve_manage_machine(backend).get_machine_config_from_machine_uuid(machine_uuid),
+               list(set_of_all_machines_on_backends([backend]))), backends))
 
 
 def list_local():

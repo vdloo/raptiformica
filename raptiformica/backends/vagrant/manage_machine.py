@@ -37,7 +37,7 @@ def create_vagrant_machine():
 def ensure_machine_booted(machine_uuid):
     with lcd(machine_path_from_uuid(machine_uuid)):
         with lcd(VAGRANT_FILES_SUBDIRECTORY):
-            local("vagrant up")
+            local("vagrant up", capture=True)
 
 
 def parse_vagrant_config(ssh_config_output):
