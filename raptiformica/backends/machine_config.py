@@ -14,7 +14,7 @@ def forge_machine_config(uuid=None, backend=None, host=None, user='root', port=2
 
 
 def ssh_command_from_machine_config(machine_config):
-    cmd = "ssh -oStrictHostKeyChecking=no {User}@{HostName}".format(**machine_config)
+    cmd = "ssh -A -oStrictHostKeyChecking=no {User}@{HostName}".format(**machine_config)
     if machine_config['Port'] and machine_config['Port'] != 22:
         cmd += ' -p {}'.format(machine_config['Port'])
     if machine_config['IdentityFile']:

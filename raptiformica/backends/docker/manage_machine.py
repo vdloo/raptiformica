@@ -18,7 +18,7 @@ def ensure_docker_image():
 
 
 def run_docker():
-    return local('sudo docker run -d raptiformica-baseimage; sleep 1', capture=True)
+    return local('sudo docker run --privileged -d raptiformica-baseimage; sleep 1', capture=True)
 
 
 def get_docker_ip(docker_id):

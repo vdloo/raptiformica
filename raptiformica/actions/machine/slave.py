@@ -27,7 +27,10 @@ def upload_scripts(machine_config):
 def install_cjdns(machine_config):
     log.info("Installing cjdns")
     if machine_config['Backend'] != 'dryrun':
-        local('ssh -p %s -i %s -o StrictHostKeyChecking=no %s@%s "(cd /tmp/scripts; sudo bash install_cjdns.sh)"' %
+        local('ssh -p %s -i %s -o StrictHostKeyChecking=no %s@%s "(cd /tmp/scripts; '
+              'sudo bash install_cjdns.sh; '
+              'sudo bash var/bootstrap_cjdns.sh; '
+              'sudo bash install_consul.sh)"' %
               (machine_config['Port'], machine_config['IdentityFile'], machine_config['User'], machine_config['HostName']))
 
 
