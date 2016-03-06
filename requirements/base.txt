@@ -1,2 +1,3 @@
-fab==1.4.2
+Fabric==1.10.2
 importlib==1.0.3
+
