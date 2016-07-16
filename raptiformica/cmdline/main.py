@@ -19,8 +19,9 @@ def generate_backend_choices():
     return map(lambda backend_directory: backend_directory.split('/')[-2], backend_directories)
 
 
-def parse_machine(multi_machine, parser):
-    try: return load_json(multi_machine)
+def parse_machine(multi_machine):
+    try:
+        return load_json(multi_machine)
     except ValueError:
         try:
             return resolve_manage_machine('vagrant').get_machine_config_from_machine_uuid(multi_machine)
@@ -75,7 +76,7 @@ def resolve_multi_arguments(args, parser):
         else:
             parser.error("No available machines.")
     if args.machine:
-        args.machine = parse_machine(args.machine, parser)
+        args.machine = parse_machine(args.machine)
     return args
 
 
