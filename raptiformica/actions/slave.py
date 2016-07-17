@@ -20,7 +20,6 @@ def upload_self(host, port=22):
         '--exclude=var/machines', "--exclude=*.pyc'",
         '-e', 'ssh -p {}'.format(port)
     ]
-    print(' '.join(upload_command))
     exit_code, standard_out, standard_error = run_command(upload_command)
 
     if exit_code != 0:
@@ -29,8 +28,8 @@ def upload_self(host, port=22):
                 str(standard_error).replace('\\n', '\n')
             ))
     else:
-        log.info("Uploaded raptiformica to the remote host")
         log.debug(str(standard_out).replace('\\n', '\n'))
+        log.info("Uploaded raptiformica to the remote host")
 
 
 def slave_machine(host, port=22, assimilate=True):

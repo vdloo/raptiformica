@@ -11,3 +11,6 @@ scripts/var
 #vim
 *.swo
 *.swp
+
+#virtualenv
+.venv

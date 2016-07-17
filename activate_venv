@@ -1,0 +1,22 @@
+# run by sourcing (need env for venv)
+# source activate_venv
+
+if type -p virtualenv > /dev/null 2>&1; then
+    if workon raptiformica > /dev/null 2>&1; then
+        echo 'Virtualenv already configured for Raptiformica. It is now activated'
+    else
+        mkvirtualenv -a $(pwd) -p /usr/bin/python3 raptiformica
+        echo "PYTHONPATH=`pwd`" >> $VIRTUAL_ENV/bin/postactivate
+        pip3 install pip --upgrade
+        pip3 install -r requirements/base.txt
+    fi;
+    ln -fs $VIRTUAL_ENV .venv
+else
+    # No virtualenv on host system, trying to activate inherited virtualenv from
+    # the machine that slaved this machine. Will be overwritten with a link to the
+    # real venv once installed. If the system uses a different architecture or the
+    # venv does not work for some other reason, fall back to system python3 and
+    # hope for the best. 
+    echo 'No virtualenv on this system, falling back to pre-synced .venv or system python'
+    source .venv/bin/activate || /bin/true
+fi;

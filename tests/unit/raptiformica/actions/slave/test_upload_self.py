@@ -38,8 +38,8 @@ class TestUploadSelf(TestCase):
     def test_upload_self_logs_to_info_when_uploading_self_succeeded(self):
         upload_self('1.2.3.4')
 
-        self.log.info.assert_called_once_with('Uploaded raptiformica to the remote host')
         self.log.debug.assert_called_once_with(self.standard_out)
+        self.log.info.assert_called_once_with('Uploaded raptiformica to the remote host')
 
     def test_upload_self_raises_error_when_uploading_self_fails(self):
         self.run_command.return_value = (1, self.standard_out, self.standard_err)
