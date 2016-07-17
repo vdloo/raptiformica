@@ -7,7 +7,7 @@ from tests.testcase import TestCase
 class TestSlave(TestCase):
     def setUp(self):
         self.parse_slave_arguments = self.set_up_patch('raptiformica.cli.parse_slave_arguments')
-        self.parse_slave_arguments.return_value = Mock(host='1.2.3.4', no_assimilate=False)
+        self.parse_slave_arguments.return_value = Mock(host='1.2.3.4', port=22, no_assimilate=False)
         self.slave_machine = self.set_up_patch('raptiformica.cli.slave_machine')
 
     def test_slave_parses_slave_arguments(self):
@@ -19,15 +19,15 @@ class TestSlave(TestCase):
         slave()
 
         self.slave_machine.assert_called_once_with(
-            '1.2.3.4', assimilate=True
+            '1.2.3.4', port=22, assimilate=True
         )
 
     def test_slave_does_not_assimilate_machine_when_no_assimilate_is_passed(self):
-        self.parse_slave_arguments.return_value = Mock(host='1.2.3.4', no_assimilate=True)
+        self.parse_slave_arguments.return_value = Mock(host='1.2.3.4', port=22, no_assimilate=True)
 
         slave()
 
         self.slave_machine.assert_called_once_with(
-            '1.2.3.4', assimilate=False
+            '1.2.3.4', port=22, assimilate=False
         )
 

@@ -26,6 +26,8 @@ def parse_slave_arguments():
     )
     parser.add_argument('host', type=str,
                         help='Hostname or ip of the machine')
+    parser.add_argument('--port', '-p', type=int, default=22,
+                        help='Port to use to connect to the remote machine with over SSH')
     parser.add_argument('--no-assimilate', action='store_true', default=False,
                         help='Only provision. Do not join or set up the distributed network.')
     return parse_arguments(parser)
@@ -37,4 +39,4 @@ def slave():
     :return None:
     """
     args = parse_slave_arguments()
-    slave_machine(args.host, assimilate=not args.no_assimilate)
+    slave_machine(args.host, port=args.port, assimilate=not args.no_assimilate)

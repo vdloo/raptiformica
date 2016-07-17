@@ -21,8 +21,10 @@ class TestParseSlaveArguments(TestCase):
 
         expected_calls = [
             call('host', type=str, help='Hostname or ip of the machine'),
+            call('--port', '-p', type=int, default=22,
+                 help='Port to use to connect to the remote machine with over SSH'),
             call('--no-assimilate', action='store_true', default=False,
-                 help='Only provision. Do not join or set up the distributed network.')
+                 help='Only provision. Do not join or set up the distributed network.'),
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,
