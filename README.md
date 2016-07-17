@@ -12,9 +12,10 @@ fertilized, egg laying queen.
 
 Make a virtualenv and get a recent pip
 ```
-mkvirtualenv -p /usr/bin/python3 raptiformica
-pip install pip --upgrade
-pip install -r requirements/base.txt
+mkvirtualenv -a $(pwd) -p /usr/bin/python3 raptiformica
+echo "PYTHONPATH=`pwd`" >> $VIRTUAL_ENV/bin/postactivate
+pip3 install pip --upgrade
+pip3 install -r requirements/base.txt
 ```
 
 

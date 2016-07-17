@@ -1,4 +1,13 @@
+# var
 machines/
-*.pyc
-*.idea
 scripts/var
+
+# pycharm
+*.idea
+
+# python bytecode
+*.pyc
+
+#vim
+*.swo
+*.swp
