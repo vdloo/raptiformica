@@ -24,7 +24,7 @@ def parse_slave_arguments():
     parser = ArgumentParser(
         description='Provision and join a machine into the network'
     )
-    parser.add_argument('host', type='str',
+    parser.add_argument('host', type=str,
                         help='Hostname or ip of the machine')
     parser.add_argument('--no-assimilate', action='store_true', default=False,
                         help='Only provision. Do not join or set up the distributed network.')

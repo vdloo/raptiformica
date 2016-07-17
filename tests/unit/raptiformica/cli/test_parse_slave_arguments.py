@@ -20,7 +20,7 @@ class TestParseSlaveArguments(TestCase):
         parse_slave_arguments()
 
         expected_calls = [
-            call('host', type='str', help='Hostname or ip of the machine'),
+            call('host', type=str, help='Hostname or ip of the machine'),
             call('--no-assimilate', action='store_true', default=False,
                  help='Only provision. Do not join or set up the distributed network.')
         ]
