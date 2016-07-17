@@ -1,6 +1,19 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.slave import slave_machine
+from raptiformica.log import setup_logging
+
+
+def parse_arguments(parser):
+    """
+    Add default parser arguments to parser and parse arguments. Also sets logging level.
+    :param obj parser:
+    :return dict args: parsed arguments
+    """
+    parser.add_argument('--verbose', '-v', action='store_true')
+    args = parser.parse_args()
+    setup_logging(debug=args.verbose)
+    return args
 
 
 def parse_slave_arguments():
@@ -15,7 +28,7 @@ def parse_slave_arguments():
                         help='Hostname or ip of the machine')
     parser.add_argument('--no-assimilate', action='store_true', default=False,
                         help='Only provision. Do not join or set up the distributed network.')
-    return parser.parse_args()
+    return parse_arguments(parser)
 
 
 def slave():
