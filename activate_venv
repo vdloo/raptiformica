@@ -3,14 +3,19 @@
 
 if type -p virtualenv > /dev/null 2>&1; then
     if workon raptiformica > /dev/null 2>&1; then
+	# activate the existing virtual env
         echo 'Virtualenv already configured for Raptiformica. It is now activated'
     else
+	# set up the virtualen and install the base requirements
         mkvirtualenv -a $(pwd) -p /usr/bin/python3 raptiformica
         echo "PYTHONPATH=`pwd`" >> $VIRTUAL_ENV/bin/postactivate
         pip3 install pip --upgrade
         pip3 install -r requirements/base.txt
     fi;
-    ln -fs $VIRTUAL_ENV .venv
+
+    # create a symlink to the virtualenv if it does not exist or is not a 
+    # symlink to the virtual env but something else (like a copied dir)
+    ls -ld .venv | grep -q $VIRTUAL_ENV || ln -fs $VIRTUAL_ENV .venv
 else
     # No virtualenv on host system, trying to activate inherited virtualenv from
     # the machine that slaved this machine. Will be overwritten with a link to the

@@ -15,9 +15,9 @@ def upload_self(host, port=22):
     :return:
     """
     upload_command = [
-        '/usr/bin/env', 'rsync', '-avz',
+        '/usr/bin/env', 'rsync', '-L', '-avz',
         '{}'.format(PROJECT_DIR), 'root@{}:{}'.format(host, INSTALL_DIR),
-        '--exclude=var/machines', "--exclude=*.pyc'",
+        '--exclude=var/machines', '--exclude', '*pyc',
         '-e', 'ssh -p {}'.format(port)
     ]
     exit_code, standard_out, standard_error = run_command(upload_command)

@@ -15,9 +15,9 @@ class TestUploadSelf(TestCase):
         upload_self('1.2.3.4')
 
         expected_command = [
-            '/usr/bin/env', 'rsync', '-avz',
+            '/usr/bin/env', 'rsync', '-L', '-avz',
             '{}'.format(PROJECT_DIR), 'root@{}:{}'.format('1.2.3.4', INSTALL_DIR),
-            '--exclude=var/machines', "--exclude=*.pyc'",
+            '--exclude=var/machines', '--exclude', '*pyc',
             '-e', 'ssh -p {}'.format(22)
         ]
         self.run_command.assert_called_once_with(expected_command)
@@ -28,9 +28,9 @@ class TestUploadSelf(TestCase):
         upload_self('1.2.3.4', port=custom_port)
 
         expected_command = [
-            '/usr/bin/env', 'rsync', '-avz',
+            '/usr/bin/env', 'rsync', '-L', '-avz',
             '{}'.format(PROJECT_DIR), 'root@{}:{}'.format('1.2.3.4', INSTALL_DIR),
-            '--exclude=var/machines', "--exclude=*.pyc'",
+            '--exclude=var/machines', '--exclude', '*pyc',
             '-e', 'ssh -p {}'.format(2222)
         ]
         self.run_command.assert_called_once_with(expected_command)
