@@ -1,6 +1,7 @@
 from mock import call
 
 from raptiformica.cli import parse_slave_arguments
+from raptiformica.config.server import get_server_types, get_first_server_type
 from tests.testcase import TestCase
 
 
@@ -25,6 +26,8 @@ class TestParseSlaveArguments(TestCase):
                  help='Port to use to connect to the remote machine with over SSH'),
             call('--no-assimilate', action='store_true', default=False,
                  help='Only provision. Do not join or set up the distributed network.'),
+            call('--server-type', type=str, default=get_first_server_type(),
+                 choices=get_server_types(), help='Specify a server type'),
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,

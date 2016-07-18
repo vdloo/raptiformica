@@ -1,0 +1,36 @@
+{
+  "compute_types":
+  {
+    "vagrant":
+    {
+      "headless":
+      {
+        "source": "https://github.com/vdloo/vagrantfiles",
+        "directory": "headless"
+      },
+      "workstation":
+      {
+        "source": "https://github.com/vdloo/vagrantfiles",
+        "directory": "headless"
+      }
+    }
+  },
+  "server_types":
+  {
+    "headless":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "command": "./papply.sh manifests/headless.pp --verbose"
+    },
+    "workstation":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "command": "./papply.sh manifests/workstation.pp --verbose"
+    },
+    "htpc":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "command": "./papply.sh manifests/htpc.pp --verbose"
+    }
+  }
+}

@@ -1,7 +1,9 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.slave import slave_machine
+from raptiformica.config.server import get_server_types, get_first_server_type
 from raptiformica.log import setup_logging
+from raptiformica.utils import load_config
 
 
 def parse_arguments(parser):
@@ -30,6 +32,9 @@ def parse_slave_arguments():
                         help='Port to use to connect to the remote machine with over SSH')
     parser.add_argument('--no-assimilate', action='store_true', default=False,
                         help='Only provision. Do not join or set up the distributed network.')
+    parser.add_argument('--server-type', type=str, default=get_first_server_type(),
+                        choices=get_server_types(),
+                        help='Specify a server type')
     return parse_arguments(parser)
 
 
@@ -39,4 +44,6 @@ def slave():
     :return None:
     """
     args = parse_slave_arguments()
-    slave_machine(args.host, port=args.port, assimilate=not args.no_assimilate)
+    slave_machine(
+        args.host, port=args.port, assimilate=not args.no_assimilate, server_type=args.server_type
+    )

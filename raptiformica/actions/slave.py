@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from raptiformica.config.server import get_first_server_type
 from raptiformica.settings import PROJECT_DIR, INSTALL_DIR
 from raptiformica.utils import run_command
 
@@ -32,12 +33,22 @@ def upload_self(host, port=22):
         log.info("Uploaded raptiformica to the remote host")
 
 
-def slave_machine(host, port=22, assimilate=True):
+def provision(host, port=22):
+    """
+    Provision the machine with the sources from the config file
+    :param host:
+    :param port:
+    :return:
+    """
+
+
+def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_type()):
     """
     Provision the remote machine and optionally (default yes) assimilate it into the network.
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param bool assimilate: whether or not we should assimilate the remote machine
+    :param str server_type: name of the server type to provision the machine as
     :return None:
     """
     upload_self(host, port=port)

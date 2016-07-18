@@ -1,4 +1,39 @@
+import json
 from subprocess import Popen, PIPE
+
+from logging import getLogger
+from raptiformica.settings import BASE_CONFIG
+
+log = getLogger(__name__)
+
+
+def load_json(json_file):
+    """
+    Parse a json config file and return the data as a dict
+    :param str json_file: path to the .json config file
+    :return dict: the data from the config file
+    """
+    with open(json_file, 'r') as stream:
+        return json.load(stream)
+
+
+def load_config(config_file=BASE_CONFIG):
+    """
+    Load a config file or default to the base config
+    :param str config_file: path to the .json config file
+    :return dict: the config data
+    """
+    try:
+        return load_json(config_file)
+    except (OSError, ValueError):
+        if config_file != BASE_CONFIG:
+            log.warning("Failed loading config file {}. Falling back to base config {}".format(
+                config_file, BASE_CONFIG
+            ))
+            return load_config()
+        else:
+            log.error("No valid config available!")
+            raise
 
 
 def run_command(command_as_list):
