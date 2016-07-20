@@ -20,17 +20,20 @@
     "headless":
     {
       "source": "https://github.com/vdloo/puppetfiles",
-      "command": "./papply.sh manifests/headless.pp --verbose"
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/headless.pp"
     },
     "workstation":
     {
       "source": "https://github.com/vdloo/puppetfiles",
-      "command": "./papply.sh manifests/workstation.pp --verbose"
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/workstation.pp"
     },
     "htpc":
     {
       "source": "https://github.com/vdloo/puppetfiles",
-      "command": "./papply.sh manifests/htpc.pp --verbose"
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/htpc.pp"
     }
   }
 }

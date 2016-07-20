@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.config.server import get_server_types, get_first_server_type
+from raptiformica.settings.server import get_server_types, get_first_server_type
 from raptiformica.log import setup_logging
 
 
@@ -33,7 +33,7 @@ def parse_slave_arguments():
                         help='Only provision. Do not join or set up the distributed network.')
     parser.add_argument('--server-type', type=str, default=get_first_server_type(),
                         choices=get_server_types(),
-                        help='Specify a server type')
+                        help='Specify a server type. Default is {}'.format(get_first_server_type()))
     return parse_arguments(parser)
 
 

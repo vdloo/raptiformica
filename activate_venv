@@ -16,6 +16,9 @@ if type -p virtualenv > /dev/null 2>&1; then
     # create a symlink to the virtualenv if it does not exist or is not a 
     # symlink to the virtual env but something else (like a copied dir)
     ls -ld .venv | grep -q $VIRTUAL_ENV || ln -fs $VIRTUAL_ENV .venv
+
+    # link helper tools to venv $PATH
+    ln -sf `pwd`/misc/snippets/testcase .venv/bin/
 else
     # No virtualenv on host system, trying to activate inherited virtualenv from
     # the machine that slaved this machine. Will be overwritten with a link to the

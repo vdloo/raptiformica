@@ -1,0 +1,11 @@
+#!/bin/sh
+cat << EOF > /dev/stdout
+from tests.testcase import TestCase
+
+
+class Test$1(TestCase):
+    def setUp(self):
+        self. = self.set_up_patch(_)
+        
+    def test_that_
+EOF

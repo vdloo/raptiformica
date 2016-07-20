@@ -7,7 +7,7 @@ def get_server_types():
     :return list[str] server_types: all server types from the configuration
     """
     config = load_config()
-    return list(config.get('server_types', {}).keys())
+    return list(sorted(config.get('server_types', {}).keys()))
 
 
 def get_first_server_type():

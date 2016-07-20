@@ -1,10 +1,10 @@
-from raptiformica.config.server import get_server_types
+from raptiformica.settings.server import get_server_types
 from tests.testcase import TestCase
 
 
 class TestGetServerTypes(TestCase):
     def setUp(self):
-        self.load_config = self.set_up_patch('raptiformica.config.server.load_config')
+        self.load_config = self.set_up_patch('raptiformica.settings.server.load_config')
         self.server_types = {'server_types': {'headless': {}, 'workstation': {}}}
         self.load_config.return_value = self.server_types
 

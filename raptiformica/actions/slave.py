@@ -1,45 +1,39 @@
 from logging import getLogger
 
-from raptiformica.config.server import get_first_server_type
-from raptiformica.settings import PROJECT_DIR, INSTALL_DIR
-from raptiformica.utils import run_command
+from raptiformica.settings.server import get_first_server_type
+from raptiformica.shell.config import run_configured_bootstrap_command
+from raptiformica.shell.git import ensure_latest_source
+from raptiformica.shell.rsync import upload_self
+from raptiformica.utils import load_config
 
 log = getLogger(__name__)
 
 
-def upload_self(host, port=22):
+def retrieve_provisioning_config(server_type=get_first_server_type()):
     """
-    Upload the source code of the current raptiformica checkout to the remote host.
-    Excludes non-transferible var files like Virtual Machines (these should be ephemeral by nature)
+    Get the source, name and bootstrap command from the settings for the specified server type
+    :param str server_type: name of the server type. i.e. headless
+    :return tuple provisioning_config: tuple of source, name and bootstrap command
+    """
+    log.info("Retrieving provisioning config")
+    config = load_config()
+    source = config['server_types'][server_type]['source']
+    name = config['server_types'][server_type]['name']
+    command = config['server_types'][server_type]['bootstrap_command']
+    return source, name, command
+
+
+def provision(host, port=22, server_type=get_first_server_type()):
+    """
+    Ensure the remote machine is provisioned with the sources from the config file
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :return:
     """
-    upload_command = [
-        '/usr/bin/env', 'rsync', '-L', '-avz',
-        '{}'.format(PROJECT_DIR), 'root@{}:{}'.format(host, INSTALL_DIR),
-        '--exclude=var/machines', '--exclude', '*pyc',
-        '-e', 'ssh -p {}'.format(port)
-    ]
-    exit_code, standard_out, standard_error = run_command(upload_command)
-
-    if exit_code != 0:
-        raise RuntimeError(
-            "Something went wrong uploading raptiformica to the remote host:\n{}".format(
-                str(standard_error).replace('\\n', '\n')
-            ))
-    else:
-        log.debug(str(standard_out).replace('\\n', '\n'))
-        log.info("Uploaded raptiformica to the remote host")
-
-
-def provision(host, port=22):
-    """
-    Provision the machine with the sources from the config file
-    :param host:
-    :param port:
-    :return:
-    """
+    log.info("Provisioning host {} as server type {}".format(host, server_type))
+    source, name, command = retrieve_provisioning_config(server_type)
+    ensure_latest_source(source, name, host, port=port)
+    run_configured_bootstrap_command(command, name, host, port=port)
 
 
 def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_type()):
@@ -52,3 +46,4 @@ def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_t
     :return None:
     """
     upload_self(host, port=port)
+    provision(host, port=port, server_type=server_type)
