@@ -11,7 +11,7 @@ def clone_source_failure(process_output):
     """
     Log the clone failure error message
     :param tuple process_output: printable process_output
-    :return:
+    :return None:
     """
     _, _, standard_error = process_output
     log.warning("Failed to clone source: {}".format(standard_error))
@@ -24,7 +24,7 @@ def clone_source(url, directory, host, port=22):
     :param int port: port to use to connect to the remote machine over ssh
     :param str url: url to the repository to clone
     :param str directory: directory to clone it to
-    :return:
+    :return int exit_code: exit code of the clone source command
     """
     log.info("Cloning {} to {}".format(url, directory))
     clone_command = ['/usr/bin/env', 'git', 'clone', url, directory]

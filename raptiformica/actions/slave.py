@@ -28,7 +28,8 @@ def provision(host, port=22, server_type=get_first_server_type()):
     Ensure the remote machine is provisioned with the sources from the config file
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
-    :return:
+    :param str server_type: name of the server type. i.e. headless
+    :return None:
     """
     log.info("Provisioning host {} as server type {}".format(host, server_type))
     source, name, command = retrieve_provisioning_config(server_type)

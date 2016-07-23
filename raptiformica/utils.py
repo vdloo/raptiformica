@@ -119,12 +119,25 @@ def run_command_remotely_print_ready(command_as_list, host, port=22,
 
 
 def print_ready_callback_factory(callback):
+    """
+    Wrap a failure or success callback in a function that first
+    makes the process output printable and pass the newly
+    transformed process_output into the new function
+    :param func callback: success or failure callback
+    :return func print_ready_callback: callback with a printable process_output
+    """
     def print_ready_callback(process_output):
         callback(make_process_output_print_ready(process_output))
     return print_ready_callback
 
 
 def make_process_output_print_ready(process_output):
+    """
+    Make the process output ready to print in the terminal
+    as if the process was writing to standard out directly
+    :return tuple process_output: the raw process_output
+    :param tuple process_output: printable process_output
+    """
     def un_escape_newlines(output):
         return output.decode('unicode_escape')
     exit_code, standard_out, standard_error = process_output
