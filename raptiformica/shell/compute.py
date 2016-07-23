@@ -1,0 +1,110 @@
+from logging import getLogger
+from os import path
+from uuid import uuid4
+
+from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
+from raptiformica.shell.git import clone_source_locally
+from raptiformica.shell.execute import log_success_factory, raise_failure_factory, \
+    run_command_print_ready_in_directory_factory
+from raptiformica.utils import ensure_directory
+
+log = getLogger(__name__)
+
+
+def ensure_compute_type_machines_directory_exists(compute_type):
+    """
+    Ensure the ephemeral directory structure for a compute type
+    :param str compute_type: name of the compute type
+    :return str compute_type_directory: directory for the compute type
+    """
+    compute_type_directory = path.join(MACHINES_DIR, compute_type)
+    for directory in EPHEMERAL_DIR, MACHINES_DIR, compute_type_directory:
+        ensure_directory(directory)
+    return compute_type_directory
+
+
+def create_new_compute_type_directory(compute_type, source):
+    """
+    Create a new directory for an instance of the compute type
+    :param str compute_type: name of the compute type
+    :param str source: repository for the compute type
+    :return str new_compute_directory: directory of the new checkout
+    """
+    compute_type_directory = ensure_compute_type_machines_directory_exists(
+        compute_type
+    )
+    new_compute_checkout = path.join(compute_type_directory, uuid4().hex)
+    clone_source_locally(source, new_compute_checkout)
+    return new_compute_checkout
+
+
+def boot_instance(new_compute_checkout, command):
+    """
+    Run the start instance command
+    :param str new_compute_checkout: path to the new compute checkout
+    :param str command: start instance command
+    :return tuple connection_information: host and port
+    """
+    log.info("Booting new instance, this can take a while..")
+    partial_run_command_print_ready = run_command_print_ready_in_directory_factory(
+        new_compute_checkout, command
+    )
+    exit_code, _, _ = partial_run_command_print_ready(
+        success_callback=log_success_factory(
+            "Booted a new instance of the compute type"
+        ),
+        failure_callback=raise_failure_factory(
+            "Failed to start the compute type"
+        ),
+        buffered=False
+    )
+    return exit_code
+
+
+def compute_attribute_get(new_compute_checkout, getter_command, attribute_description):
+    """
+    Get an attribute of the new compute checkout by running the getter_command in the new checkout directory
+    :param str new_compute_checkout: path to the new compute checkout
+    :param str getter_command: command that gets an attribute of the new compute instance
+    Example: cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'
+    :param attribute_description: how to refer to the attribute as in the logs. i.e. hostname
+    :return str standard_out: the output from the getter_command
+    """
+    log.info("Getting the {} from the instance bound to {}".format(
+        attribute_description, new_compute_checkout
+    ))
+    partial_run_command_print_ready = run_command_print_ready_in_directory_factory(
+        new_compute_checkout, getter_command
+    )
+    _, standard_out, _ = partial_run_command_print_ready(
+        failure_callback=raise_failure_factory(
+            "Failed to get {} in {}!".format(
+                attribute_description, new_compute_checkout
+            )
+        ),
+    )
+    return standard_out.strip()
+
+
+def start_instance(compute_type, source, boot_command, get_hostname_command, get_port_command):
+    """
+    Start a compute instance
+    :param str compute_type: name of the compute type
+    :param str source: repository for the compute type
+    :param str boot_command: start instance command
+    :param str get_hostname_command: get hostname command
+    :param str get_port_command: get port command
+    :return tuple connection_information: host and port
+    """
+    log.info("Starting a new {} instance".format(compute_type))
+    new_compute_checkout = create_new_compute_type_directory(
+        compute_type, source
+    )
+    boot_instance(new_compute_checkout, boot_command)
+    host = compute_attribute_get(
+        new_compute_checkout, get_hostname_command, "hostname"
+    )
+    port = compute_attribute_get(
+        new_compute_checkout, get_port_command, "port"
+    )
+    return host, port

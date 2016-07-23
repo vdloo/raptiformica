@@ -1,0 +1,50 @@
+{
+  "compute_types":
+  {
+    "vagrant":
+    {
+      "headless":
+      {
+        "source": "https://github.com/vdloo/vagrantfiles",
+        "start_instance_command": "cd headless && vagrant up --provider=virtualbox",
+        "hostname_get_command": "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'",
+        "port_get_command": "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'"
+      },
+      "workstation":
+      {
+        "source": "https://github.com/vdloo/vagrantfiles",
+        "start_instance_command": "cd gui && vagrant up --provider=virtualbox",
+        "hostname_get_command": "cd gui && vagrant ssh-config | grep HostName | awk '{print$NF}'",
+        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'"
+      },
+      "htpc":
+      {
+        "source": "https://github.com/vdloo/vagrantfiles",
+        "start_instance_command": "cd gui && vagrant up --provider=virtualbox",
+        "hostname_get_command": "cd gui && vagrant ssh-config | grep HostName | awk '{print$NF}'",
+        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'"
+      }
+    }
+  },
+  "server_types":
+  {
+    "headless":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/headless.pp"
+    },
+    "workstation":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/workstation.pp"
+    },
+    "htpc":
+    {
+      "source": "https://github.com/vdloo/puppetfiles",
+      "name": "puppetfiles",
+      "bootstrap_command": "./papply.sh manifests/htpc.pp"
+    }
+  }
+}

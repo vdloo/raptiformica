@@ -1,10 +1,10 @@
 from logging import getLogger
 
-from raptiformica.settings.server import get_first_server_type
+from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_configured_bootstrap_command
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.rsync import upload_self
-from raptiformica.utils import load_config
+from raptiformica.settings.load import load_config
 
 log = getLogger(__name__)
 
@@ -15,7 +15,7 @@ def retrieve_provisioning_config(server_type=get_first_server_type()):
     :param str server_type: name of the server type. i.e. headless
     :return tuple provisioning_config: tuple of source, name and bootstrap command
     """
-    log.info("Retrieving provisioning config")
+    log.debug("Retrieving provisioning config")
     config = load_config()
     source = config['server_types'][server_type]['source']
     name = config['server_types'][server_type]['name']
@@ -46,5 +46,6 @@ def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_t
     :param str server_type: name of the server type to provision the machine as
     :return None:
     """
+    log.info("Slaving machine {}".format(host))
     upload_self(host, port=port)
     provision(host, port=port, server_type=server_type)

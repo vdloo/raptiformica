@@ -1,5 +1,5 @@
 from raptiformica.actions.slave import retrieve_provisioning_config
-from raptiformica.settings.server import get_first_server_type
+from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
 
@@ -26,7 +26,7 @@ class TestRetrieveProvisioningConfig(TestCase):
     def test_retrieve_provisioning_config_logs_retrieving_config_message(self):
         retrieve_provisioning_config()
 
-        self.log.info.assert_called_once_with("Retrieving provisioning config")
+        self.log.debug.assert_called_once_with("Retrieving provisioning config")
 
     def test_retrieve_provisioning_config_loads_config(self):
         retrieve_provisioning_config()

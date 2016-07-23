@@ -1,5 +1,5 @@
 from raptiformica.actions.slave import provision
-from raptiformica.settings.server import get_first_server_type
+from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
 
