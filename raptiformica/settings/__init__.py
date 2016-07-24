@@ -1,5 +1,7 @@
-import os
+from os.path import dirname, realpath, join
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+PROJECT_DIR = join(dirname(dirname(dirname(realpath(__file__)))))
 INSTALL_DIR = '/usr/etc/'
-BASE_CONFIG = os.path.join(PROJECT_DIR, 'base_config.json')
+EPHEMERAL_DIR = join(PROJECT_DIR, 'var')
+MACHINES_DIR = join(EPHEMERAL_DIR, 'machines')
+BASE_CONFIG = join(PROJECT_DIR, 'base_config.json')

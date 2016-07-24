@@ -1,13 +1,15 @@
-from raptiformica.shell.git import pull_origin_master, pull_origin_master_failure
+from raptiformica.shell.git import pull_origin_master
 from tests.testcase import TestCase
 
 
 class TestPullOriginMaster(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.git.log')
-        self.run_command_remotely_print_ready = self.set_up_patch(
-                'raptiformica.shell.git.run_command_remotely_print_ready'
+        self.execute_process = self.set_up_patch(
+            'raptiformica.shell.execute.execute_process'
         )
+        self.process_output = (0, 'standard out output', '')
+        self.execute_process.return_value = self.process_output
 
     def test_that_pull_origin_master_logs_pulling_origin_master_message(self):
         pull_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
@@ -18,18 +20,17 @@ class TestPullOriginMaster(TestCase):
         pull_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
         expected_command = [
-            'cd', '/usr/etc/puppetfiles', ';',
-            '/usr/bin/env', 'git', 'pull',
-            'origin', 'master'
+            '/usr/bin/env', 'ssh', 'root@1.2.3.4',
+            '-p', '22', 'cd', '/usr/etc/puppetfiles',
+            ';', '/usr/bin/env', 'git',
+            'pull', 'origin', 'master'
         ]
-        self.run_command_remotely_print_ready.assert_called_once_with(
+        self.execute_process.assert_called_once_with(
             expected_command,
-            '1.2.3.4',
-            port=22,
-            failure_callback=pull_origin_master_failure
+            buffered=True
         )
 
     def test_that_pull_origin_master_returns_pull_origin_master_exit_code(self):
         ret = pull_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
-        self.assertEqual(ret, self.run_command_remotely_print_ready.return_value)
+        self.assertEqual(ret, 0)

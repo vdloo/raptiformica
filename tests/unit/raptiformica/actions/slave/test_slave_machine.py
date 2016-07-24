@@ -1,12 +1,18 @@
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings.server import get_first_server_type
+from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
 
 class TestSlaveMachine(TestCase):
     def setUp(self):
+        self.log = self.set_up_patch('raptiformica.actions.slave.log')
         self.upload_self = self.set_up_patch('raptiformica.actions.slave.upload_self')
         self.provision = self.set_up_patch('raptiformica.actions.slave.provision')
+
+    def test_slave_machine_logs_slaving_machine_message(self):
+        slave_machine('1.2.3.4')
+
+        self.assertTrue(self.log.info.called)
 
     def test_slave_machine_uploads_raptiformica_to_the_remote_host(self):
         slave_machine('1.2.3.4')

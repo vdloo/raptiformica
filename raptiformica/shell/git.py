@@ -1,23 +1,43 @@
+from functools import partial
 from os import path
 from logging import getLogger
 
 from raptiformica.settings import INSTALL_DIR
-from raptiformica.utils import run_command_remotely, run_command_remotely_print_ready
+from raptiformica.shell.execute import run_command_remotely, run_command_remotely_print_ready, run_command_print_ready, \
+    log_failure_factory
 
 log = getLogger(__name__)
 
 
-def clone_source_failure(process_output):
+def execute_clone_source_command(url, directory, run_command_function):
     """
-    Log the clone failure error message
-    :param tuple process_output: printable process_output
-    :return None:
+    Pass a clone command to the run_command_function
+    :param str url: url to the repository to clone
+    :param str directory: directory to clone it to
+    :param func run_command_function: function to pass the clone command to
+    :return int exit_code: exit code of the clone source command
     """
-    _, _, standard_error = process_output
-    log.warning("Failed to clone source: {}".format(standard_error))
+    log.info("Cloning {} to {}".format(url, directory))
+    clone_command = ['/usr/bin/env', 'git', 'clone', url, directory]
+    exit_code, _, _ = run_command_function(
+        clone_command,
+        failure_callback=log_failure_factory("Failed to clone source"),
+        buffered=False
+    )
+    return exit_code
 
 
-def clone_source(url, directory, host, port=22):
+def clone_source_locally(url, directory):
+    """
+    Clone a repository to a directory on the local host
+    :param str url: url to the repository to clone
+    :param str directory: directory to clone it to
+    :return int exit_code: exit code of the clone source command
+    """
+    return execute_clone_source_command(url, directory, run_command_print_ready)
+
+
+def clone_source_remotely(url, directory, host, port=22):
     """
     Clone a repository to a directory on the remote host
     :param str host: hostname or ip of the remote machine
@@ -26,19 +46,12 @@ def clone_source(url, directory, host, port=22):
     :param str directory: directory to clone it to
     :return int exit_code: exit code of the clone source command
     """
-    log.info("Cloning {} to {}".format(url, directory))
-    clone_command = ['/usr/bin/env', 'git', 'clone', url, directory]
-    return run_command_remotely_print_ready(clone_command, host, port=port, failure_callback=clone_source_failure)
-
-
-def pull_origin_master_failure(process_output):
-    """
-    Log the pull origin master failure error message
-    :param tuple process_output: printable process_output
-    :return None:
-    """
-    _, _, standard_error = process_output
-    log.warning("Failed to pull origin master: {}".format(standard_error))
+    run_command_remotely_print_ready_partial = partial(
+        run_command_remotely_print_ready, host=host, port=port
+    )
+    return execute_clone_source_command(
+        url, directory, run_command_remotely_print_ready_partial
+    )
 
 
 def pull_origin_master(directory, host, port=22):
@@ -54,20 +67,13 @@ def pull_origin_master(directory, host, port=22):
         'cd', directory, ';',
         '/usr/bin/env', 'git', 'pull', 'origin', 'master'
     ]
-    return run_command_remotely_print_ready(pull_origin_master_command, host, port=port,
-                                            failure_callback=pull_origin_master_failure)
-
-
-def reset_hard_origin_master_failure(process_output):
-    """
-    Log the reset --hard origin/master failure error message
-    :param tuple process_output: printable process_output
-    :return None:
-    """
-    _, _, standard_error = process_output
-    log.warning(
-        "Failed to reset --hard origin/master: {}".format(standard_error)
+    exit_code, _, _ = run_command_remotely_print_ready(
+        pull_origin_master_command, host, port=port,
+        failure_callback=log_failure_factory(
+            "Failed to pull origin master"
+        )
     )
+    return exit_code
 
 
 def reset_hard_origin_master(directory, host, port=22):
@@ -83,8 +89,13 @@ def reset_hard_origin_master(directory, host, port=22):
         'cd', directory, ';',
         '/usr/bin/env', 'git', 'reset', '--hard', 'origin/master'
     ]
-    return run_command_remotely_print_ready(reset_hard_origin_master_command, host, port=port,
-                                            failure_callback=reset_hard_origin_master_failure)
+    exit_code, _, _ = run_command_remotely_print_ready(
+        reset_hard_origin_master_command, host, port=port,
+        failure_callback=log_failure_factory(
+            "Failed to reset --hard origin/master"
+        )
+    )
+    return exit_code
 
 
 def update_source(directory, host, port=22):
@@ -112,7 +123,7 @@ def ensure_latest_source_failure_factory(source, provisioning_directory, host, p
     """
     def ensure_latest_source_failure(_):
         log.info("Provisioning directory does not exist yet")
-        clone_source(source, provisioning_directory, host, port=port)
+        clone_source_remotely(source, provisioning_directory, host, port=port)
     return ensure_latest_source_failure
 
 
@@ -146,11 +157,14 @@ def ensure_latest_source(source, name, host, port=22):
     log.info("Ensuring latest source for {} from {}".format(name, source))
     provisioning_directory = path.join(INSTALL_DIR, name)
     test_directory_exists_command = ['test', '-d', provisioning_directory]
-    failure_callback = ensure_latest_source_failure_factory(
-        source, provisioning_directory, host, port=port
+
+    exit_code, _, _ = run_command_remotely(
+        test_directory_exists_command, host, port=port,
+        success_callback=ensure_latest_source_success_factory(
+            provisioning_directory, host, port=port
+        ),
+        failure_callback=ensure_latest_source_failure_factory(
+            source, provisioning_directory, host, port=port
+        )
     )
-    success_callback = ensure_latest_source_success_factory(
-        provisioning_directory, host, port=port
-    )
-    return run_command_remotely(test_directory_exists_command, host, port=port,
-                                success_callback=success_callback, failure_callback=failure_callback)
+    return exit_code

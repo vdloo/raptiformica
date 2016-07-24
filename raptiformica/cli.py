@@ -1,7 +1,9 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings.server import get_server_types, get_first_server_type
+from raptiformica.actions.spawn import spawn_machine
+from raptiformica.settings.types import get_server_types, get_first_server_type, get_first_compute_type, \
+    get_compute_types
 from raptiformica.log import setup_logging
 
 
@@ -19,7 +21,8 @@ def parse_arguments(parser):
 
 def parse_slave_arguments():
     """
-    Parse the commandline options for provisioning and joining a machine into the network
+    Parse the commandline options for provisioning and assimilating a machine
+    into the network
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
@@ -39,10 +42,45 @@ def parse_slave_arguments():
 
 def slave():
     """
-    Provision and join a machine into the network
+    Provision and assimilate a machine into the network
     :return None:
     """
     args = parse_slave_arguments()
     slave_machine(
-        args.host, port=args.port, assimilate=not args.no_assimilate, server_type=args.server_type
+        args.host,
+        port=args.port,
+        assimilate=not args.no_assimilate,
+        server_type=args.server_type
+    )
+
+
+def parse_spawn_arguments():
+    """
+    Parse the commandline options for spawning a machine
+    :return dict args: parsed arguments
+    """
+    parser = ArgumentParser(
+        description='Spawn a machine to slave and assimilate into the network'
+    )
+    parser.add_argument('--no-assimilate', action='store_true', default=False,
+                        help='Only provision. Do not join or set up the distributed network.')
+    parser.add_argument('--server-type', type=str, default=get_first_server_type(),
+                        choices=get_server_types(),
+                        help='Specify a server type. Default is {}'.format(get_first_server_type()))
+    parser.add_argument('--compute-type', type=str, default=get_first_compute_type(),
+                        choices=get_compute_types(),
+                        help='Specify a compute type. Default is {}'.format(get_first_compute_type()))
+    return parse_arguments(parser)
+
+
+def spawn():
+    """
+    Spawn a machine to package or to slave into the network
+    :return None:
+    """
+    args = parse_spawn_arguments()
+    spawn_machine(
+        assimilate=not args.no_assimilate,
+        server_type=args.server_type,
+        compute_type=args.compute_type,
     )

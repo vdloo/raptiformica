@@ -6,6 +6,7 @@ class TestEnsureLatestSource(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.git.log')
         self.run_command_remotely = self.set_up_patch('raptiformica.shell.git.run_command_remotely')
+        self.run_command_remotely.return_value = (0, 'standard out output', None)
         self.ensure_latest_source_success_factory = self.set_up_patch(
                 'raptiformica.shell.git.ensure_latest_source_success_factory'
         )
@@ -64,4 +65,4 @@ class TestEnsureLatestSource(TestCase):
                 "puppetfiles", '1.2.3.4', port=22,
         )
 
-        self.assertEqual(ret, self.run_command_remotely.return_value)
+        self.assertEqual(ret, 0)

@@ -8,7 +8,7 @@ class TestSlave(TestCase):
     def setUp(self):
         self.parse_slave_arguments = self.set_up_patch('raptiformica.cli.parse_slave_arguments')
         self.parse_slave_arguments.return_value = Mock(
-                host='1.2.3.4', port=22, server_type='headless', no_assimilate=False
+            no_assimilate=False, host='1.2.3.4', port=22, server_type='headless'
         )
         self.slave_machine = self.set_up_patch('raptiformica.cli.slave_machine')
 

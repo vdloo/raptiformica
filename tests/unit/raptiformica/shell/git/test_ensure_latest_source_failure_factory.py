@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestEnsureLatestSourceFailureFactory(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.git.log')
-        self.clone_source = self.set_up_patch('raptiformica.shell.git.clone_source')
+        self.clone_source_remotely = self.set_up_patch('raptiformica.shell.git.clone_source_remotely')
         self.process_output = (1, 'standard out output', 'standard error output')
 
     def test_that_ensure_latest_source_failure_factory_returns_function_that_logs_failure_message(self):
@@ -28,7 +28,7 @@ class TestEnsureLatestSourceFailureFactory(TestCase):
         )
         func(self.process_output)
 
-        self.clone_source.assert_called_once_with(
+        self.clone_source_remotely.assert_called_once_with(
             'https://github.com/vdloo/puppetfiles',
             '/usr/etc/puppetfiles',
             '1.2.3.4',
