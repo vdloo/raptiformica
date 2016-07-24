@@ -22,7 +22,8 @@ class TestRunConfiguredBootstrapCommand(TestCase):
 
         expected_remote_command = [
             '/usr/bin/env', 'ssh', 'root@1.2.3.4',
-            '-p', '2222', 'cd', '/usr/etc/puppetfiles',
+            '-p', '2222', '-o', 'StrictHostKeyChecking=no',
+            'cd', '/usr/etc/puppetfiles',
             ';', './papply.sh manifests/headless.pp'
         ]
         self.execute_process.assert_called_once_with(

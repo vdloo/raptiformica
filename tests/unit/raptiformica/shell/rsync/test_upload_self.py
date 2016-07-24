@@ -23,7 +23,7 @@ class TestUploadSelf(TestCase):
         expected_upload_command = [
             '/usr/bin/env', 'rsync', '-L', '-avz', PROJECT_DIR,
             'root@1.2.3.4:{}'.format(INSTALL_DIR), '--exclude=var/machines',
-            '--exclude', '*.pyc', '-e', 'ssh -p 22'
+            '--exclude', '*.pyc', '-e', 'ssh -p 22 -oStrictHostKeyChecking=no'
         ]
         self.execute_process.assert_called_once_with(
             expected_upload_command,
