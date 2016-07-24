@@ -21,7 +21,8 @@ class TestPullOriginMaster(TestCase):
 
         expected_command = [
             '/usr/bin/env', 'ssh', 'root@1.2.3.4',
-            '-p', '22', 'cd', '/usr/etc/puppetfiles',
+            '-p', '22', '-o', 'StrictHostKeyChecking=no',
+            'cd', '/usr/etc/puppetfiles',
             ';', '/usr/bin/env', 'git',
             'pull', 'origin', 'master'
         ]
