@@ -30,22 +30,22 @@
       "headless":
       {
         "source": "https://github.com/vdloo/dockerfiles",
-        "start_instance_command": "/bin/true",
-        "hostname_get_command": "bash -c \"cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(sudo docker run --privileged -d raptiformica-baseimage && sleep 3)\" | tail -n 1",
+        "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 3",
+        "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
         "port_get_command": "echo 22"
       },
       "workstation":
       {
         "source": "https://github.com/vdloo/dockerfiles",
-        "start_instance_command": "/bin/true",
-        "hostname_get_command": "bash -c \"cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(sudo docker run --privileged -d raptiformica-baseimage && sleep 3)\" | tail -n 1",
+        "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 3",
+        "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
         "port_get_command": "echo 22"
       },
       "htpc":
       {
         "source": "https://github.com/vdloo/dockerfiles",
-        "start_instance_command": "/bin/true",
-        "hostname_get_command": "bash -c \"cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(sudo docker run --privileged -d raptiformica-baseimage && sleep 3)\" | tail -n 1",
+        "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 3",
+        "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
         "port_get_command": "echo 22"
       }
     }

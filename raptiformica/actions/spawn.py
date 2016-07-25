@@ -4,6 +4,7 @@ from raptiformica.actions.slave import slave_machine
 from raptiformica.settings.load import load_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type
 from raptiformica.shell.compute import start_instance
+from raptiformica.shell.ssh import verify_ssh_agent_running
 
 log = getLogger(__name__)
 
@@ -90,7 +91,7 @@ def spawn_machine(assimilate=False, server_type=get_first_server_type(), compute
     log.info("Spawning machine of server type {} with compute type {}".format(
         server_type, compute_type
     ))
-
+    verify_ssh_agent_running()
     host, port = start_compute_type(
         server_type=server_type, compute_type=compute_type
     )
