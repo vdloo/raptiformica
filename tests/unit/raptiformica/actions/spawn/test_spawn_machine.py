@@ -7,6 +7,7 @@ from tests.testcase import TestCase
 class TestSpawnMachine(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.spawn.log')
+        self.verify_ssh_agent_running = self.set_up_patch('raptiformica.actions.spawn.verify_ssh_agent_running')
         self.start_compute_type = self.set_up_patch('raptiformica.actions.spawn.start_compute_type')
         self.start_compute_type.return_value = ('127.0.0.1', 2222)
         self.slave_machine = self.set_up_patch('raptiformica.actions.spawn.slave_machine')
@@ -15,6 +16,11 @@ class TestSpawnMachine(TestCase):
         spawn_machine()
 
         self.assertTrue(self.log.info.called)
+
+    def test_spawn_machine_verifies_ssh_agent_running(self):
+        spawn_machine()
+
+        self.verify_ssh_agent_running.assert_called_once_with()
 
     def test_spawn_machine_starts_compute_type_with_default_server_type_and_compute_type(self):
         spawn_machine()

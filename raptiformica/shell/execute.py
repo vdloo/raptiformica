@@ -14,7 +14,7 @@ def raise_failure_factory(message):
     """
     def raise_failure(process_output):
         _, _, standard_error = process_output
-        raise RuntimeError("{}: {}".format(message, standard_error))
+        raise RuntimeError("{}\n{}".format(message, standard_error))
     return raise_failure
 
 
@@ -31,7 +31,7 @@ def log_failure_factory(message):
         :return None:
         """
         _, _, standard_error = process_output
-        log.warning("{}: {}".format(message, standard_error))
+        log.warning("{}\n{}".format(message, standard_error))
     return log_failure
 
 
