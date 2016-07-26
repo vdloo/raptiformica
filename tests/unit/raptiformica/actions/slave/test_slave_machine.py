@@ -8,6 +8,7 @@ class TestSlaveMachine(TestCase):
         self.log = self.set_up_patch('raptiformica.actions.slave.log')
         self.upload_self = self.set_up_patch('raptiformica.actions.slave.upload_self')
         self.provision = self.set_up_patch('raptiformica.actions.slave.provision')
+        self.assimilate_machine = self.set_up_patch('raptiformica.actions.slave.assimilate_machine')
 
     def test_slave_machine_logs_slaving_machine_message(self):
         slave_machine('1.2.3.4')
@@ -33,3 +34,13 @@ class TestSlaveMachine(TestCase):
         slave_machine('1.2.3.4', port=2222, server_type='headless')
 
         self.provision.assert_called_once_with('1.2.3.4', port=2222, server_type='headless')
+
+    def test_slave_machine_assimilates_machine_if_assimilate(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=True)
+
+        self.assimilate_machine.assert_called_once_with('1.2.3.4', port=2222)
+
+    def test_slave_machine_does_not_assimilate_if_assimilate_is_false(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=False)
+
+        self.assertFalse(self.assimilate_machine.called)

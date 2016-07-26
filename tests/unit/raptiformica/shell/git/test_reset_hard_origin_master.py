@@ -20,8 +20,11 @@ class TestResetHardOriginMaster(TestCase):
         reset_hard_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
         expected_command = [
-            '/usr/bin/env', 'ssh', 'root@1.2.3.4',
-            '-p', '22', '-o', 'StrictHostKeyChecking=no',
+           '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            'root@1.2.3.4',
+            '-p', '22',
             'cd', '/usr/etc/puppetfiles',
             ';', '/usr/bin/env', 'git',
             'reset', '--hard', 'origin/master'

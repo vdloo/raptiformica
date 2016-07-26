@@ -28,8 +28,10 @@ class TestCloneSourceRemotely(TestCase):
         )
 
         expected_command = [
-            '/usr/bin/env', 'ssh', 'root@127.0.0.1', '-p', '2222',
+            '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            'root@127.0.0.1', '-p', '2222',
             '/usr/bin/env', 'git', 'clone',
             'https://github.com/vdloo/puppetfiles',
             '/usr/etc/puppetfiles'

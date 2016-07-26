@@ -1,6 +1,5 @@
 from functools import partial
 from subprocess import Popen, PIPE
-
 from logging import getLogger
 
 log = getLogger(__name__)
@@ -181,8 +180,9 @@ def run_command_remotely(command_as_list, host, port=22,
     :return tuple process_output (exit code, standard out, standard error):
     """
     ssh_command_as_list = ['/usr/bin/env', 'ssh',
-                           'root@{}'.format(host), '-p', str(port),
-                           '-o', 'StrictHostKeyChecking=no']
+                           '-o', 'StrictHostKeyChecking=no',
+                           '-o', 'UserKnownHostsFile=/dev/null',
+                           'root@{}'.format(host), '-p', str(port)]
     return run_command(
         ssh_command_as_list + command_as_list,
         success_callback=success_callback, failure_callback=failure_callback,
