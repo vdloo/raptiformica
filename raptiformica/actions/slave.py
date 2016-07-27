@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from raptiformica.settings.types import get_first_server_type
+from raptiformica.shell.cjdns import ensure_cjdns_installed
 from raptiformica.shell.config import run_configured_bootstrap_command
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.rsync import upload_self
@@ -37,6 +38,17 @@ def provision(host, port=22, server_type=get_first_server_type()):
     run_configured_bootstrap_command(command, name, host, port=port)
 
 
+def assimilate_machine(host, port=22):
+    """
+    Join the machine in the distributed network
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return None:
+    """
+    log.info("Joining the machine into the distributed network")
+    ensure_cjdns_installed(host, port=port)
+
+
 def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_type()):
     """
     Provision the remote machine and optionally (default yes) assimilate it into the network.
@@ -49,3 +61,5 @@ def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_t
     log.info("Slaving machine {}".format(host))
     upload_self(host, port=port)
     provision(host, port=port, server_type=server_type)
+    if assimilate:
+        assimilate_machine(host, port=port)

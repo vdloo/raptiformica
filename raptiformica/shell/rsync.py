@@ -19,7 +19,9 @@ def upload_self(host, port=22):
         '/usr/bin/env', 'rsync', '-L', '-avz',
         PROJECT_DIR, 'root@{}:{}'.format(host, INSTALL_DIR),
         '--exclude=var/machines', '--exclude', '*.pyc',
-        '-e', 'ssh -p {} -oStrictHostKeyChecking=no'.format(port)
+        '-e', 'ssh -p {} '
+              '-oStrictHostKeyChecking=no '
+              '-oUserKnownHostsFile=/dev/null'.format(port)
     ]
     exit_code, _, _ = run_command_print_ready(
         upload_command,

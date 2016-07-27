@@ -21,8 +21,10 @@ class TestRunConfiguredBootstrapCommand(TestCase):
         run_configured_bootstrap_command(self.bootstrap_command, 'puppetfiles', '1.2.3.4', port=2222)
 
         expected_remote_command = [
-            '/usr/bin/env', 'ssh', 'root@1.2.3.4',
-            '-p', '2222', '-o', 'StrictHostKeyChecking=no',
+            '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            'root@1.2.3.4', '-p', '2222',
             'cd', '/usr/etc/puppetfiles',
             ';', './papply.sh manifests/headless.pp'
         ]
