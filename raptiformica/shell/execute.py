@@ -210,3 +210,67 @@ def run_command_remotely_print_ready(command_as_list, host, port=22,
         failure_callback=print_ready_callback_factory(failure_callback),
         buffered=buffered
     )
+
+
+def run_critical_command_remotely_print_ready(command_as_list, host, port=22, buffered=True,
+                                              failure_message='Command failed'):
+    """
+    A wrapper around run_command_print_ready but with a failure callback specified.
+    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :param str failure_message: message to include in the raised failure
+    if the exit code is nonzero
+    :param bool buffered: Store output in a variable instead of printing it live
+    :return tuple process_output (exit code, standard out, standard error):
+    """
+    return run_command_remotely_print_ready(
+        command_as_list,
+        host, port=port,
+        failure_callback=raise_failure_factory(
+            failure_message
+        ),
+        buffered=buffered
+    )
+
+
+def run_critical_unbuffered_command_remotely_print_ready(command_as_list, host, port=22,
+                                                         failure_message='Command failed'):
+    """
+    Wrapper around run_critical_command_remotely_print_ready but with output to
+    standard out instead of capturing it.
+    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :param str failure_message: message to include in the raised failure
+    if the exit code is nonzero
+    :param bool buffered: Store output in a variable instead of printing it live
+    :return tuple process_output (exit code, standard out, standard error):
+    """
+    return run_critical_command_remotely_print_ready(
+        command_as_list, host, port=port,
+        failure_message=failure_message,
+        buffered=False
+    )
+
+
+def run_remote_multiple_labeled_commands(distro_command_iterable, host, port=22,
+                                         failure_message='Command failed for label {}'):
+    """
+    Takes a iterable of iterables with label and command_as_string and runs the
+    command remotely and unbuffered, raising an error if it fails.
+
+
+    :param iterable[iterable] distro_command_iterable: iterable of pairs containing
+    label and a command as string
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :param str failure_message: message to include in the raised failure
+    if the exit code is nonzero. Should contain a {} to format the label.
+    :return None
+    """
+    for label, command_as_string in distro_command_iterable:
+        run_critical_unbuffered_command_remotely_print_ready(
+            ["sh", "-c", command_as_string], host, port=port,
+            failure_message=failure_message.format(label)
+        )
