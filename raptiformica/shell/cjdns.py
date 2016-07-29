@@ -1,7 +1,7 @@
 from os import path
 from logging import getLogger
 
-from raptiformica.settings import INSTALL_DIR, SCRIPTS_DIR, RAPTIFORMICA_DIR
+from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
 from raptiformica.shell.execute import raise_failure_factory, run_command_remotely_print_ready
 from raptiformica.shell.git import ensure_latest_source
 

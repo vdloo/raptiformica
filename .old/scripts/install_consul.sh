@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 set -e
+echo "changing directory to /usr/etc/consul"
+cd /usr/etc/consul
 echo "ensuring dependencies are installed"
 type -p apt-get 1> /dev/null && (apt-get install -yy wget unzip)
 

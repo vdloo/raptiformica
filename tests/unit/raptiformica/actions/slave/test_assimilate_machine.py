@@ -6,6 +6,7 @@ class TestAssimilateMachine(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.slave.log')
         self.ensure_cjdns_installed = self.set_up_patch('raptiformica.actions.slave.ensure_cjdns_installed')
+        self.ensure_consul_installed = self.set_up_patch('raptiformica.actions.slave.ensure_consul_installed')
 
     def test_assimilate_machine_logs_assimilating_machine_message(self):
         assimilate_machine('1.2.3.4', port=2222)
@@ -17,3 +18,7 @@ class TestAssimilateMachine(TestCase):
 
         self.ensure_cjdns_installed.assert_called_once_with('1.2.3.4', port=2222)
 
+    def test_assimilate_machine_ensures_consul_is_installed(self):
+        assimilate_machine('1.2.3.4', port=2222)
+
+        self.ensure_consul_installed.assert_called_once_with('1.2.3.4', port=2222)

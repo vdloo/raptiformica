@@ -3,6 +3,7 @@ from logging import getLogger
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.cjdns import ensure_cjdns_installed
 from raptiformica.shell.config import run_configured_bootstrap_command
+from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.rsync import upload_self
 from raptiformica.settings.load import load_config
@@ -47,6 +48,7 @@ def assimilate_machine(host, port=22):
     """
     log.info("Joining the machine into the distributed network")
     ensure_cjdns_installed(host, port=port)
+    ensure_consul_installed(host, port=port)
 
 
 def slave_machine(host, port=22, assimilate=True, server_type=get_first_server_type()):
