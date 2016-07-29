@@ -1,7 +1,7 @@
 from logging import getLogger
 
-from raptiformica.shell.execute import raise_failure_factory
-from raptiformica.shell.execute import run_command_remotely_print_ready
+from raptiformica.shell.execute import run_critical_unbuffered_command_remotely_print_ready, \
+    run_remote_multiple_labeled_commands
 
 log = getLogger(__name__)
 
@@ -25,16 +25,11 @@ def ensure_consul_dependencies(host, port=22):
                    '(apt-get update -yy && '
                    'apt-get install -yy wget unzip) || /bin/true"')
     )
-    for d, command_as_string in ensure_consul_dependencies_commands:
-        run_command_remotely_print_ready(
-            ["sh", "-c", command_as_string],
-            host, port=port,
-            failure_callback=raise_failure_factory(
-                "Failed to run (if {}) install consul "
-                "dependencies command".format(d)
-            ),
-            buffered=False
-        )
+    run_remote_multiple_labeled_commands(
+        ensure_consul_dependencies_commands, host, port=port,
+        failure_message="Failed to run (if {}) install consul "
+                        "dependencies command"
+    )
 
 
 def ensure_latest_consul_release(host, port=22):
@@ -46,13 +41,9 @@ def ensure_latest_consul_release(host, port=22):
     """
     log.info("Ensuring consul release {} is on disk "
              "on the remote machine".format(CONSUL_RELEASE.split('/')[-1]))
-    run_command_remotely_print_ready(
-        ['wget', '-nc', CONSUL_RELEASE],
-        host, port=port,
-        failure_callback=raise_failure_factory(
-            "Failed to retrieve latest consul release"
-        ),
-        buffered=False
+    run_critical_unbuffered_command_remotely_print_ready(
+        ['wget', '-nc', CONSUL_RELEASE], host, port=port,
+        failure_message="Failed to retrieve latest consul release"
     )
 
 
@@ -64,14 +55,9 @@ def unzip_consul_release(host, port=22):
     :return None:
     """
     log.info("Making sure the consul binary is placed in /usr/bin")
-    run_command_remotely_print_ready(
-        ['unzip', '-o', CONSUL_RELEASE.split('/')[-1],
-         '-d', '/usr/bin'],
-        host, port=port,
-        failure_callback=raise_failure_factory(
-            "Failed to unzip latest consul release"
-        ),
-        buffered=False
+    run_critical_unbuffered_command_remotely_print_ready(
+        ['unzip', '-o', CONSUL_RELEASE.split('/')[-1], '-d', '/usr/bin'],
+        host, port=port, failure_message="Failed to retrieve latest consul release"
     )
 
 
