@@ -8,7 +8,8 @@ class TestSlave(TestCase):
     def setUp(self):
         self.parse_slave_arguments = self.set_up_patch('raptiformica.cli.parse_slave_arguments')
         self.parse_slave_arguments.return_value = Mock(
-            no_assimilate=False, host='1.2.3.4', port=22, server_type='headless'
+            no_provision=False, no_assimilate=False,
+            host='1.2.3.4', port=22, server_type='headless'
         )
         self.slave_machine = self.set_up_patch('raptiformica.cli.slave_machine')
 
@@ -21,18 +22,32 @@ class TestSlave(TestCase):
         slave()
 
         self.slave_machine.assert_called_once_with(
-            '1.2.3.4', port=22, assimilate=True, server_type='headless'
+            '1.2.3.4', port=22, provision=True,
+            assimilate=True, server_type='headless',
         )
 
     def test_slave_does_not_assimilate_machine_when_no_assimilate_is_passed(self):
         self.parse_slave_arguments.return_value = Mock(
                 host='1.2.3.4', port=22, server_type='headless',
-                no_assimilate=True
+                no_assimilate=True, no_provision=False
         )
 
         slave()
 
         self.slave_machine.assert_called_once_with(
-            '1.2.3.4', port=22, assimilate=False, server_type='headless'
+            '1.2.3.4', port=22, provision=True,
+            assimilate=False, server_type='headless'
         )
 
+    def test_slave_does_not_provision_machine_when_no_provision_is_passed(self):
+        self.parse_slave_arguments.return_value = Mock(
+            host='1.2.3.4', port=22, server_type='headless',
+            no_assimilate=False, no_provision=True
+        )
+
+        slave()
+
+        self.slave_machine.assert_called_once_with(
+            '1.2.3.4', port=22, provision=False,
+            assimilate=True, server_type='headless'
+        )

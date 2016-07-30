@@ -26,6 +26,17 @@ def load_json(json_file):
         return json.load(stream)
 
 
+def write_json(data, json_file):
+    """
+    Write data to a json file
+    :param mul data: data to dump to json
+    :param str json_file: path to the mutable .json config file
+    :return None:
+    """
+    with open(json_file, 'w') as f:
+        json.dump(data, f, indent=4, sort_keys=True)
+
+
 def ensure_directory(directory):
     """
     Create a directory if it does not exist

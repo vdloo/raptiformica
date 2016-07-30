@@ -31,7 +31,8 @@ class TestResetHardOriginMaster(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=True
+            buffered=True,
+            shell=False
         )
 
     def test_that_reset_hard_origin_master_returns_exit_code(self):

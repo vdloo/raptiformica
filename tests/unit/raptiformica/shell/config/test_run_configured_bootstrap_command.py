@@ -30,7 +30,8 @@ class TestRunConfiguredBootstrapCommand(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_remote_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_run_configured_bootstrap_command_returns_command_output(self):

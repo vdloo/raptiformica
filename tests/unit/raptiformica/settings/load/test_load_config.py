@@ -10,6 +10,7 @@ class TestLoadConfig(TestCase):
         self.load_json = self.set_up_patch('raptiformica.settings.load.load_json')
         self.data = {'compute_types': []}
         self.load_json.return_value = self.data
+        self.write_config = self.set_up_patch('raptiformica.settings.load.write_config')
 
     def test_load_config_loads_json(self):
         ret = load_config(config_file='myconfig.json')
@@ -38,6 +39,13 @@ class TestLoadConfig(TestCase):
         ]
         self.assertEqual(expected_calls, self.load_json.mock_calls)
         self.assertEqual(ret, self.data)
+
+    def test_load_config_writes_base_config_if_config_file_can_not_be_parsed(self):
+        self.load_json.side_effect = (ValueError, self.data)
+
+        load_config(config_file='myconfig.json')
+
+        self.write_config.assert_called_once_with(self.data, 'myconfig.json')
 
     def test_load_config_errors_out_if_base_config_is_also_invalid(self):
         self.load_json.side_effect = (OSError, ValueError)

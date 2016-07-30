@@ -32,7 +32,8 @@ class TestComputeAttributeGet(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=True
+            buffered=True,
+            shell=False
         )
 
     def test_compute_attribute_get_returns_stripped_standard_out(self):

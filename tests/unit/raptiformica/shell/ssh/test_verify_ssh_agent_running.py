@@ -22,7 +22,8 @@ class TestVerifySshAgentRunning(TestCase):
         expected_command = ['ssh-add', '-l']
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=True
+            buffered=True,
+            shell=False
         )
 
     def test_verify_ssh_agent_running_raises_error_if_exit_code_is_nonzero(self):

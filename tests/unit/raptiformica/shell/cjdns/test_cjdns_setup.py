@@ -34,7 +34,8 @@ class TestCjdnsSetup(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_cjdns_setup_raises_error_when_cjdns_setup_script_fails(self):

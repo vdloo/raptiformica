@@ -31,7 +31,8 @@ class TestPullOriginMaster(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=True
+            buffered=True,
+            shell=False
         )
 
     def test_that_pull_origin_master_returns_pull_origin_master_exit_code(self):

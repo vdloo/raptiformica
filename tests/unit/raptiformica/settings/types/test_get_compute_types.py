@@ -1,3 +1,4 @@
+from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.types import get_compute_types
 from tests.testcase import TestCase
 
@@ -11,7 +12,7 @@ class TestGetComputeTypes(TestCase):
     def test_get_compute_types_loads_config(self):
         get_compute_types()
 
-        self.load_config.assert_called_once_with()
+        self.load_config.assert_called_once_with(MUTABLE_CONFIG)
 
     def test_get_compute_types_returns_list_of_compute_types(self):
         ret = get_compute_types()

@@ -8,7 +8,8 @@ class TestSpawn(TestCase):
     def setUp(self):
         self.parse_spawn_arguments = self.set_up_patch('raptiformica.cli.parse_spawn_arguments')
         self.parse_spawn_arguments.return_value = Mock(
-            no_assimilate=False, server_type='headless', compute_type='vagrant'
+            no_provision=False, no_assimilate=False,
+            server_type='headless', compute_type='vagrant'
         )
         self.spawn_machine = self.set_up_patch('raptiformica.cli.spawn_machine')
 
@@ -21,16 +22,33 @@ class TestSpawn(TestCase):
         spawn()
 
         self.spawn_machine.assert_called_once_with(
-            assimilate=True, server_type='headless', compute_type='vagrant'
+            provision=True, assimilate=True,
+            server_type='headless', compute_type='vagrant'
         )
 
     def test_spawn_does_not_assimilate_machine_when_no_assimilate_is_passed(self):
         self.parse_spawn_arguments.return_value = Mock(
-            no_assimilate=True, server_type='headless', compute_type='vagrant'
+            no_provision=False, no_assimilate=True,
+            server_type='headless', compute_type='vagrant'
         )
 
         spawn()
 
         self.spawn_machine.assert_called_once_with(
-            assimilate=False, server_type='headless', compute_type='vagrant'
+            provision=True, assimilate=False,
+            server_type='headless', compute_type='vagrant'
         )
+
+    def test_spawn_dose_not_provsion_machine_when_no_provision_is_passed(self):
+        self.parse_spawn_arguments.return_value = Mock(
+            no_provision=True, no_assimilate=False,
+            server_type='headless', compute_type='vagrant'
+        )
+
+        spawn()
+
+        self.spawn_machine.assert_called_once_with(
+            provision=False, assimilate=True,
+            server_type='headless', compute_type='vagrant'
+        )
+

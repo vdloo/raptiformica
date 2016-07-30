@@ -30,12 +30,16 @@ class TestSpawnMachine(TestCase):
             compute_type=get_first_compute_type()
         )
 
+    def test_spawn_machine_does_not_slave_or_assimilate_machine_by_default(self):
+        spawn_machine(provision=True)
+
     def test_spawn_machine_slaves_machine_as_default_server_type(self):
-        spawn_machine()
+        spawn_machine(provision=True)
 
         self.slave_machine.assert_called_once_with(
             '127.0.0.1',
             port=2222,
+            provision=True,
             assimilate=False,
             server_type=get_first_server_type()
         )
@@ -49,11 +53,13 @@ class TestSpawnMachine(TestCase):
         )
 
     def test_spawn_machine_slave_machine_with_provided_server_type(self):
-        spawn_machine(server_type='workstation', compute_type='docker', assimilate=True)
+        spawn_machine(server_type='workstation', compute_type='docker',
+                      provision=True, assimilate=True)
 
         self.slave_machine.assert_called_once_with(
             '127.0.0.1',
             port=2222,
+            provision=True,
             assimilate=True,
             server_type='workstation'
         )
