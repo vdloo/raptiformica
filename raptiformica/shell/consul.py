@@ -1,5 +1,7 @@
+from os import path
 from logging import getLogger
 
+from raptiformica.settings import RAPTIFORMICA_DIR
 from raptiformica.shell.execute import run_critical_unbuffered_command_remotely_print_ready, \
     run_remote_multiple_labeled_commands
 
@@ -61,6 +63,23 @@ def unzip_consul_release(host, port=22):
     )
 
 
+def consul_setup(host, port=22):
+    """
+    Run the consul setup script. Places the systemd service file.
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int exit_code: exit code of the configured bootstrap command
+    """
+    log.info("Build, configure and install CJDNS")
+    setup_script = path.join(RAPTIFORMICA_DIR, 'resources/setup_consul.sh')
+    cjdns_setup_command = [setup_script]
+    exit_code, _, _ = run_critical_unbuffered_command_remotely_print_ready(
+        cjdns_setup_command, host, port=port,
+        failure_message="Failed to ensure that consul was configured"
+    )
+    return exit_code
+
+
 def ensure_consul_installed(host, port=22):
     """
     Install consul. This is done with scripting instead of puppet for ansible because at this point in the code
@@ -73,3 +92,4 @@ def ensure_consul_installed(host, port=22):
     ensure_consul_dependencies(host, port=port)
     ensure_latest_consul_release(host, port=port)
     unzip_consul_release(host, port=port)
+    consul_setup(host, port=port)
