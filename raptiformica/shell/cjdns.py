@@ -2,8 +2,8 @@ from os import path
 from logging import getLogger
 
 from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
-from raptiformica.shell.execute import raise_failure_factory, run_command_remotely_print_ready, \
-    run_command_print_ready_in_directory_factory
+from raptiformica.shell.execute import run_critical_unbuffered_command_remotely_print_ready, \
+    run_remote_multiple_labeled_commands, run_command_remotely_print_ready, raise_failure_factory
 from raptiformica.shell.git import ensure_latest_source
 
 CJDNS_REPOSITORY = "https://github.com/cjdelisle/cjdns.git"
@@ -77,16 +77,11 @@ def ensure_cjdns_dependencies(host, port=22):
                    'apt-get install -yy nodejs '
                    'build-essential git python) || /bin/true"')
     )
-    for d, command_as_string in ensure_cjdns_dependencies_commands:
-        run_command_remotely_print_ready(
-            ["sh", "-c", command_as_string],
-            host, port=port,
-            failure_callback=raise_failure_factory(
-                "Failed to run (if {}) install cjdns "
-                "dependencies command".format(d)
-            ),
-            buffered=False
-        )
+    run_remote_multiple_labeled_commands(
+        ensure_cjdns_dependencies_commands, host, port=port,
+        failure_message="Failed to run (if {}) install cjdns "
+                        "dependencies command"
+    )
 
 
 def cjdns_setup(host, port=22):
@@ -106,13 +101,10 @@ def cjdns_setup(host, port=22):
             cjdns_checkout_directory, setup_script,
         )
     ]
-    exit_code, _, _ = run_command_remotely_print_ready(
-        cjdns_setup_command,
-        host, port=port,
-        failure_callback=raise_failure_factory(
-            "Failed to ensure that CJDNS was built, configured and installed"
-        ),
-        buffered=False
+    exit_code, _, _ = run_critical_unbuffered_command_remotely_print_ready(
+        cjdns_setup_command, host, port=port,
+        failure_message="Failed to ensure that CJDNS was built, "
+                        "configured and installed"
     )
     return exit_code
 
