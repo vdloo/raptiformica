@@ -28,7 +28,6 @@ def parse_cjdns_neighbours(meshnet_config):
         port = neighbour['port']
         public_key = neighbour['cjdns_public_key']
         if public_key == cjdroute_config['publicKey']:
-            # do not add self as neighbour
             continue
         address = "{}:{}".format(host, port)
         neighbours[address] = {
@@ -53,6 +52,7 @@ def configure_cjdroute_conf(config):
         'password': meshnet_config['cjdns']['password']
     }]
     neighbours = parse_cjdns_neighbours(meshnet_config)
+    # do not add self as neighbour
     cjdroute_config['interfaces']['UDPInterface'] = [{
         'connectTo': neighbours,
         'bind': '0.0.0.0:{}'.format(CJDNS_DEFAULT_PORT)
