@@ -51,17 +51,19 @@ def log_success_factory(message):
     return log_success
 
 
-def execute_process(command_as_list, buffered=True):
+def execute_process(command, buffered=True, shell=False):
     """
     Execute a command locally in the shell and return the exit code, standard out and standard error as a tuple
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param bool buffered: Store output in a variable instead of printing it live
     :return tuple (exit code, standard out, standard error):
     """
-    log.debug("Running command: {}".format(command_as_list))
+    log.debug("Running command: {}".format(command))
     process = Popen(
-        command_as_list, stdout=PIPE,
-        stderr=PIPE, universal_newlines=True
+        command, stdout=PIPE,
+        stderr=PIPE, universal_newlines=True,
+        shell=shell
     )
     if not buffered:
         for line in process.stdout:
@@ -84,32 +86,34 @@ def make_process_output_print_ready(process_output):
     return exit_code, un_escape_newlines(standard_out), un_escape_newlines(standard_error)
 
 
-def execute_process_print_ready(command_as_list, buffered=True):
+def execute_process_print_ready(command, buffered=True, shell=False):
     """
     Wrapper around execute_process that first makes the returned output streams printable
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param bool buffered: Store output in a variable instead of printing it live
     :return tuple process_output (exit code, standard out, standard error):
     """
     exit_code, standard_out, standard_error = execute_process(
-        command_as_list, buffered=buffered
+        command, buffered=buffered, shell=shell
     )
     return make_process_output_print_ready(
         (exit_code, standard_out, standard_error)
     )
 
 
-def run_command(command_as_list, success_callback=lambda ret: ret, failure_callback=lambda ret: ret, buffered=True):
+def run_command(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret, buffered=True, shell=False):
     """
     Run a command and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param func failure_callback: function that takes the process output tuple, runs on failure
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :return tuple process_output (exit code, standard out, standard error):
     """
-    process_output = execute_process(command_as_list, buffered=buffered)
+    process_output = execute_process(command, buffered=buffered, shell=shell)
     exit_code, standard_out, standard_error = process_output
     if exit_code != 0:
         failure_callback(process_output)
@@ -131,22 +135,24 @@ def print_ready_callback_factory(callback):
     return print_ready_callback
 
 
-def run_command_print_ready(command_as_list, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
-                            buffered=True):
+def run_command_print_ready(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
+                            buffered=True, shell=False):
     """
     Print ready version of run_command. Un-escapes output so it can be printed.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param func failure_callback: function that takes the process output tuple, runs on failure
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_command(
-        command_as_list,
+        command,
         success_callback=print_ready_callback_factory(success_callback),
         failure_callback=print_ready_callback_factory(failure_callback),
-        buffered=buffered
+        buffered=buffered,
+        shell=shell
     )
 
 

@@ -1,4 +1,5 @@
 from raptiformica.actions.slave import retrieve_provisioning_config
+from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
@@ -31,7 +32,7 @@ class TestRetrieveProvisioningConfig(TestCase):
     def test_retrieve_provisioning_config_loads_config(self):
         retrieve_provisioning_config()
 
-        self.load_config.assert_called_once_with()
+        self.load_config.assert_called_once_with(MUTABLE_CONFIG)
 
     def test_retrieve_provisioning_config_returns_provisioning_config(self):
         ret = retrieve_provisioning_config()

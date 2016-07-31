@@ -30,7 +30,8 @@ class TestUploadSelf(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_upload_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_upload_self_raises_error_when_uploading_self_failed(self):

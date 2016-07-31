@@ -1,3 +1,4 @@
+from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.types import get_server_types
 from tests.testcase import TestCase
 
@@ -11,7 +12,7 @@ class TestGetServerTypes(TestCase):
     def test_get_server_types_loads_config(self):
         get_server_types()
 
-        self.load_config.assert_called_once_with()
+        self.load_config.assert_called_once_with(MUTABLE_CONFIG)
 
     def test_get_server_types_returns_list_of_server_types(self):
         ret = get_server_types()

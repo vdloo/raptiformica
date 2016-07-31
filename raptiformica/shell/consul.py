@@ -19,9 +19,9 @@ def ensure_consul_dependencies(host, port=22):
     log.info("Ensuring the consul dependencies are installed")
 
     ensure_consul_dependencies_commands = (
-        ('archlinux', '"type -p pacman 1> /dev/null && '
+        ('archlinux', '"type pacman 1> /dev/null && '
                       'pacman -S --noconfirm wget unzip --needed || /bin/true"'),
-        ('debian', '"type -p apt-get 1> /dev/null && '
+        ('debian', '"type apt-get 1> /dev/null && '
                    '(apt-get update -yy && '
                    'apt-get install -yy wget unzip) || /bin/true"')
     )
@@ -70,6 +70,6 @@ def ensure_consul_installed(host, port=22):
     :return None:
     """
     log.info("Ensuring consul is installed")
-    ensure_latest_consul_release(host, port=port)
     ensure_consul_dependencies(host, port=port)
+    ensure_latest_consul_release(host, port=port)
     unzip_consul_release(host, port=port)

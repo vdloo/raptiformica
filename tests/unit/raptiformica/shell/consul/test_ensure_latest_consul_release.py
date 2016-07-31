@@ -28,7 +28,8 @@ class TestEnsureLatestConsulRelease(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_ensure_latest_consul_release_raises_error_when_ensuring_latest_release_fails(self):

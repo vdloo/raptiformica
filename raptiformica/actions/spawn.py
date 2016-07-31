@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from raptiformica.actions.slave import slave_machine
+from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.load import load_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type
 from raptiformica.shell.compute import start_instance
@@ -30,7 +31,7 @@ def retrieve_compute_type_config_for_server_type(server_type=get_first_server_ty
     :param str server_type: name of the server type to provision the machine as
     :return dict config: the server_type config in the compute_type_config
     """
-    config = load_config()
+    config = load_config(MUTABLE_CONFIG)
     compute_type_config = config['compute_types'][compute_type]
     verify_server_type_implemented_in_compute_type(
         compute_type_config, server_type
@@ -81,8 +82,11 @@ def start_compute_type(server_type=get_first_server_type(), compute_type=get_fir
     )
 
 
-def spawn_machine(assimilate=False, server_type=get_first_server_type(), compute_type=get_first_compute_type()):
+def spawn_machine(provision=False, assimilate=False, server_type=get_first_server_type(),
+                  compute_type=get_first_compute_type()):
     """
+    Start a new instance, provision it and join it into the distributed network
+    :param bool provision: whether or not we should assimilate the remote machine
     :param bool assimilate: whether or not we should assimilate the remote machine
     :param str server_type: name of the server type to provision the machine as
     :param str compute_type: name of the compute type to start an instance on
@@ -96,6 +100,8 @@ def spawn_machine(assimilate=False, server_type=get_first_server_type(), compute
         server_type=server_type, compute_type=compute_type
     )
     slave_machine(
-        host, port=port, assimilate=assimilate,
+        host, port=port,
+        assimilate=assimilate,
+        provision=provision,
         server_type=server_type
     )

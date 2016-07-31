@@ -70,5 +70,10 @@
       "name": "puppetfiles",
       "bootstrap_command": "./papply.sh manifests/htpc.pp"
     }
+  },
+  "meshnet": {
+      "cjdns": {},
+      "consul": {},
+      "neighbours": {}
   }
 }

@@ -22,21 +22,21 @@ class TestEnsureConsulDependencies(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             'root@1.2.3.4', '-p', '2222',
             "sh", "-c",
-            '"type -p pacman 1> /dev/null '
+            '"type pacman 1> /dev/null '
             '&& pacman -S --noconfirm '
             'wget unzip --needed || /bin/true"'
-        ], buffered=False)
+        ], buffered=False, shell=False)
         expected_debian_call = call([
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
             'root@1.2.3.4', '-p', '2222',
             "sh", "-c",
-            '"type -p apt-get 1> /dev/null && '
+            '"type apt-get 1> /dev/null && '
             '(apt-get update -yy && '
             'apt-get install -yy '
             'wget unzip) || /bin/true"'
-        ], buffered=False)
+        ], buffered=False, shell=False)
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
 

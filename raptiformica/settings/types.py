@@ -1,3 +1,4 @@
+from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.load import load_config
 from raptiformica.utils import keys_sorted
 
@@ -8,7 +9,7 @@ def list_types_from_config(item):
     :param str item: name of the type. i.e. 'server_types'
     :return list types: list of all the types like ['headless, 'workstation']
     """
-    config = load_config()
+    config = load_config(MUTABLE_CONFIG)
     return keys_sorted(config, item)
 
 

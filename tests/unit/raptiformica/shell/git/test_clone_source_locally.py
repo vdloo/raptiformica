@@ -32,7 +32,8 @@ class TestCloneSourceLocally(TestCase):
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_clone_source_locally_returns_clone_source_locally_command_exit_code(self):

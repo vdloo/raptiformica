@@ -31,7 +31,8 @@ class TestBootInstance(TestCase):
                                         '--provider=virtualbox']
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=False
+            buffered=False,
+            shell=False
         )
 
     def test_boot_instance_raises_error_when_command_failed(self):
