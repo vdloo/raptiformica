@@ -57,6 +57,7 @@ def execute_process(command, buffered=True, shell=False):
     :param list | str command: The command as a list or as string (when shell).
     I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple (exit code, standard out, standard error):
     """
     log.debug("Running command: {}".format(command))
