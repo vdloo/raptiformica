@@ -24,7 +24,7 @@ class TestEnsureConsulDependencies(TestCase):
             "sh", "-c",
             '"type pacman 1> /dev/null '
             '&& pacman -S --noconfirm '
-            'wget unzip --needed || /bin/true"'
+            'wget unzip screen --needed || /bin/true"'
         ], buffered=False, shell=False)
         expected_debian_call = call([
             '/usr/bin/env', 'ssh',
@@ -35,7 +35,7 @@ class TestEnsureConsulDependencies(TestCase):
             '"type apt-get 1> /dev/null && '
             '(apt-get update -yy && '
             'apt-get install -yy '
-            'wget unzip) || /bin/true"'
+            'wget unzip screen) || /bin/true"'
         ], buffered=False, shell=False)
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)

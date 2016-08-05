@@ -22,10 +22,10 @@ def ensure_consul_dependencies(host, port=22):
 
     ensure_consul_dependencies_commands = (
         ('archlinux', '"type pacman 1> /dev/null && '
-                      'pacman -S --noconfirm wget unzip --needed || /bin/true"'),
+                      'pacman -S --noconfirm wget unzip screen --needed || /bin/true"'),
         ('debian', '"type apt-get 1> /dev/null && '
                    '(apt-get update -yy && '
-                   'apt-get install -yy wget unzip) || /bin/true"')
+                   'apt-get install -yy wget unzip screen) || /bin/true"')
     )
     run_remote_multiple_labeled_commands(
         ensure_consul_dependencies_commands, host, port=port,
