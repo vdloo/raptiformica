@@ -1,4 +1,3 @@
-from mock import Mock
 from raptiformica.actions.mesh import enough_neighbours
 from tests.testcase import TestCase
 
