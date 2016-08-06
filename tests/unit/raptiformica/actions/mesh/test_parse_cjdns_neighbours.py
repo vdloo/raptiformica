@@ -12,13 +12,13 @@ class TestParseCjdnsNeighbours(TestCase):
                     "cjdns_ipv6_address": "ipv6_address1",
                     "cjdns_public_key": "a_public_key1.k",
                     "host": "192.168.178.23",
-                    "port": 4863
+                    "cjdns_port": 4863
                 },
                 'a_public_key2.k': {
                     "cjdns_ipv6_address": "ipv6_address2",
                     "cjdns_public_key": "a_public_key2.k",
                     "host": "192.168.178.24",
-                    "port": 4863
+                    "cjdns_port": 4863
                 }
             }
         }

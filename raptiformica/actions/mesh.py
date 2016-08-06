@@ -1,7 +1,6 @@
-import os
 from logging import getLogger
-
 from operator import itemgetter
+
 from raptiformica.settings import MUTABLE_CONFIG, CJDNS_DEFAULT_PORT
 from raptiformica.settings.load import load_config
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
@@ -25,11 +24,11 @@ def parse_cjdns_neighbours(meshnet_config):
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
     for neighbour in meshnet_config['neighbours'].values():
         host = neighbour['host']
-        port = neighbour['port']
+        cjdns_port = neighbour['cjdns_port']
         public_key = neighbour['cjdns_public_key']
         if public_key == cjdroute_config['publicKey']:
             continue
-        address = "{}:{}".format(host, port)
+        address = "{}:{}".format(host, cjdns_port)
         neighbours[address] = {
             'password': meshnet_config['cjdns']['password'],
             'publicKey': public_key,

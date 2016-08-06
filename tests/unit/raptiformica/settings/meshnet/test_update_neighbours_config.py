@@ -28,7 +28,8 @@ class TestUpdateNeighboursConfig(TestCase):
                 'neighbours': {
                     'a_public_key.k': {
                         'host': '1.2.3.4',
-                        'port': CJDNS_DEFAULT_PORT,
+                        'cjdns_port': CJDNS_DEFAULT_PORT,
+                        'ssh_port': 2222,
                         'cjdns_public_key': 'a_public_key.k',
                         'cjdns_ipv6_address': 'ipv6_address'
                     }

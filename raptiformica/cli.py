@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 
+from raptiformica.actions.members import show_members
 from raptiformica.actions.mesh import mesh_machine
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.spawn import spawn_machine
@@ -115,3 +116,23 @@ def mesh():
     """
     parse_mesh_arguments()
     mesh_machine()
+
+
+def parse_members_arguments():
+    """
+    Parse the commandline options for showing the members in the distributed network
+    :return dict args: parsed arguments
+    """
+    parser = ArgumentParser(
+        description="Show the members of the distributed network."
+    )
+    return parse_arguments(parser)
+
+
+def members():
+    """
+    Show the members of the distributed network
+    :return:
+    """
+    parse_members_arguments()
+    show_members()
