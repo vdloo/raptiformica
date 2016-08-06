@@ -1,4 +1,4 @@
-from raptiformica.actions.mesh import start_detached_consul_agent, CJDROUTE_CONF_PATH
+from raptiformica.actions.mesh import start_detached_consul_agent
 from tests.testcase import TestCase
 
 
