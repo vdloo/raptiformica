@@ -29,9 +29,10 @@ def update_neighbours_config(config, host, port=22):
     config['meshnet']['neighbours'][cjdns_public_key] = {
         'host': host,
         # todo: get this port dynamically from the cjdroute.conf
-        'port': CJDNS_DEFAULT_PORT,
+        'cjdns_port': CJDNS_DEFAULT_PORT,
         'cjdns_public_key': cjdns_public_key,
         'cjdns_ipv6_address': cjdns_ipv6_address,
+        'ssh_port': port,
     }
     return config
 

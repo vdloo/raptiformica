@@ -25,13 +25,13 @@ for i in {1..3}; do ./bin/raptiformica_spawn.py --compute-type docker --no-provi
 
 Log in to one of the machines to access the network
 ```
-ssh root@172.17.0.3 -oStrictHostKeyChecking=no
-root@19097ae40f0e:~# consul members
+./bin/raptiformica_members.py
 Node           Address               Status  Type    Build  Protocol  DC
 fc16:...:fd12  [fc16:...:fd12]:8301  alive   server  0.6.4  2         raptiformica
 fc16:...:fa0e  [fc16:...:fa0e]:8301  alive   server  0.6.4  2         raptiformica
 fc83:...:6a88  [fc83:...:6a88]:8301  alive   server  0.6.4  2         raptiformica
 
+ssh root@172.17.0.3 -oStrictHostKeyChecking=no
 root@19097ae40f0e:~# consul exec echo hello world | grep "hello\|ack"
     fc16:...:fa0e: hello world
     fc83:...:6a88: hello world
