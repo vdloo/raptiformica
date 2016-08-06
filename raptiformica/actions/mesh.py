@@ -105,16 +105,52 @@ def enough_neighbours(config):
     return enough
 
 
+def start_detached_cjdroute():
+    """
+    Start cjdroute running in the foreground in a detached screen
+    Doing it this way because at this point in the process it could be that the remote host does not have an init system
+    :return None:
+    """
+    log.info("Starting cjdroute in the background")
+    start_cjdroute_command = "/usr/bin/env screen -d -m bash -c 'cat {} | " \
+                             "cjdroute --nobg'".format(CJDROUTE_CONF_PATH)
+    run_command_print_ready(
+        start_cjdroute_command,
+        failure_callback=raise_failure_factory(
+            "Failed to start cjdroute in the background"
+        ),
+        shell=True,
+        buffered=False
+    )
+
+
+def start_detached_consul_agent():
+    """
+    Start the consul agent running in the foreground in a detached screen
+    Doing it this way because at this point in the process it could be that the remote host does not have an init system
+    :return None:
+    """
+    log.info("Starting a detached consul agent")
+    start_detached_consul_agent_command = "/usr/bin/env screen -d -m /usr/bin/consul agent --config-dir /etc/consul.d/"
+    run_command_print_ready(
+        start_detached_consul_agent_command,
+        failure_callback=raise_failure_factory(
+            "Failed to start the consul agent in the background"
+        ),
+        shell=True,
+        buffered=False
+    )
+
+
 def start_meshing_services():
     """
     Start the meshnet services. This enables neighbours to connect
     to this machine.
     :return None:
     """
-    # todo: replace these calls with 'service <the service> start' and write a test for that
-    # and let systemd handle the daemons
-    os.system("cjdroute < {}".format(CJDROUTE_CONF_PATH))
-    os.system("/usr/bin/consul agent --config-dir /etc/consul.d/ & bg")
+    log.info("Starting meshing services")
+    start_detached_cjdroute()
+    start_detached_consul_agent()
 
 
 def join_meshnet(config):
