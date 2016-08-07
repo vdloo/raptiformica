@@ -8,21 +8,27 @@
         "source": "https://github.com/vdloo/vagrantfiles",
         "start_instance_command": "cd headless && vagrant up --provider=virtualbox",
         "hostname_get_command": "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'",
-        "port_get_command": "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'"
+        "port_get_command": "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'",
+        "detect_stale_instance_command": "cd headless && vagrant status | grep running",
+        "clean_up_instance_command": "cd headless && vagrant destroy -f"
       },
       "workstation":
       {
         "source": "https://github.com/vdloo/vagrantfiles",
         "start_instance_command": "cd gui && vagrant up --provider=virtualbox",
         "hostname_get_command": "cd gui && vagrant ssh-config | grep HostName | awk '{print$NF}'",
-        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'"
+        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'",
+        "detect_stale_instance_command": "cd headless && vagrant status | grep running",
+        "clean_up_instance_command": "cd headless && vagrant destroy -f"
       },
       "htpc":
       {
         "source": "https://github.com/vdloo/vagrantfiles",
         "start_instance_command": "cd gui && vagrant up --provider=virtualbox",
         "hostname_get_command": "cd gui && vagrant ssh-config | grep HostName | awk '{print$NF}'",
-        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'"
+        "port_get_command": "cd gui && vagrant ssh-config | grep Port | awk '{print$NF}'",
+        "detect_stale_instance_command": "cd gui && vagrant status | grep running",
+        "clean_up_instance_command": "cd gui && vagrant destroy -f"
       }
     },
     "docker":
