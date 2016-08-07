@@ -41,7 +41,15 @@ class TestUpdateMeshnetConfig(TestCase):
 
         self.update_neighbours_config.assert_called_once_with(
             self.update_consul_config.return_value,
-            '1.2.3.4', port=2222
+            '1.2.3.4', port=2222, uuid=None
+        )
+
+    def test_update_meshnet_updates_neighbours_config_with_optional_uuid(self):
+        update_meshnet_config('1.2.3.4', port=2222, uuid='some_uuid_1234')
+
+        self.update_neighbours_config.assert_called_once_with(
+                self.update_consul_config.return_value,
+                '1.2.3.4', port=2222, uuid='some_uuid_1234'
         )
 
     def test_update_meshnet_writes_updated_config_to_disk(self):

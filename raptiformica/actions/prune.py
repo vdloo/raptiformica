@@ -6,6 +6,7 @@ from shutil import rmtree
 
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, MUTABLE_CONFIG
 from raptiformica.settings.load import load_config
+from raptiformica.settings.meshnet import ensure_neighbour_removed_from_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types, \
     verify_server_type_implemented_in_compute_type
@@ -168,6 +169,8 @@ def fire_clean_up_triggers(clean_up_triggers):
         if check_if_instance_is_stale(directory, detect_stale_instance_command):
             clean_up_stale_instance(directory, clean_up_stale_instance_command)
             rmtree(directory, ignore_errors=True)
+            uuid = directory.split('/')[-1]
+            ensure_neighbour_removed_from_config(uuid)
 
 
 def prune_local_machines():
