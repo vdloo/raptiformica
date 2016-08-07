@@ -8,17 +8,17 @@ Usage
 Get the code
 ```
 # create a checkout
-git clone https://github.com/vdloo/raptiformica.git; cd raptiformica
+git clone https://github.com/vdloo/raptiformica; cd raptiformica
 ```
 
 Make sure you have an SSH agent running
 ```
-eval $(ssh-agent -s); ssh-add ~/.ssh/id_rsa
+eval $(ssh-agent -s); ssh-add
 ```
 
 Booting a Docker cluster:
 ```
-rm -rf mutable_config.json  # clean up configs from a previous cluster if there is one
+rm -f mutable_config.json  # clean up configs from a previous cluster if there is one
 export PYTHONPATH=.  # You need at least 3 instances to establish the distributed network
 for i in {1..3}; do ./bin/raptiformica_spawn.py --compute-type docker --no-provision; done
 ```
@@ -43,7 +43,7 @@ Development
 -----------
 ```
 # create a checkout
-git clone https://github.com/vdloo/raptiformica.git; cd raptiformica
+git clone https://github.com/vdloo/raptiformica; cd raptiformica
 
 . activate_venv
 
