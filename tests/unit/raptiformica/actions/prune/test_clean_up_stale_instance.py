@@ -34,14 +34,12 @@ class TestCleanUpStaleInstance(TestCase):
                             '{}'.format(self.clean_up_stale_instance_command)]
         self.execute_process.assert_called_once_with(
                 expected_command,
-                buffered=False,
+                buffered=True,
                 shell=False
         )
 
-    def test_clean_up_stale_instance_raises_error_when_command_failed(self):
+    def test_clean_up_stale_instance_does_not_raise_error_when_command_failed(self):
         self.process_output = (1, '', 'standard error output')
-
         self.execute_process.return_value = self.process_output
 
-        with self.assertRaises(RuntimeError):
-            clean_up_stale_instance(*self.args)
+        clean_up_stale_instance(*self.args)
