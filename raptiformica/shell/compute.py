@@ -99,7 +99,7 @@ def start_instance(server_type, compute_type, source, boot_command, get_hostname
     :param str boot_command: start instance command
     :param str get_hostname_command: get hostname command
     :param str get_port_command: get port command
-    :return tuple connection_information: host and port
+    :return tuple compute_checkout_information: compute_checkout_uuid, host and port
     """
     log.info("Starting a new {} instance".format(compute_type))
     new_compute_checkout = create_new_compute_checkout(
@@ -112,4 +112,5 @@ def start_instance(server_type, compute_type, source, boot_command, get_hostname
     port = compute_attribute_get(
         new_compute_checkout, get_port_command, "port"
     )
-    return host, port
+    compute_checkout_uuid = new_compute_checkout.split('/')[-1]
+    return compute_checkout_uuid, host, port

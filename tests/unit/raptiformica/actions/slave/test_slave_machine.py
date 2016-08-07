@@ -48,7 +48,16 @@ class TestSlaveMachine(TestCase):
     def test_slave_machine_assimilates_machine_if_assimilate(self):
         slave_machine('1.2.3.4', port=2222, assimilate=True)
 
-        self.assimilate_machine.assert_called_once_with('1.2.3.4', port=2222)
+        self.assimilate_machine.assert_called_once_with(
+            '1.2.3.4', port=2222, uuid=None
+        )
+
+    def test_slave_machine_assimilates_machines_if_assimilate_with_optional_uuid(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=True, uuid='some_uuid_1234')
+
+        self.assimilate_machine.assert_called_once_with(
+            '1.2.3.4', port=2222, uuid='some_uuid_1234'
+        )
 
     def test_slave_machine_does_not_assimilate_if_assimilate_is_false(self):
         slave_machine('1.2.3.4', port=2222, assimilate=False)

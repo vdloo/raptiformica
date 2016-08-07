@@ -42,17 +42,18 @@ def provision_machine(host, port=22, server_type=get_first_server_type()):
     run_configured_bootstrap_command(command, name, host, port=port)
 
 
-def assimilate_machine(host, port=22):
+def assimilate_machine(host, port=22, uuid=None):
     """
     Prepare the machine to be joined into the distributed network
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
+    :param str uuid: identifier for a local compute checkout
     :return None:
     """
     log.info("Preparing to machine to be joined into the distributed network")
     ensure_cjdns_installed(host, port=port)
     ensure_consul_installed(host, port=port)
-    update_meshnet_config(host, port=port)
+    update_meshnet_config(host, port=port, uuid=uuid)
 
 
 def deploy_meshnet(host, port=22):
@@ -68,7 +69,7 @@ def deploy_meshnet(host, port=22):
     mesh(host, port=port)
 
 
-def slave_machine(host, port=22, provision=True, assimilate=True, server_type=get_first_server_type()):
+def slave_machine(host, port=22, provision=True, assimilate=True, server_type=get_first_server_type(), uuid=None):
     """
     Provision the remote machine and optionally (default yes) assimilate it into the network.
     :param str host: hostname or ip of the remote machine
@@ -76,6 +77,7 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=ge
     :param bool provision: whether or not we should assimilate the remote machine
     :param bool assimilate: whether or not we should assimilate the remote machine
     :param str server_type: name of the server type to provision the machine as
+    :param str uuid: identifier for a local compute checkout
     :return None:
     """
     log.info("Slaving machine {}".format(host))
@@ -83,5 +85,5 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=ge
         provision_machine(host, port=port, server_type=server_type)
     upload_self(host, port=port)
     if assimilate:
-        assimilate_machine(host, port=port)
+        assimilate_machine(host, port=port, uuid=uuid)
         deploy_meshnet(host, port=port)

@@ -37,3 +37,22 @@ class TestUpdateNeighboursConfig(TestCase):
             }
         }
         self.assertEqual(ret, expected_config)
+
+    def test_update_neighbours_config_returns_updated_config_with_specified_optional_uuid(self):
+        ret = update_neighbours_config(self.config, '1.2.3.4', port=2222, uuid='someuuid1234')
+
+        expected_config = {
+            'meshnet': {
+                'neighbours': {
+                    'a_public_key.k': {
+                        'host': '1.2.3.4',
+                        'cjdns_port': CJDNS_DEFAULT_PORT,
+                        'ssh_port': 2222,
+                        'cjdns_public_key': 'a_public_key.k',
+                        'cjdns_ipv6_address': 'ipv6_address',
+                        'uuid': 'someuuid1234'
+                    }
+                }
+            }
+        }
+        self.assertEqual(ret, expected_config)

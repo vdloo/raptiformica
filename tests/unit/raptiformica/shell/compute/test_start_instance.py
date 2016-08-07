@@ -18,6 +18,7 @@ class TestStartInstance(TestCase):
         self.create_new_compute_checkout = self.set_up_patch(
             'raptiformica.shell.compute.create_new_compute_checkout'
         )
+        self.create_new_compute_checkout.return_value = 'var/machines/docker/headless/some_uuid_1234'
         self.boot_instance = self.set_up_patch('raptiformica.shell.compute.boot_instance')
         self.compute_attribute_get = self.set_up_patch('raptiformica.shell.compute.compute_attribute_get')
 
@@ -61,7 +62,8 @@ class TestStartInstance(TestCase):
     def test_start_instance_return_host_and_port(self):
         self.compute_attribute_get.side_effect = ['127.0.0.1', '2222']
 
-        host, port = start_instance(*self.args)
+        uuid, host, port = start_instance(*self.args)
 
+        self.assertEqual(uuid, 'some_uuid_1234')
         self.assertEqual(host, '127.0.0.1')
         self.assertEqual(port, '2222')

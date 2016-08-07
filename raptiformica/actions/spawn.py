@@ -1,8 +1,6 @@
 from logging import getLogger
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings import MUTABLE_CONFIG
-from raptiformica.settings.load import load_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type
 from raptiformica.shell.compute import start_instance
@@ -43,7 +41,7 @@ def start_compute_type(server_type=get_first_server_type(), compute_type=get_fir
     Start a compute instance of type server_type based on the config
     :param str server_type: name of the server type to provision the machine as
     :param str compute_type: name of the compute type to start an instance on
-    :return tuple connection_information: host and port
+    :return tuple compute_checkout_information: compute_checkout_uuid, host and port
     """
     source, boot_command, hostname_command, port_command = retrieve_start_instance_config(
         server_type=server_type, compute_type=compute_type
@@ -69,12 +67,13 @@ def spawn_machine(provision=False, assimilate=False, server_type=get_first_serve
         server_type, compute_type
     ))
     verify_ssh_agent_running()
-    host, port = start_compute_type(
+    uuid, host, port = start_compute_type(
         server_type=server_type, compute_type=compute_type
     )
     slave_machine(
         host, port=port,
         assimilate=assimilate,
         provision=provision,
-        server_type=server_type
+        server_type=server_type,
+        uuid=uuid
     )
