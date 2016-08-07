@@ -31,6 +31,7 @@ class TestStartComputeType(TestCase):
         start_compute_type()
 
         self.start_instance.assert_called_once_with(
+            get_first_server_type(),
             get_first_compute_type(),
             *self.retrieve_start_instance_config.return_value
         )
@@ -47,6 +48,7 @@ class TestStartComputeType(TestCase):
         start_compute_type(server_type='htpc', compute_type='docker')
 
         self.start_instance.assert_called_once_with(
+            'htpc',
             'docker',
             *self.retrieve_start_instance_config.return_value
         )

@@ -8,14 +8,15 @@ class TestStartInstance(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.compute.log')
         self.args = (
+            'headless',
             'vagrant',
             "https://github.com/vdloo/vagrantfiles",
             "cd headless && vagrant up --provider=virtualbox",
             "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'",
             "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'"
         )
-        self.create_new_compute_type_directory = self.set_up_patch(
-            'raptiformica.shell.compute.create_new_compute_type_directory'
+        self.create_new_compute_checkout = self.set_up_patch(
+            'raptiformica.shell.compute.create_new_compute_checkout'
         )
         self.boot_instance = self.set_up_patch('raptiformica.shell.compute.boot_instance')
         self.compute_attribute_get = self.set_up_patch('raptiformica.shell.compute.compute_attribute_get')
@@ -28,15 +29,15 @@ class TestStartInstance(TestCase):
     def test_start_instance_creates_new_compute_type_directory(self):
         start_instance(*self.args)
 
-        self.create_new_compute_type_directory.assert_called_once_with(
-            'vagrant', "https://github.com/vdloo/vagrantfiles"
+        self.create_new_compute_checkout.assert_called_once_with(
+            'headless', 'vagrant', "https://github.com/vdloo/vagrantfiles"
         )
 
     def test_start_instance_boots_new_instance(self):
         start_instance(*self.args)
 
         self.boot_instance.assert_called_once_with(
-            self.create_new_compute_type_directory.return_value,
+            self.create_new_compute_checkout.return_value,
             "cd headless && vagrant up --provider=virtualbox"
         )
 
@@ -45,12 +46,12 @@ class TestStartInstance(TestCase):
 
         expected_calls = [
             call(
-                self.create_new_compute_type_directory.return_value,
+                self.create_new_compute_checkout.return_value,
                 "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'",
                 "hostname"
             ),
             call(
-                self.create_new_compute_type_directory.return_value,
+                self.create_new_compute_checkout.return_value,
                 "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'",
                 "port"
             )

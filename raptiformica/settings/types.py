@@ -1,6 +1,10 @@
+from logging import getLogger
+
 from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.load import load_config
 from raptiformica.utils import keys_sorted
+
+log = getLogger(__name__)
 
 
 def list_types_from_config(item):
@@ -58,3 +62,32 @@ def get_first_compute_type():
     :return str compute_type: the first compute type
     """
     return get_first_from_types('compute_types')
+
+
+def verify_server_type_implemented_in_compute_type(compute_type_config, server_type):
+    """
+    Error out when there is no such server type configured for the specified compute type
+    :param dict compute_type_config: the compute type config for a specific compute type
+    :param str server_type: name of the server type to provision the machine as
+    :return None:
+    """
+    if server_type not in compute_type_config:
+        log.error("This compute type has no implementation for server type {}! "
+                  "Check your config".format(server_type))
+        exit(1)
+
+
+def retrieve_compute_type_config_for_server_type(server_type=get_first_server_type(),
+                                                 compute_type=get_first_compute_type()):
+    """
+    Load the config for server_type as defined in the config for compute_type
+    :param str compute_type: name of the compute type to start an instance on
+    :param str server_type: name of the server type to provision the machine as
+    :return dict config: the server_type config in the compute_type_config
+    """
+    config = load_config(MUTABLE_CONFIG)
+    compute_type_config = config['compute_types'][compute_type]
+    verify_server_type_implemented_in_compute_type(
+        compute_type_config, server_type
+    )
+    return compute_type_config[server_type]

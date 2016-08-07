@@ -8,7 +8,6 @@ from raptiformica.distributed.exec import try_machine_command
 
 class TestTryMachineCommand(TestCase):
     def setUp(self):
-        self.maxDiff = None
         self.log = self.set_up_patch('raptiformica.distributed.exec.log')
         self.host_and_port_pairs = [
             ('1.2.3.4', 2222),

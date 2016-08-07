@@ -1,5 +1,4 @@
 from raptiformica.cli import parse_members_arguments
-from raptiformica.settings import MUTABLE_CONFIG
 from tests.testcase import TestCase
 
 

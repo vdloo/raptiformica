@@ -32,21 +32,27 @@
         "source": "https://github.com/vdloo/dockerfiles",
         "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 5",
         "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
-        "port_get_command": "echo 22"
+        "port_get_command": "echo 22",
+        "detect_stale_instance_command": "[ -f ubuntu64/container_id ] && sudo docker ps --no-trunc | grep -f ubuntu64/container_id",
+        "clean_up_instance_command": "[ -f ubuntu64/container_id ] && cat ubuntu64/container_id | xargs sudo docker rm -f || /bin/true"
       },
       "workstation":
       {
         "source": "https://github.com/vdloo/dockerfiles",
         "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 5",
         "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
-        "port_get_command": "echo 22"
+        "port_get_command": "echo 22",
+        "detect_stale_instance_command": "[ -f ubuntu64/container_id ] && /bin/false || sudo docker ps --no-trunc | grep -f ubuntu64/container_id",
+        "clean_up_instance_command": "[ -f ubuntu64/container_id ] && cat ubuntu64/container_id | xargs sudo docker rm -f || /bin/true"
       },
       "htpc":
       {
         "source": "https://github.com/vdloo/dockerfiles",
         "start_instance_command": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 5",
         "hostname_get_command": "bash -c \"cd ubuntu64 && sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
-        "port_get_command": "echo 22"
+        "port_get_command": "echo 22",
+        "detect_stale_instance_command": "[ -f ubuntu64/container_id ] && /bin/false || sudo docker ps --no-trunc | grep -f ubuntu64/container_id",
+        "clean_up_instance_command": "[ -f ubuntu64/container_id ] && cat ubuntu64/container_id | xargs sudo docker rm -f || /bin/true"
       }
     }
   },

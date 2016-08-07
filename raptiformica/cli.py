@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 
 from raptiformica.actions.members import show_members
 from raptiformica.actions.mesh import mesh_machine
+from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.spawn import spawn_machine
 from raptiformica.settings import MUTABLE_CONFIG
@@ -136,3 +137,24 @@ def members():
     """
     parse_members_arguments()
     show_members()
+
+
+def parse_prune_arguments():
+    """
+    Parse the commandline options for pruning stale machines. Will run the configured clean_up_stale_instance
+    command for the server type at the compute type for each inactive machine and will clean up the instance checkout
+    :return dict args: parsed arguments
+    """
+    parser = ArgumentParser(
+        description="Clean up inactive instances"
+    )
+    return parse_arguments(parser)
+
+
+def prune():
+    """
+    Clean up inactive instances
+    :return:
+    """
+    parse_prune_arguments()
+    prune_local_machines()
