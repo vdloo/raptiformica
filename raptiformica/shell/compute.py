@@ -11,29 +11,33 @@ from raptiformica.utils import ensure_directory
 log = getLogger(__name__)
 
 
-def ensure_compute_type_machines_directory_exists(compute_type):
+def ensure_new_compute_checkout_directory_exists(server_type, compute_type):
     """
-    Ensure the ephemeral directory structure for a compute type
+    Ensure the ephemeral directory structure for a server type of a compute type
+    :param str server_type: name of the server type
     :param str compute_type: name of the compute type
-    :return str compute_type_directory: directory for the compute type
+    :return str server_type_directory: directory for the server type of the compute type
     """
     compute_type_directory = path.join(MACHINES_DIR, compute_type)
-    for directory in EPHEMERAL_DIR, MACHINES_DIR, compute_type_directory:
+    server_type_directory = path.join(compute_type_directory, server_type)
+    directories = EPHEMERAL_DIR, MACHINES_DIR, compute_type_directory, server_type_directory
+    for directory in directories:
         ensure_directory(directory)
-    return compute_type_directory
+    return server_type_directory
 
 
-def create_new_compute_type_directory(compute_type, source):
+def create_new_compute_checkout(server_type, compute_type, source):
     """
-    Create a new directory for an instance of the compute type
+    Create a new directory for an instance of a server type of a compute type
+    :param str server_type: name of the server type
     :param str compute_type: name of the compute type
     :param str source: repository for the compute type
     :return str new_compute_directory: directory of the new checkout
     """
-    compute_type_directory = ensure_compute_type_machines_directory_exists(
-        compute_type
+    server_type_directory = ensure_new_compute_checkout_directory_exists(
+        server_type, compute_type
     )
-    new_compute_checkout = path.join(compute_type_directory, uuid4().hex)
+    new_compute_checkout = path.join(server_type_directory, uuid4().hex)
     clone_source_locally(source, new_compute_checkout)
     return new_compute_checkout
 
@@ -86,9 +90,10 @@ def compute_attribute_get(new_compute_checkout, getter_command, attribute_descri
     return standard_out.strip()
 
 
-def start_instance(compute_type, source, boot_command, get_hostname_command, get_port_command):
+def start_instance(server_type, compute_type, source, boot_command, get_hostname_command, get_port_command):
     """
     Start a compute instance
+    :param str server_type: name of the server type
     :param str compute_type: name of the compute type
     :param str source: repository for the compute type
     :param str boot_command: start instance command
@@ -97,8 +102,8 @@ def start_instance(compute_type, source, boot_command, get_hostname_command, get
     :return tuple connection_information: host and port
     """
     log.info("Starting a new {} instance".format(compute_type))
-    new_compute_checkout = create_new_compute_type_directory(
-        compute_type, source
+    new_compute_checkout = create_new_compute_checkout(
+        server_type, compute_type, source
     )
     boot_instance(new_compute_checkout, boot_command)
     host = compute_attribute_get(
