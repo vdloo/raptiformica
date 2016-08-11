@@ -1,0 +1,77 @@
+{
+  "module_prototype":
+  {
+    "default_vagrant_compute_implementation":
+    {
+      "prototype": "vagrant_compute_implementation",
+      "source": {"content": "https://github.com/vdloo/vagrantfiles"}
+    },
+    "default_headless_vagrant_compute_implementation":
+    {
+      "prototype": "default_vagrant_compute_implementation",
+      "commands": {
+        "start_instance_command": {
+          "content": "cd headless && ",
+          "append_prototype_content": true
+        },
+        "get_hostname_command": {
+          "content": "cd headless && ",
+          "append_prototype_content": true
+        },
+        "get_port_command": {
+          "content": "cd headless && ",
+          "append_prototype_content": true
+        },
+        "detect_stale_instance_command": {
+          "content": "cd headless && ",
+          "append_prototype_content": true
+        },
+        "clean_up_instance_command": {
+          "content": "cd headless && ",
+          "append_prototype_content": true
+        }
+      }
+    },
+    "default_gui_vagrant_compute_implementation":
+    {
+      "prototype": "default_vagrant_compute_implementation",
+      "commands": {
+        "start_instance_command": {
+          "content": "cd gui && ",
+          "append_prototype_content": true
+        },
+        "get_hostname_command": {
+          "content": "cd gui && ",
+          "append_prototype_content": true
+        },
+        "get_port_command": {
+          "content": "cd gui && ",
+          "append_prototype_content": true
+        },
+        "detect_stale_instance_command": {
+          "content": "cd gui && ",
+          "append_prototype_content": true
+        },
+        "clean_up_instance_command": {
+          "content": "cd gui && ",
+          "append_prototype_content": true
+        }
+      }
+    }
+  },
+  "compute_types": {
+    "vagrant": {
+      "compute_implementations": {
+        "headless": {
+          "prototype": "default_headless_vagrant_compute_implementation"
+        },
+        "workstation": {
+          "prototype": "default_gui_vagrant_compute_implementation"
+        },
+        "htpc": {
+          "prototype": "default_gui_vagrant_compute_implementation"
+        }
+      }
+    }
+  }
+}

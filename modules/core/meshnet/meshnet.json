@@ -1,0 +1,14 @@
+{
+  "module_prototype":
+  {
+    "meshnet":
+    {
+      "module_name": "meshnet"
+    }
+  },
+  "meshnet": {
+    "cjdns": {},
+    "consul": {},
+    "neighbours": {}
+  }
+}

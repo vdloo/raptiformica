@@ -1,0 +1,27 @@
+{
+  "module_prototype":
+  {
+    "docker_compute_implementation":
+    {
+      "prototype": "compute_implementation",
+      "commands":
+      {
+        "start_instance_command": {
+          "content": "chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 5"
+        },
+        "get_hostname_command": {
+          "content": "bash -c \"sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat container_id)\" | tail -n 1"
+        },
+        "get_port_command": {
+          "content": "echo 22"
+        },
+        "detect_stale_instance_command": {
+          "content": "[ -f container_id ] && sudo docker ps --no-trunc | grep -f container_id"
+        },
+        "clean_up_instance_command": {
+          "content": "[ -f container_id ] && cat container_id | xargs sudo docker rm -f || /bin/true"
+        }
+      }
+    }
+  }
+}
