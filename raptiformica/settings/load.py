@@ -1,7 +1,7 @@
 from functools import partial
 from itertools import chain
 
-from raptiformica.settings import BASE_CONFIG, MODULES_DIR
+from raptiformica.settings import MODULES_DIR
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, \
     find_key_in_dict_recursively, transform_key_in_dict_recursively
 
@@ -10,7 +10,7 @@ from logging import getLogger
 log = getLogger(__name__)
 
 
-def load_config(config_file=BASE_CONFIG):
+def load_config(config_file):
     """
     Load a config file or default to the base config
     :param str config_file: path to the .json config file
@@ -19,16 +19,12 @@ def load_config(config_file=BASE_CONFIG):
     try:
         return load_json(config_file)
     except (OSError, ValueError):
-        if config_file != BASE_CONFIG:
-            log.warning("Failed loading config file {}. Falling back to base config {}".format(
-                config_file, BASE_CONFIG
-            ))
-            config = load_config()
-            write_config(config, config_file)
-            return config
-        else:
-            log.error("No valid config available!")
-            raise
+        log.warning("Failed loading config file. Falling back to base config")
+        config = load_modules(modules_dir=MODULES_DIR)
+        if not config:
+            raise ValueError("No valid config available")
+        write_config(config, config_file)
+        return config
 
 
 def write_config(config, config_file):

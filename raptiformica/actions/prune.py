@@ -1,3 +1,4 @@
+from functools import partial
 from logging import getLogger
 from os import listdir
 from os.path import join, isdir
@@ -5,7 +6,7 @@ from os.path import join, isdir
 from shutil import rmtree
 
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, MUTABLE_CONFIG
-from raptiformica.settings.load import load_config
+from raptiformica.settings.load import load_config, get_config_value
 from raptiformica.settings.meshnet import ensure_neighbour_removed_from_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types, \
@@ -29,13 +30,22 @@ def retrieve_prune_instance_config(server_type=get_first_server_type(), compute_
         server_type=server_type,
         compute_type=compute_type
     )
-    detect_stale_instance_command = compute_type_config_for_server_type.get(
-        'detect_stale_instance_command', '/bin/true'
+    return tuple(
+        map(
+            lambda s: s or '/bin/true',
+            map(
+                partial(
+                    get_config_value,
+                    compute_type_config_for_server_type,
+                    default=''
+                ),
+                (
+                    "detect_stale_instance_command",
+                    "clean_up_instance_command"
+                )
+            )
+        )
     )
-    clean_up_instance_command = compute_type_config_for_server_type.get(
-        'clean_up_instance_command', '/bin/true'
-    )
-    return detect_stale_instance_command, clean_up_instance_command
 
 
 def list_compute_checkouts_for_server_type_of_compute_type(server_type, compute_type):

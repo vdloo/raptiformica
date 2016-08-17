@@ -11,10 +11,14 @@ class TestRetrieveStartInstanceConfig(TestCase):
             'compute_types': {
                 'vagrant': {
                     'headless': {
-                        "source": "https://github.com/vdloo/vagrantfiles",
-                        "start_instance_command": "cd headless && vagrant up --provider=virtualbox",
-                        "hostname_get_command": "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'",
-                        "port_get_command": "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'"
+                        "source": {"content": "https://github.com/vdloo/vagrantfiles"},
+                        "start_instance_command": {"content": "cd headless && vagrant up --provider=virtualbox"},
+                        "get_hostname_command": {
+                            "content": "cd headless && vagrant ssh-config | grep HostName | awk '{print$NF}'"
+                        },
+                        "get_port_command": {
+                            "content": "cd headless && vagrant ssh-config | grep Port | awk '{print$NF}'"
+                        }
                     }
                 }
             }

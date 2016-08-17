@@ -11,14 +11,14 @@ class TestRetrieveProvisioningConfig(TestCase):
         self.config = {
             'server_types': {
                 'headless': {
-                    'source': 'https://github.com/vdloo/puppetfiles',
-                    'name': 'puppetfiles',
-                    'bootstrap_command': './papply.sh manifests/headless.pp'
+                    'source': {'content': 'https://github.com/vdloo/puppetfiles'},
+                    'name': {'content': 'puppetfiles'},
+                    'bootstrap_command': {'content': './papply.sh manifests/headless.pp'}
                 },
                 'workstation': {
-                    'source': 'https://github.com/vdloo/puppetfiles',
-                    'name': 'puppetfiles',
-                    'bootstrap_command': './papply.sh manifests/workstation.pp'
+                    'source': {'content': 'https://github.com/vdloo/puppetfiles'},
+                    'name': {'content': 'puppetfiles'},
+                    'bootstrap_command': {'content': './papply.sh manifests/workstation.pp'}
                 }
             }
         }
@@ -38,9 +38,9 @@ class TestRetrieveProvisioningConfig(TestCase):
         ret = retrieve_provisioning_config()
 
         expected_config = (
-            self.config['server_types'][get_first_server_type()]['source'],
-            self.config['server_types'][get_first_server_type()]['name'],
-            self.config['server_types'][get_first_server_type()]['bootstrap_command']
+            self.config['server_types'][get_first_server_type()]['source']['content'],
+            self.config['server_types'][get_first_server_type()]['name']['content'],
+            self.config['server_types'][get_first_server_type()]['bootstrap_command']['content']
         )
         self.assertEqual(ret, expected_config)
 
@@ -48,8 +48,8 @@ class TestRetrieveProvisioningConfig(TestCase):
         ret = retrieve_provisioning_config(server_type='workstation')
 
         expected_config = (
-            self.config['server_types']['workstation']['source'],
-            self.config['server_types']['workstation']['name'],
-            self.config['server_types']['workstation']['bootstrap_command']
+            self.config['server_types']['workstation']['source']['content'],
+            self.config['server_types']['workstation']['name']['content'],
+            self.config['server_types']['workstation']['bootstrap_command']['content']
         )
         self.assertEqual(ret, expected_config)
