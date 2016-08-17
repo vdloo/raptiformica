@@ -1,0 +1,30 @@
+{
+  "module_prototype":
+  {
+    "default_server_type_implementation":
+    {
+      "prototype": "server_implementation",
+      "source": {"content": "https://github.com/vdloo/puppetfiles"},
+      "name": {"content": "puppetfiles"}
+    }
+  },
+  "server_types": {
+    "headless":
+    {
+      "prototype": "default_server_type_implementation",
+      "bootstrap_command": {"content": "./papply.sh manifests/headless.pp"}
+    },
+    "workstation":
+    {
+      "prototype": "default_server_type_implementation",
+      "bootstrap_command": {"content": "./papply.sh manifests/workstation.pp"}
+    },
+    "htpc":
+    {
+      "prototype": "default_server_type_implementation",
+      "bootstrap_command": {"content": "./papply.sh manifests/htpc.pp"}
+    }
+  }
+}
+
+

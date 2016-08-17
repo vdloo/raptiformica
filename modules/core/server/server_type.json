@@ -1,0 +1,9 @@
+{
+  "module_prototype":
+  {
+    "server_implementation":
+    {
+      "module_name": "server_types"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "module_prototype":
+  {
+    "compute_implementation":
+    {
+      "module_name": "compute_types"
+    }
+  }
+}
