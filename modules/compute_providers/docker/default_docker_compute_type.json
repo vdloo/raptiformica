@@ -11,23 +11,23 @@
       "prototype": "default_docker_compute_implementation",
       "commands": {
         "start_instance_command": {
-          "content": "cd headless && ",
+          "content": "cd ubuntu64 && ",
           "append_prototype_content": true
         },
         "get_hostname_command": {
-          "content": "cd headless && ",
+          "content": "cd ubuntu64 && ",
           "append_prototype_content": true
         },
         "get_port_command": {
-          "content": "cd headless && ",
+          "content": "cd ubuntu64 && ",
           "append_prototype_content": true
         },
         "detect_stale_instance_command": {
-          "content": "cd headless && ",
+          "content": "cd ubuntu64 && ",
           "append_prototype_content": true
         },
         "clean_up_instance_command": {
-          "content": "cd headless && ",
+          "content": "cd ubuntu64 && ",
           "append_prototype_content": true
         }
       }

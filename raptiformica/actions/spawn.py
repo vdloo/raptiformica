@@ -1,6 +1,8 @@
+from functools import partial
 from logging import getLogger
 
 from raptiformica.actions.slave import slave_machine
+from raptiformica.settings.load import get_config_value
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type
 from raptiformica.shell.compute import start_instance
@@ -21,19 +23,20 @@ def retrieve_start_instance_config(server_type=get_first_server_type(), compute_
         server_type=server_type,
         compute_type=compute_type
     )
-    source = compute_type_config_for_server_type[
-        'source'
-    ]
-    start_instance_command = compute_type_config_for_server_type[
-        'start_instance_command'
-    ]
-    get_hostname_command = compute_type_config_for_server_type[
-        'hostname_get_command'
-    ]
-    get_port_command = compute_type_config_for_server_type[
-        'port_get_command'
-    ]
-    return source, start_instance_command, get_hostname_command, get_port_command
+    return tuple(
+        map(
+            partial(
+                get_config_value,
+                compute_type_config_for_server_type
+            ),
+            (
+                "source",
+                "start_instance_command",
+                "get_hostname_command",
+                "get_port_command"
+            )
+        )
+    )
 
 
 def start_compute_type(server_type=get_first_server_type(), compute_type=get_first_compute_type()):

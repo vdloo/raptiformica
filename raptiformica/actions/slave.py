@@ -1,3 +1,4 @@
+from functools import partial
 from logging import getLogger
 
 from raptiformica.settings import MUTABLE_CONFIG
@@ -9,7 +10,7 @@ from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.raptiformica import mesh
 from raptiformica.shell.rsync import upload_self
-from raptiformica.settings.load import load_config
+from raptiformica.settings.load import load_config, get_config_value
 
 log = getLogger(__name__)
 
@@ -22,10 +23,19 @@ def retrieve_provisioning_config(server_type=get_first_server_type()):
     """
     log.debug("Retrieving provisioning config")
     config = load_config(MUTABLE_CONFIG)
-    source = config['server_types'][server_type]['source']
-    name = config['server_types'][server_type]['name']
-    command = config['server_types'][server_type]['bootstrap_command']
-    return source, name, command
+    return tuple(
+        map(
+            partial(
+                get_config_value,
+                config['server_types'][server_type]
+            ),
+            (
+                "source",
+                "name",
+                "bootstrap_command"
+            )
+        )
+    )
 
 
 def provision_machine(host, port=22, server_type=get_first_server_type()):

@@ -13,7 +13,7 @@ class TestRegisterCleanUpTriggers(TestCase):
         self.load_config = self.set_up_patch('raptiformica.settings.types.load_config')
         self.docker_detect_stale_instance_command = "[ -f ubuntu64/container_id ] && " \
                                                     "/bin/false || sudo docker ps --no-trunc | " \
-                                                    "grep -f ubuntu64/container_id",
+                                                    "grep -f ubuntu64/container_id"
         self.docker_clean_up_stale_instance_command = "[ -f ubuntu64/container_id ] && " \
                                                       "cat ubuntu64/container_id | " \
                                                       "xargs sudo docker rm -f || /bin/true"
@@ -21,12 +21,20 @@ class TestRegisterCleanUpTriggers(TestCase):
             'compute_types': {
                 'docker': {
                     'headless': {
-                        "detect_stale_instance_command": self.docker_detect_stale_instance_command,
-                        "clean_up_instance_command": self.docker_clean_up_stale_instance_command
+                        "detect_stale_instance_command": {
+                            "content": self.docker_detect_stale_instance_command
+                        },
+                        "clean_up_instance_command": {
+                            "content": self.docker_clean_up_stale_instance_command
+                        }
                     },
                     'workstation': {
-                        "detect_stale_instance_command": self.docker_detect_stale_instance_command,
-                        "clean_up_instance_command": self.docker_clean_up_stale_instance_command
+                        "detect_stale_instance_command": {
+                            "content": self.docker_detect_stale_instance_command
+                        },
+                        "clean_up_instance_command": {
+                            "content": self.docker_clean_up_stale_instance_command
+                        }
                     }
                 },
                 'vagrant': {
