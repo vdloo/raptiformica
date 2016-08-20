@@ -1,0 +1,28 @@
+{
+  "module_prototype":
+  {
+    "default_platform_type_implementation":
+    {
+      "prototype": "platform_implementation"
+    },
+    "ensure_consensus_trigger_prototype": {
+      "predicate": {"content": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]"},
+      "command": {"content": "cat /dev/zero | ssh-keygen -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add; export PYTHONPATH=.; ./bin/raptiformica_spawn.py --verbose"}
+    },
+    "default_platform_type_hooks": {
+      "ensure_second_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}},
+      "ensure_third_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}}
+    }
+  },
+  "platform_types": {
+    "default":
+    {
+      "prototype": "default_platform_type_implementation",
+      "hooks": {
+        "prototype": "default_platform_type_hooks"
+      }
+    }
+  }
+}
+
+

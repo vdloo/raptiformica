@@ -27,6 +27,7 @@ def run_raptiformica_command(command_as_string, host, port=22):
         ),
         buffered=False,
     )
+    log.info("Finished running the remote command on {}!".format(host))
     return exit_code
 
 

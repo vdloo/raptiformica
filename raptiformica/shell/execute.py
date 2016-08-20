@@ -1,6 +1,7 @@
 from functools import partial
 from subprocess import Popen, PIPE
 from logging import getLogger
+from sys import stdout
 
 log = getLogger(__name__)
 
@@ -30,7 +31,10 @@ def log_failure_factory(message):
         :return None:
         """
         _, _, standard_error = process_output
-        log.warning("{}\n{}".format(message, standard_error))
+        error_message = standard_error if isinstance(
+            standard_error, str
+        ) else standard_error.decode()
+        log.warning("{}\n{}".format(message, error_message))
     return log_failure
 
 
@@ -63,12 +67,14 @@ def execute_process(command, buffered=True, shell=False):
     log.debug("Running command: {}".format(command))
     process = Popen(
         command, stdout=PIPE,
-        stderr=PIPE, universal_newlines=True,
-        shell=shell
+        universal_newlines=buffered,
+        stderr=PIPE, shell=shell,
+        bufsize=-1 if buffered else 1
     )
     if not buffered:
-        for line in process.stdout:
-            print(line, end='')
+        for line in iter(process.stdout.readline, b''):
+            stdout.buffer.write(line)
+            stdout.flush()
     standard_out, standard_error = process.communicate()
     exit_code = process.returncode
     return exit_code, standard_out, standard_error
@@ -93,6 +99,7 @@ def execute_process_print_ready(command, buffered=True, shell=False):
     :param list | str command: The command as a list or as string (when shell).
     I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
     exit_code, standard_out, standard_error = execute_process(
@@ -112,6 +119,7 @@ def run_command(command, success_callback=lambda ret: ret, failure_callback=lamb
     :param func failure_callback: function that takes the process output tuple, runs on failure
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
     process_output = execute_process(command, buffered=buffered, shell=shell)
@@ -146,6 +154,7 @@ def run_command_print_ready(command, success_callback=lambda ret: ret, failure_c
     :param func failure_callback: function that takes the process output tuple, runs on failure
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_command(
@@ -157,6 +166,34 @@ def run_command_print_ready(command, success_callback=lambda ret: ret, failure_c
     )
 
 
+def create_in_directory_factory(directory, command_as_string, proc):
+    """
+    Return a partially filled out proc function which executes "command" as a string in
+    the provided directory.
+    :param str directory: Directory to cwd to before running the command_as_string command
+    :param str command_as_string: The command as string that will be executed as sh -c 'cd directory; command'
+    :param func proc: the command to use to build the partial
+    :return func: partial command with the command filled in
+    """
+    command_as_list = [
+        'sh', '-c', 'cd {}; {}'.format(directory, command_as_string)
+    ]
+    return partial(proc, command_as_list)
+
+
+def run_command_in_directory_factory(directory, command_as_string):
+    """
+    Return a partially filled out run_command function which executes "command" as a string in
+    the provided directory.
+    :param str directory: Directory to cwd to before running the command_as_string command
+    :param str command_as_string: The command as string that will be executed as sh -c 'cd directory; command'
+    return func partial_run_command: run_command with the command filled in
+    """
+    return create_in_directory_factory(
+        directory, command_as_string, run_command
+    )
+
+
 def run_command_print_ready_in_directory_factory(directory, command_as_string):
     """
     Return a partially filled out run_command_print_ready function which executes "command" as a string in
@@ -165,10 +202,9 @@ def run_command_print_ready_in_directory_factory(directory, command_as_string):
     :param str command_as_string: The command as string that will be executed as sh -c 'cd directory; command'
     return func partial_run_command_print_ready: run_command_print_ready with the command filled in
     """
-    command_as_list = [
-        'sh', '-c', 'cd {}; {}'.format(directory, command_as_string)
-    ]
-    return partial(run_command_print_ready, command_as_list)
+    return create_in_directory_factory(
+        directory, command_as_string, run_command_print_ready
+    )
 
 
 def run_command_remotely(command_as_list, host, port=22,
@@ -251,7 +287,6 @@ def run_critical_unbuffered_command_remotely_print_ready(command_as_list, host, 
     :param int port: port to use to connect to the remote machine over ssh
     :param str failure_message: message to include in the raised failure
     if the exit code is nonzero
-    :param bool buffered: Store output in a variable instead of printing it live
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_critical_command_remotely_print_ready(

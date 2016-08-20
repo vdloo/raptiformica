@@ -71,6 +71,9 @@
         "htpc": {
           "prototype": "default_gui_vagrant_compute_implementation"
         }
+      },
+      "check_available_command": {
+        "content": "vagrant -v"
       }
     }
   }

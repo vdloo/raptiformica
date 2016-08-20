@@ -15,16 +15,20 @@ class TestExecuteProcess(TestCase):
     def test_execute_process_instantiates_process_object(self):
         execute_process(self.command_as_list)
 
-        self.p_open.assert_called_once_with(self.command_as_list, stdout=PIPE, stderr=PIPE,
-                                            shell=False,
-                                            universal_newlines=True)
+        self.p_open.assert_called_once_with(
+                self.command_as_list, stdout=PIPE, stderr=PIPE,
+                bufsize=-1, shell=False,
+                universal_newlines=True
+        )
 
     def test_execute_process_instantiates_process_object_as_shell_if_shell(self):
         execute_process(self.command_as_list, shell=True)
 
-        self.p_open.assert_called_once_with(self.command_as_list, stdout=PIPE, stderr=PIPE,
-                                            shell=True,
-                                            universal_newlines=True)
+        self.p_open.assert_called_once_with(
+            self.command_as_list, stdout=PIPE, stderr=PIPE,
+            bufsize=-1, shell=True,
+            universal_newlines=True
+        )
 
     def test_execute_process_communicates_for_output(self):
         execute_process(self.command_as_list)

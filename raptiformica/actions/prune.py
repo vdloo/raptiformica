@@ -11,12 +11,13 @@ from raptiformica.settings.meshnet import ensure_neighbour_removed_from_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types, \
     verify_server_type_implemented_in_compute_type
-from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory
+from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory, \
+    run_command_in_directory_factory
 
 log = getLogger(__name__)
 
 
-def retrieve_prune_instance_config(server_type=get_first_server_type(), compute_type=get_first_compute_type()):
+def retrieve_prune_instance_config(server_type=None, compute_type=None):
     """
     Get the detect stale instance and clean up instance commands for the server_type as defined in the compute_type
     If no detect stale instance or clean up instance command is configured, return '/bin/true' as a noop command
@@ -26,6 +27,8 @@ def retrieve_prune_instance_config(server_type=get_first_server_type(), compute_
     and the clean_up_instance_command
     """
     log.debug("Retrieving prune instance config")
+    server_type = server_type or get_first_server_type()
+    compute_type = compute_type or get_first_compute_type()
     compute_type_config_for_server_type = retrieve_compute_type_config_for_server_type(
         server_type=server_type,
         compute_type=compute_type
@@ -155,10 +158,10 @@ def clean_up_stale_instance(compute_checkout_directory, clean_up_stale_instance_
     """
     log.info("Cleaning up stale instance in {}"
              "".format(compute_checkout_directory))
-    partial_run_command_print_ready = run_command_print_ready_in_directory_factory(
+    partial_run_command = run_command_in_directory_factory(
         compute_checkout_directory, clean_up_stale_instance_command
     )
-    exit_code, _, _ = partial_run_command_print_ready(
+    exit_code, _, _ = partial_run_command(
         failure_callback=log_failure_factory(
             "Failed to clean up stale instance"
         ),

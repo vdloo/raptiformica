@@ -18,7 +18,14 @@ class TestLoadConfig(TestCase):
         load_config('/tmp/mutable_config.json')
 
         self.load_existing_config.assert_called_once_with(
-            '/tmp/mutable_config.json'
+            '/tmp/mutable_config.json', unresolved=False
+        )
+
+    def test_load_config_loads_unresolved_existing_config_if_specified(self):
+        load_config('/tmp/mutable_config.json', unresolved=True)
+
+        self.load_existing_config.assert_called_once_with(
+            '/tmp/mutable_config.json', unresolved=True
         )
 
     def test_load_config_logs_warning_when_existing_config_could_not_be_loaded(self):

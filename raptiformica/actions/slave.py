@@ -15,13 +15,14 @@ from raptiformica.settings.load import load_config, get_config_value
 log = getLogger(__name__)
 
 
-def retrieve_provisioning_config(server_type=get_first_server_type()):
+def retrieve_provisioning_config(server_type=None):
     """
     Get the source, name and bootstrap command from the settings for the specified server type
     :param str server_type: name of the server type. i.e. headless
     :return tuple provisioning_config: tuple of source, name and bootstrap command
     """
     log.debug("Retrieving provisioning config")
+    server_type = server_type or get_first_server_type()
     config = load_config(MUTABLE_CONFIG)
     return tuple(
         map(
@@ -38,7 +39,7 @@ def retrieve_provisioning_config(server_type=get_first_server_type()):
     )
 
 
-def provision_machine(host, port=22, server_type=get_first_server_type()):
+def provision_machine(host, port=22, server_type=None):
     """
     Ensure the remote machine is provisioned with the sources from the config file
     :param str host: hostname or ip of the remote machine
@@ -46,6 +47,7 @@ def provision_machine(host, port=22, server_type=get_first_server_type()):
     :param str server_type: name of the server type. i.e. headless
     :return None:
     """
+    server_type = server_type or get_first_server_type()
     log.info("Provisioning host {} as server type {}".format(host, server_type))
     source, name, command = retrieve_provisioning_config(server_type)
     ensure_latest_source(source, name, host, port=port)
@@ -79,7 +81,7 @@ def deploy_meshnet(host, port=22):
     mesh(host, port=port)
 
 
-def slave_machine(host, port=22, provision=True, assimilate=True, server_type=get_first_server_type(), uuid=None):
+def slave_machine(host, port=22, provision=True, assimilate=True, server_type=None, uuid=None):
     """
     Provision the remote machine and optionally (default yes) assimilate it into the network.
     :param str host: hostname or ip of the remote machine
@@ -91,6 +93,7 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=ge
     :return None:
     """
     log.info("Slaving machine {}".format(host))
+    server_type = server_type or get_first_server_type()
     if provision:
         provision_machine(host, port=port, server_type=server_type)
     upload_self(host, port=port)
