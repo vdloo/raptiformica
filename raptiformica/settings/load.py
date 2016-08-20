@@ -3,7 +3,7 @@ from itertools import chain
 
 from raptiformica.settings import MODULES_DIR
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, \
-    find_key_in_dict_recursively, transform_key_in_dict_recursively
+    find_key_in_dict_recursively, transform_key_in_dict_recursively, config_equals
 
 from logging import getLogger
 
@@ -17,14 +17,38 @@ def load_config(config_file):
     :return dict: the config data
     """
     try:
-        return load_json(config_file)
+        return load_existing_config(config_file)
     except (OSError, ValueError):
         log.warning("Failed loading config file. Falling back to base config")
-        config = load_modules(modules_dir=MODULES_DIR)
-        if not config:
-            raise ValueError("No valid config available")
-        write_config(config, config_file)
+        config = create_new_config(config_file)
         return config
+
+
+def create_new_config(config_file):
+    """
+    Load the modules and create a fresh configuration
+    file without the prototypes resolved.
+    :param str config_file: the path to write the config to
+    :return dict config: the loaded config
+    """
+    config = load_unresolved_modules()
+    if not config:
+        raise ValueError("No valid config available")
+    write_config(config, config_file)
+    prototypes = config.get('module_prototype')
+    return resolve_prototypes(prototypes, config) if prototypes else config
+
+
+def load_existing_config(config_file):
+    """
+    Load an existing mutable_config with the
+    prototypes resolved.
+    :param config_file:
+    :return dict config: the loaded config
+    """
+    config = load_json(config_file)
+    prototypes = config.get('module_prototype')
+    return resolve_prototypes(prototypes, config) if prototypes else config
 
 
 def write_config(config, config_file):
@@ -119,17 +143,66 @@ def resolve_prototypes(prototypes, config):
             return value
         if value not in prototypes:
             raise RuntimeError("Missing prototype {}".format(value))
-        return resolve_prototypes(prototypes, prototypes[value])
+        prototype = dict(prototypes[value])
+        prototype['resolved_prototype_name'] = value
+        return resolve_prototypes(prototypes, prototype)
     return transform_key_in_dict_recursively(
         config, 'prototype', resolve_prototype
     )
 
 
-def compose_types(prototypes, configs, types_name):
+def un_resolve_prototypes(prototypes, config):
+    """
+    All resolved prototypes that can be resolved from
+    the module_prototypes key will be removed and replaced
+    with a reference (name instead of the dict with content)
+    :param dict prototypes: dict of module prototypes
+    :param dict config: the config in which to un-resolve the prototypes
+    :return return config: the config with the prototypes unresolved
+    """
+    def un_resolve(_, value):
+        if isinstance(value, str):
+            return value  # already an unresolved prototype
+        name = value.get('resolved_prototype_name')
+        if name and name in prototypes:
+            module_prototype = prototypes[name]
+            # if the resolved_prototype_name has the same content
+            # as the matching module_prototype we can replace it
+            # with a reference to that module_prototype
+            # if it does not, then the config for that module has
+            # changed and we need to keep a copy. This is also
+            # the reason why we need to run un_resolve multiple
+            # times because we can only un_resolve the most
+            # deep layer every iteration.
+            resolved_prototype = dict(value)
+            del resolved_prototype['resolved_prototype_name']
+            can_un_resolve = config_equals(
+                module_prototype, resolved_prototype
+            )
+            if can_un_resolve:
+                return name
+            else:
+                return un_resolve_prototypes(prototypes, dict(value))
+
+    done = False
+    transformed_config = None
+    while not done:
+        done = config_equals(config, transformed_config)
+        # if the config does not match the transformed_config it means
+        # there are still prototypes we can attempt to un_resolve because
+        # every iteration a less-deep layer can be attempted as the nested
+        # resolved prototypes are unresolved.
+        config = config if transformed_config is None else transformed_config
+        transformed_config = transform_key_in_dict_recursively(
+            dict(config), 'prototype', un_resolve
+        )
+    return transformed_config
+
+
+def compose_types(configs, types_name):
     """
     Compose a types configuration of name types_name based on the config provided.
     Resolves encountered module_prototypes using the passed prototypes dictionary.
-    :param dict prototypes: dict of module prototypes
     :param list[dict, ..] configs: list of config dictionaries
     :param str types_name: name of the type to compose
     :return dict resolved_config: the config with all prototypes resolved.
@@ -137,8 +210,7 @@ def compose_types(prototypes, configs, types_name):
     compute_types = list(
         find_key_in_module_configs_recursively(configs, types_name)
     )
-    merged = merge_module_types(compute_types)
-    return resolve_prototypes(prototypes, merged)
+    return merge_module_types(compute_types)
 
 
 def load_modules(modules_dir=MODULES_DIR):
@@ -152,7 +224,27 @@ def load_modules(modules_dir=MODULES_DIR):
     modules = list(chain.from_iterable(
         find_key_in_module_configs_recursively(configs, 'module_name'))
     )
-    return {m: compose_types(prototypes, configs, m) for m in modules}
+    modules = {m: compose_types(configs, m) for m in modules}
+    modules['module_prototype'] = prototypes
+    return modules
+
+
+def load_unresolved_modules(modules_dir=MODULES_DIR):
+    """
+    Load the modules and un_resolve all un-resolvable
+    prototypes to compact the config.
+    :param str modules_dir: path to look for .json config files in
+    :return dict: mutable_config
+    """
+    config = load_modules(modules_dir=modules_dir)
+    prototypes = config.get('module_prototype')
+    if prototypes:
+        # resolve and un_resolve the prototypes instead of just not
+        # resolving them to validate that the config is valid
+        resolved_modules = resolve_prototypes(prototypes, config)
+        return un_resolve_prototypes(prototypes, resolved_modules)
+    else:
+        return config
 
 
 def get_config_value(config, item_name, default=''):

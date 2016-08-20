@@ -50,19 +50,17 @@ class TestLoadModules(TestCase):
                 ret,
                 {
                     'value1': (
-                        self.compose_module_prototypes.return_value,
                         self.load_module_configs.return_value,
                         'value1'
                     ),
                     'value2': (
-                        self.compose_module_prototypes.return_value,
                         self.load_module_configs.return_value,
                         'value2'
                     ),
                     'value3': (
-                        self.compose_module_prototypes.return_value,
                         self.load_module_configs.return_value,
                         'value3'
-                    )
+                    ),
+                    'module_prototype': self.compose_module_prototypes.return_value
                 }
         )

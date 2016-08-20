@@ -9,6 +9,7 @@ class TestResolvePrototype(TestCase):
             'prototype2': {'key1': {'content': 'value1'}},
         }
         self.config = {
+            'module_prototype': self.prototypes,
             'prototype': 'prototype1'
         }
 
@@ -20,8 +21,22 @@ class TestResolvePrototype(TestCase):
                 'prototype': {
                     'key1': {
                         'content': 'value1'
-                    }
-                }
+                    },
+                    'resolved_prototype_name': 'prototype2'
+                },
+                'resolved_prototype_name': 'prototype1'
+            },
+            'module_prototype': {
+                'prototype1': {
+                    'prototype': {
+                        'key1': {'content': 'value1'},
+                        'resolved_prototype_name': 'prototype2'
+                    },
+
+                },
+                'prototype2': {
+                    'key1': {'content': 'value1'}
+                },
             }
         }
         self.assertEqual(ret, expected_config)

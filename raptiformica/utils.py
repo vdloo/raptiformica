@@ -86,7 +86,7 @@ def transform_key_in_dict_recursively(dictionary, key_to_find, transformer=lambd
     defaults to identity function
     :return dict dictionary: the mutated dictionary
     """
-    for key, value in dictionary.items():
+    for key, value in sorted(dictionary.items()):
         if key == key_to_find:
             dictionary[key] = transformer(key, value)
         elif isinstance(value, dict):
@@ -135,3 +135,18 @@ def find_key_in_dict_recursively(dictionary, key_to_find):
                 )
             )
     return found
+
+
+def config_equals(config_a, config_b):
+    """
+    Return true or false based on whether the configs are equal.
+    Sorts keys because the dicts may contain lists (which have
+    an undetermined order in python 3)
+    :param dict config_a: the first config
+    :param dict config_b: the second config, which it will be compared to
+    :return bool equals: true or false based on whether the configs
+    are the same or not
+    """
+    def serialize(config):
+        return json.dumps(config, sort_keys=True)
+    return serialize(config_a) == serialize(config_b)
