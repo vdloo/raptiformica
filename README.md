@@ -96,9 +96,6 @@ root@archlinux:~# consul exec cat /etc/*release | grep "PRETTY_NAME\|ack"
 Development
 -----------
 ```
-# create a checkout
-git clone https://github.com/vdloo/raptiformica; cd raptiformica
-
 . activate_venv
 
 # run the tests to check if everything is OK
