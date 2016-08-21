@@ -20,7 +20,9 @@ class TestUpdateMeshnetConfig(TestCase):
     def test_update_meshnet_config_loads_mutable_config(self):
         update_meshnet_config('1.2.3.4', port=2222)
 
-        self.load_config.assert_called_once_with(MUTABLE_CONFIG)
+        self.load_config.assert_called_once_with(
+            MUTABLE_CONFIG, unresolved=True
+        )
 
     def test_update_meshnet_updatess_cjdns_config(self):
         update_meshnet_config('1.2.3.4', port=2222)

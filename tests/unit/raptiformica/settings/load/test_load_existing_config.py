@@ -7,7 +7,12 @@ class TestLoadExistingConfig(TestCase):
         self.load_json = self.set_up_patch(
             'raptiformica.settings.load.load_json'
         )
-        self.load_json.return_value = {}
+        self.load_json.return_value = {
+            'compute_types': [],
+            'module_prototype': {
+                'a': 'prototype'
+            }
+        }
         self.resolve_prototypes = self.set_up_patch(
             'raptiformica.settings.load.resolve_prototypes'
         )
@@ -20,13 +25,6 @@ class TestLoadExistingConfig(TestCase):
         )
 
     def test_load_existing_config_resolves_prototypes_if_there_are_module_prototypes(self):
-        self.load_json.return_value = {
-            'compute_types': [],
-            'module_prototype': {
-                'a': 'prototype'
-            }
-        }
-
         ret = load_existing_config('/tmp/mutable_config.json')
 
         self.resolve_prototypes.assert_called_once_with(
@@ -36,7 +34,15 @@ class TestLoadExistingConfig(TestCase):
         self.assertEqual(ret, self.resolve_prototypes.return_value)
 
     def test_load_existing_config_does_not_resolve_prototypes_if_there_are_no_module_prototypes(self):
+        self.load_json.return_value = {}
+
         ret = load_existing_config('/tmp/mutable_config.json')
+
+        self.assertFalse(self.resolve_prototypes.called)
+        self.assertEqual(ret, self.load_json.return_value)
+
+    def test_load_existing_config_does_not_resolve_prototypes_if_unresolved_is_specified(self):
+        ret = load_existing_config('/tmp/mutable_config.json', unresolved=True)
 
         self.assertFalse(self.resolve_prototypes.called)
         self.assertEqual(ret, self.load_json.return_value)

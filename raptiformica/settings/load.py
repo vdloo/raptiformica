@@ -10,14 +10,15 @@ from logging import getLogger
 log = getLogger(__name__)
 
 
-def load_config(config_file):
+def load_config(config_file, unresolved=False):
     """
     Load a config file or default to the base config
     :param str config_file: path to the .json config file
+    :param bool unresolved: whether or not to resolve the prototypes
     :return dict: the config data
     """
     try:
-        return load_existing_config(config_file)
+        return load_existing_config(config_file, unresolved=unresolved)
     except (OSError, ValueError):
         log.warning("Failed loading config file. Falling back to base config")
         config = create_new_config(config_file)
@@ -39,16 +40,20 @@ def create_new_config(config_file):
     return resolve_prototypes(prototypes, config) if prototypes else config
 
 
-def load_existing_config(config_file):
+def load_existing_config(config_file, unresolved=False):
     """
     Load an existing mutable_config with the
     prototypes resolved.
-    :param config_file:
+    :param str config_file: the path to write the config to
+    :param bool unresolved: whether or not to resolve the prototypes
     :return dict config: the loaded config
     """
     config = load_json(config_file)
     prototypes = config.get('module_prototype')
-    return resolve_prototypes(prototypes, config) if prototypes else config
+    if not unresolved and prototypes:
+        return resolve_prototypes(prototypes, config)
+    else:
+        return config
 
 
 def write_config(config, config_file):

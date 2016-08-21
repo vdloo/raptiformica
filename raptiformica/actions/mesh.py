@@ -4,6 +4,7 @@ from operator import itemgetter
 from raptiformica.settings import MUTABLE_CONFIG, CJDNS_DEFAULT_PORT
 from raptiformica.settings.load import load_config
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
+from raptiformica.shell.hooks import fire_hooks
 from raptiformica.utils import load_json, write_json, ensure_directory
 
 log = getLogger(__name__)
@@ -180,7 +181,7 @@ def join_meshnet(config):
     )
 
 
-def mesh_machine():
+def attempt_join_meshnet():
     """
     Configure the mesh services according to the inherited
     mutable config and start the services. If there are
@@ -201,3 +202,16 @@ def mesh_machine():
     # like that.
     if enough_neighbours(config):
         join_meshnet(config)
+
+
+def mesh_machine():
+    """
+    Configure the mesh services and attempt to join the meshnet.
+    If there are 'after_mesh' hooks configured, fire those.
+    Exit the process with exit code 0 if no exception occurred
+    so that the remote raptiformica command caller registers
+    the execution as successful.
+    :return None:
+    """
+    attempt_join_meshnet()
+    fire_hooks('after_mesh')

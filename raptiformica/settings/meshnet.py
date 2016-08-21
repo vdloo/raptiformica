@@ -77,12 +77,15 @@ def update_meshnet_config(host, port=22, uuid=None):
     :return None:
     """
     log.info("Updating meshnet config with data from host {}".format(host))
-    config = load_config(MUTABLE_CONFIG)
+    config = load_config(MUTABLE_CONFIG, unresolved=True)
     config = update_cjdns_config(config)
     config = update_consul_config(config)
     config = update_neighbours_config(
         config, host, port=port, uuid=uuid
     )
+    # todo: write a function like get_config_value but instead
+    # for setting values in the mutable config that traverses
+    # module prototypes
     write_config(config, MUTABLE_CONFIG)
 
 

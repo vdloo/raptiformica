@@ -45,6 +45,9 @@
         "htpc": {
           "prototype": "default_headless_docker_compute_implementation"
         }
+      },
+      "check_available_command": {
+        "content": "docker -v"
       }
     }
   }

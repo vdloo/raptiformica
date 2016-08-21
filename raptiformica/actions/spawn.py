@@ -11,7 +11,7 @@ from raptiformica.shell.ssh import verify_ssh_agent_running
 log = getLogger(__name__)
 
 
-def retrieve_start_instance_config(server_type=get_first_server_type(), compute_type=get_first_compute_type()):
+def retrieve_start_instance_config(server_type=None, compute_type=None):
     """
     Get the source, start instance command and getter commands for the server_type as defined in the compute_type
     :param str compute_type: name of the compute type to start an instance on
@@ -19,6 +19,8 @@ def retrieve_start_instance_config(server_type=get_first_server_type(), compute_
     :return tuple start_instance_config: tuple of source, start instance command, get hostname and get port command
     """
     log.debug("Retrieving start instance config")
+    server_type = server_type or get_first_server_type()
+    compute_type = compute_type or get_first_compute_type()
     compute_type_config_for_server_type = retrieve_compute_type_config_for_server_type(
         server_type=server_type,
         compute_type=compute_type
@@ -39,13 +41,15 @@ def retrieve_start_instance_config(server_type=get_first_server_type(), compute_
     )
 
 
-def start_compute_type(server_type=get_first_server_type(), compute_type=get_first_compute_type()):
+def start_compute_type(server_type=None, compute_type=None):
     """
     Start a compute instance of type server_type based on the config
     :param str server_type: name of the server type to provision the machine as
     :param str compute_type: name of the compute type to start an instance on
     :return tuple compute_checkout_information: compute_checkout_uuid, host and port
     """
+    server_type = server_type or get_first_server_type()
+    compute_type = compute_type or get_first_compute_type()
     source, boot_command, hostname_command, port_command = retrieve_start_instance_config(
         server_type=server_type, compute_type=compute_type
     )
@@ -56,8 +60,7 @@ def start_compute_type(server_type=get_first_server_type(), compute_type=get_fir
     )
 
 
-def spawn_machine(provision=False, assimilate=False, server_type=get_first_server_type(),
-                  compute_type=get_first_compute_type()):
+def spawn_machine(provision=False, assimilate=False, server_type=None, compute_type=None):
     """
     Start a new instance, provision it and join it into the distributed network
     :param bool provision: whether or not we should assimilate the remote machine
@@ -66,6 +69,8 @@ def spawn_machine(provision=False, assimilate=False, server_type=get_first_serve
     :param str compute_type: name of the compute type to start an instance on
     :return None:
     """
+    server_type = server_type or get_first_server_type()
+    compute_type = compute_type or get_first_compute_type()
     log.info("Spawning machine of server type {} with compute type {}".format(
         server_type, compute_type
     ))

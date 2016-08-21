@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
 from raptiformica.shell.execute import log_success_factory, raise_failure_factory, \
-    run_command_print_ready_in_directory_factory
+    run_command_print_ready_in_directory_factory, run_command_in_directory_factory
 from raptiformica.shell.git import clone_source_locally
 from raptiformica.utils import ensure_directory
 
@@ -50,10 +50,10 @@ def boot_instance(new_compute_checkout, command):
     :return tuple connection_information: host and port
     """
     log.info("Booting new instance, this can take a while..")
-    partial_run_command_print_ready = run_command_print_ready_in_directory_factory(
+    partial_run_command = run_command_in_directory_factory(
         new_compute_checkout, command
     )
-    exit_code, _, _ = partial_run_command_print_ready(
+    exit_code, _, _ = partial_run_command(
         success_callback=log_success_factory(
             "Booted a new instance of the compute type"
         ),
