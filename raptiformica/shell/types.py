@@ -38,7 +38,6 @@ def check_type_available(item, type_name):
     config = load_config(MUTABLE_CONFIG)
     type_config = config[item][type_name]
     predicate = get_config_value(type_config, "check_available_command")
-    print(predicate)
     if predicate:
         return evaluate_available(
             item, type_name, predicate
