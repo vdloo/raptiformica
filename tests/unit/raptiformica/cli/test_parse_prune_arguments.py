@@ -11,7 +11,8 @@ class TestParsePruneArguments(TestCase):
         parse_prune_arguments()
 
         self.argument_parser.assert_called_once_with(
-                description="Clean up inactive instances"
+            prog='raptiformica prune',
+            description="Clean up inactive instances"
         )
 
     def test_parse_prune_arguments_adds_arguments(self):

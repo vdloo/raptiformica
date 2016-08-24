@@ -82,7 +82,11 @@ Usage
 Get the code
 ```
 git clone https://github.com/vdloo/raptiformica; cd raptiformica
+
+# System wide installation (optional)
+make install
 ```
+
 
 Make sure you have an SSH agent running
 ```
@@ -91,19 +95,17 @@ eval $(ssh-agent -s); ssh-add
 
 Booting a virtualized cluster:
 ```
-export PYTHONPATH=.  
-
-rm -f mutable_config.json  # clean up configs from a previous cluster if there is one
+sudo rm -f mutable_config.json  # clean up configs from a previous cluster if there is one
 ```
 
 ```
 # Boot a Vagrant (will spawn two dockers in the VM to ensure 3 machines)
-./bin/raptiformica_spawn.py --compute-type vagrant --verbose
+sudo -E raptiformica spawn --compute-type vagrant --verbose
 ```
 
 Log in to one of the machines to access the network
 ```
-./bin/raptiformica_members.py
+sudo -E raptiformica members
 Node           Address               Status  Type    Build  Protocol  DC
 fc16:...:fd12  [fc16:...:fd12]:8301  alive   server  0.6.4  2         raptiformica
 fc16:...:fa0e  [fc16:...:fa0e]:8301  alive   server  0.6.4  2         raptiformica

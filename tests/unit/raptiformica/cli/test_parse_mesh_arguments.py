@@ -12,6 +12,7 @@ class TestParseMeshArguments(TestCase):
         parse_mesh_arguments()
 
         self.argument_parser.assert_called_once_with(
+            prog='raptiformica mesh',
             description='Deploy a mesh configuration based on the {} config '
                         'file on this machine and attempt to join '
                         'the distributed network'.format(MUTABLE_CONFIG)

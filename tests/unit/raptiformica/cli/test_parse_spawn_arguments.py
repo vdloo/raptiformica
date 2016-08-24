@@ -15,6 +15,7 @@ class TestParseSpawnArguments(TestCase):
         parse_spawn_arguments()
 
         self.argument_parser.assert_called_once_with(
+            prog='raptiformica spawn',
             description='Spawn a machine to slave and assimilate into the network'
         )
 
