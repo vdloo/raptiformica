@@ -30,6 +30,7 @@ def parse_slave_arguments():
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
+        prog="raptiformica slave",
         description='Provision and join a machine into the network'
     )
     parser.add_argument('host', type=str,
@@ -67,6 +68,7 @@ def parse_spawn_arguments():
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
+        prog="raptiformica spawn",
         description='Spawn a machine to slave and assimilate into the network'
     )
     parser.add_argument('--no-provision', action='store_true', default=False,
@@ -103,6 +105,7 @@ def parse_mesh_arguments():
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
+        prog="raptiformica mesh",
         description='Deploy a mesh configuration based on the {} config '
                     'file on this machine and attempt to join '
                     'the distributed network'.format(MUTABLE_CONFIG)
@@ -125,6 +128,7 @@ def parse_members_arguments():
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
+        prog="raptiformica members",
         description="Show the members of the distributed network."
     )
     return parse_arguments(parser)
@@ -146,6 +150,7 @@ def parse_prune_arguments():
     :return dict args: parsed arguments
     """
     parser = ArgumentParser(
+        prog="raptiformica prune",
         description="Clean up inactive instances"
     )
     return parse_arguments(parser)

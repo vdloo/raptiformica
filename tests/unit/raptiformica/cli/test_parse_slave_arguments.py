@@ -14,6 +14,7 @@ class TestParseSlaveArguments(TestCase):
         parse_slave_arguments()
 
         self.argument_parser.assert_called_once_with(
+            prog='raptiformica slave',
             description='Provision and join a machine into the network'
         )
 

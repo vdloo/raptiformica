@@ -1,0 +1,64 @@
+#!/bin/bash
+export PYTHONPATH=../
+
+SPAWN_ENTRYPOINT="raptiformica_spawn.py"
+PRUNE_ENTRYPOINT="raptiformica_prune.py"
+MEMBERS_ENTRYPOINT="raptiformica_members.py"
+MESH_ENTRYPOINT="raptiformica_mesh.py"
+SLAVE_ENTRYPOINT="raptiformica_slave.py"
+
+function print_help {
+    cat <<'END'
+Usage: raptiformica [CMD..] [OPTIONS] [-h]
+
+  spawn                      Spawn a machine to slave and 
+                             assimilate into the network
+
+  slave                      Provision and join a machine 
+                             into the network
+
+  mesh                       Deploy a mesh configuration 
+                             based on the config file on 
+                             this machine and attempt to 
+                             join the distributed network
+
+  prune                      Clean up inactive instances
+
+  members                    Show the members of the 
+                             distributed network.
+END
+}
+
+case $1 in 
+    spawn)
+    RAPTIFORMICA_CMD=$SPAWN_ENTRYPOINT
+    shift 
+    ;;
+    prune)
+    RAPTIFORMICA_CMD=$PRUNE_ENTRYPOINT
+    shift
+    ;;
+    members)
+    RAPTIFORMICA_CMD=$MEMBERS_ENTRYPOINT
+    shift
+    ;;
+    mesh)
+    RAPTIFORMICA_CMD=$MESH_ENTRYPOINT
+    shift
+    ;;
+    slave)
+    RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
+    shift
+    ;;
+    *)
+    print_help;
+    exit 1
+    ;;
+esac
+
+ENTRYPOINT_SCRIPT_PATH=$(readlink -f "$0")
+RAPTIFORMICA_BIN_DIRECTORY=$(dirname "$ENTRYPOINT_SCRIPT_PATH")
+RAPTIFORMICA_DIRECTORY=$(dirname "$RAPTIFORMICA_BIN_DIRECTORY")
+
+export PYTHONPATH=$RAPTIFORMICA_DIRECTORY
+$RAPTIFORMICA_BIN_DIRECTORY/$RAPTIFORMICA_CMD $@

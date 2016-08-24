@@ -11,6 +11,7 @@ class TestParseMembersArguments(TestCase):
         parse_members_arguments()
 
         self.argument_parser.assert_called_once_with(
+            prog='raptiformica members',
             description="Show the members of the distributed network."
         )
 
