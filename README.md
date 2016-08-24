@@ -52,6 +52,31 @@ surviving machine. The last machine should then be able to spawn and/or slave
 and provision newly available machines and join them in to the network.
 
 
+### No dependencies
+
+At least in the bootstrapping part of the application. Only a python
+3 interpreter and a checkout of Raptiformica should be enough to run the
+core code. This way it is enough to only rsync the code of an instance to 
+a new machine in order to get things running.
+
+### No provisioning logic in the core code
+
+Provisioning scripts should be configured as `server_type` modules. 
+See `modules/server_types/base.json` for an example. By implementing the
+provisioning logic outside of the application it does not matter if
+Ansible, Puppet or something else is used, as long as there is a repository 
+to check out and a command to run to start the provisioning process on the 
+machine.
+
+### No compute logic in the core code
+
+Logic for starting an instance should be configured as `compute_type`
+modules just like `server_types`. See `default_docker_compute_type.json`
+and `docker_compute_type.json`. A `compute_type` is implemented by 
+configuring a `start_instance_command`, `get_hostname_command` and 
+`get_port_command`. 
+
+
 Usage
 -----
 Get the code
