@@ -1,3 +1,5 @@
+from mock import call
+
 from raptiformica.actions.slave import slave_machine
 from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
@@ -8,6 +10,7 @@ class TestSlaveMachine(TestCase):
         self.log = self.set_up_patch('raptiformica.actions.slave.log')
         self.upload_self = self.set_up_patch('raptiformica.actions.slave.upload_self')
         self.provision_machine = self.set_up_patch('raptiformica.actions.slave.provision_machine')
+        self.fire_hooks = self.set_up_patch('raptiformica.actions.slave.fire_hooks')
         self.assimilate_machine = self.set_up_patch('raptiformica.actions.slave.assimilate_machine')
         self.deploy_meshnet = self.set_up_patch('raptiformica.actions.slave.deploy_meshnet')
 
@@ -25,6 +28,15 @@ class TestSlaveMachine(TestCase):
         slave_machine('1.2.3.4', port=2222, server_type='headless')
 
         self.upload_self.assert_called_once_with('1.2.3.4', port=2222)
+
+    def test_slave_machine_fires_after_slave_hooks_after_slaving_remote_machine(self):
+        slave_machine('1.2.3.4', port=2222, server_type='headless')
+
+        expected_calls = [
+            call('after_slave'),
+            call('after_assimilate')
+        ]
+        self.assertCountEqual(self.fire_hooks.mock_calls, expected_calls)
 
     def test_slave_machine_provisions_host_if_provision(self):
         slave_machine('1.2.3.4')

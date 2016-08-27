@@ -8,6 +8,7 @@ from raptiformica.shell.cjdns import ensure_cjdns_installed
 from raptiformica.shell.config import run_configured_bootstrap_command
 from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
+from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
 from raptiformica.shell.rsync import upload_self
 from raptiformica.settings.load import load_config, get_config_value
@@ -97,6 +98,8 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=No
     if provision:
         provision_machine(host, port=port, server_type=server_type)
     upload_self(host, port=port)
+    fire_hooks('after_slave')
     if assimilate:
         assimilate_machine(host, port=port, uuid=uuid)
         deploy_meshnet(host, port=port)
+        fire_hooks('after_assimilate')

@@ -5,13 +5,28 @@
     {
       "prototype": "platform_implementation"
     },
+    "notify_after_start_instance_trigger_prototype": {
+      "predicate": {"content": "/bin/true"},
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was booted'"}
+    },
+    "notify_after_slave_trigger_prototype": {
+      "predicate": {"content": "/bin/true"},
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was slaved'"}
+    },
+    "notify_after_assimilate_trigger_prototype": {
+      "predicate": {"content": "/bin/true"},
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'Deployed meshnet config to new machine'"}
+    },
     "ensure_consensus_trigger_prototype": {
       "predicate": {"content": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]"},
       "command": {"content": "cat /dev/zero | ssh-keygen -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add; export PYTHONPATH=.; ./bin/raptiformica_spawn.py --verbose"}
     },
     "default_platform_type_hooks": {
       "ensure_second_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}},
-      "ensure_third_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}}
+      "ensure_third_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}},
+      "notify_after_starting_instance": {"after_start_instance": {"prototype": "notify_after_start_instance_trigger_prototype"}},
+      "notify_after_slaving_machine": {"after_slave": {"prototype": "notify_after_slave_trigger_prototype"}},
+      "notify_after_assimilate_machine": {"after_assimilate": {"prototype": "notify_after_assimilate_trigger_prototype"}}
     }
   },
   "platform_types": {
