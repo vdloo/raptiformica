@@ -7,7 +7,7 @@
       "commands":
       {
         "start_instance_command": {
-          "content": "vagrant up --provider=virtualbox"
+          "content": "vagrant plugin install vagrant-tun && vagrant up --provider=virtualbox"
         },
         "get_hostname_command": {
           "content": "vagrant ssh-config | grep HostName | awk '{print$NF}'"
