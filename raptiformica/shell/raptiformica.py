@@ -1,10 +1,24 @@
 from logging import getLogger
 
-from raptiformica.settings import RAPTIFORMICA_DIR
-from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, raise_failure_factory, \
-    run_command_remotely_print_ready
+from raptiformica.settings import RAPTIFORMICA_DIR, CACHE_DIR
+from raptiformica.shell.execute import raise_failure_factory, run_command_remotely_print_ready, run_command_remotely
 
 log = getLogger(__name__)
+
+
+def create_remote_raptiformica_cache(host, port=22):
+    """
+    Create the cache dir on a remote host
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int exit_code: Exit code from the remote mkdir command
+    """
+    log.info("Ensuring remote raptiformica cache directory")
+    exit_code, _, _ = run_command_remotely(
+        ["mkdir", "-p", "$HOME/{}".format(CACHE_DIR)],
+        host, port=port, buffered=False
+    )
+    return exit_code
 
 
 def run_raptiformica_command(command_as_string, host, port=22):
