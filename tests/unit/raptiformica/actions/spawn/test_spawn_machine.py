@@ -10,6 +10,7 @@ class TestSpawnMachine(TestCase):
         self.verify_ssh_agent_running = self.set_up_patch('raptiformica.actions.spawn.verify_ssh_agent_running')
         self.start_compute_type = self.set_up_patch('raptiformica.actions.spawn.start_compute_type')
         self.start_compute_type.return_value = ('some_uuid_1234', '127.0.0.1', 2222)
+        self.fire_hooks = self.set_up_patch('raptiformica.actions.spawn.fire_hooks')
         self.slave_machine = self.set_up_patch('raptiformica.actions.spawn.slave_machine')
 
     def test_spawn_machine_logs_spawning_machine_message(self):
@@ -52,6 +53,11 @@ class TestSpawnMachine(TestCase):
             server_type='workstation',
             compute_type='docker'
         )
+
+    def test_spawn_machine_fires_after_start_instance_hooks_after_starting_an_instance(self):
+        spawn_machine(server_type='workstation', compute_type='docker')
+
+        self.fire_hooks.assert_called_once_with('after_start_instance')
 
     def test_spawn_machine_slave_machine_with_provided_server_type(self):
         spawn_machine(server_type='workstation', compute_type='docker',

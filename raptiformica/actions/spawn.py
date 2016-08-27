@@ -6,6 +6,7 @@ from raptiformica.settings.load import get_config_value
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type
 from raptiformica.shell.compute import start_instance
+from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.ssh import verify_ssh_agent_running
 
 log = getLogger(__name__)
@@ -78,6 +79,7 @@ def spawn_machine(provision=False, assimilate=False, server_type=None, compute_t
     uuid, host, port = start_compute_type(
         server_type=server_type, compute_type=compute_type
     )
+    fire_hooks('after_start_instance')
     slave_machine(
         host, port=port,
         assimilate=assimilate,
