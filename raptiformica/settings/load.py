@@ -1,9 +1,9 @@
 from functools import partial
 from itertools import chain
 
-from raptiformica.settings import MODULES_DIR
+from raptiformica.settings import MODULES_DIR, CACHE_DIR
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, \
-    find_key_in_dict_recursively, transform_key_in_dict_recursively, config_equals
+    find_key_in_dict_recursively, transform_key_in_dict_recursively, config_equals, ensure_directory
 
 from logging import getLogger
 
@@ -63,6 +63,7 @@ def write_config(config, config_file):
     :param str config_file: The mutable config file
     :return None:
     """
+    ensure_directory(CACHE_DIR)
     write_json(config, config_file)
 
 
