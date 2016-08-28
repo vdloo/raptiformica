@@ -7,15 +7,15 @@
     },
     "notify_after_start_instance_trigger_prototype": {
       "predicate": {"content": "/bin/true"},
-      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was booted'"}
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was booted' || /bin/true"}
     },
     "notify_after_slave_trigger_prototype": {
       "predicate": {"content": "/bin/true"},
-      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was slaved'"}
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'New machine was slaved' || /bin/true"}
     },
     "notify_after_assimilate_trigger_prototype": {
       "predicate": {"content": "/bin/true"},
-      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'Deployed meshnet config to new machine'"}
+      "command": {"content": "type noti 1> /dev/null && noti -t raptiformica -m 'Deployed meshnet config to new machine' || /bin/true"}
     },
     "ensure_consensus_trigger_prototype": {
       "predicate": {"content": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]"},
