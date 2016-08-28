@@ -17,14 +17,15 @@ from raptiformica.shell.execute import run_command_print_ready_in_directory_fact
 log = getLogger(__name__)
 
 
-def retrieve_prune_instance_config(server_type=None, compute_type=None):
+def retrieve_instance_config_items(items, default='/bin/true', server_type=None, compute_type=None):
     """
-    Get the detect stale instance and clean up instance commands for the server_type as defined in the compute_type
-    If no detect stale instance or clean up instance command is configured, return '/bin/true' as a noop command
-    :param str compute_type: name of the compute type to start an instance on
-    :param str server_type: name of the server type to provision the machine as
-    :return tuple prune_instance_config: tuple of the detect_stale_instance_command
-    and the clean_up_instance_command
+    Get the items from the instance config for the server_type as defined in the compute_type
+    If no item is configured, return '/bin/true' as a noop command
+    :param iterable items: List of items to retrieve
+    :param mul default: default value to use if item is not found
+    :param str compute_type: name of the compute type to get the server_type config for
+    :param str server_type: name of the server type to get the items from
+    :return tuple retrieved_items: tuple of the retrieved items
     """
     log.debug("Retrieving prune instance config")
     server_type = server_type or get_first_server_type()
@@ -35,19 +36,37 @@ def retrieve_prune_instance_config(server_type=None, compute_type=None):
     )
     return tuple(
         map(
-            lambda s: s or '/bin/true',
+            lambda s: s or default,
             map(
                 partial(
                     get_config_value,
                     compute_type_config_for_server_type,
                     default=''
                 ),
-                (
-                    "detect_stale_instance_command",
-                    "clean_up_instance_command"
-                )
+                items
             )
         )
+    )
+
+
+def retrieve_prune_instance_config(server_type=None, compute_type=None):
+    """
+    Get the detect stale instance and clean up instance commands for the server_type as defined in the compute_type
+    If no detect stale instance or clean up instance command is configured, return '/bin/true' as a noop command
+    :param str compute_type: name of the compute type to start an instance on
+    :param str server_type: name of the server type to provision the machine as
+    :return tuple prune_instance_config: tuple of the detect_stale_instance_command
+    and the clean_up_instance_command
+    """
+    log.debug("Retrieving prune instance config")
+    return retrieve_instance_config_items(
+        (
+            "detect_stale_instance_command",
+            "clean_up_instance_command"
+        ),
+        default='/bin/true',
+        server_type=server_type,
+        compute_type=compute_type
     )
 
 

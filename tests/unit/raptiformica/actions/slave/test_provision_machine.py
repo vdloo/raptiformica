@@ -17,8 +17,8 @@ class TestProvision(TestCase):
         self.ensure_latest_source = self.set_up_patch(
             'raptiformica.actions.slave.ensure_latest_source'
         )
-        self.run_configured_bootstrap_command = self.set_up_patch(
-            'raptiformica.actions.slave.run_configured_bootstrap_command'
+        self.run_resource_command = self.set_up_patch(
+            'raptiformica.actions.slave.run_resource_command'
         )
 
     def test_provision_logs_provisioning_host_message(self):
@@ -53,7 +53,7 @@ class TestProvision(TestCase):
     def test_provision_runs_configured_bootstrap_command(self):
         provision_machine('1.2.3.4')
 
-        self.run_configured_bootstrap_command.assert_called_once_with(
+        self.run_resource_command.assert_called_once_with(
             './papply.sh manifests/headless.pp',
             'puppetfiles',
             '1.2.3.4',

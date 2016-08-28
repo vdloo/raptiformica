@@ -5,7 +5,7 @@ from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.cjdns import ensure_cjdns_installed
-from raptiformica.shell.config import run_configured_bootstrap_command
+from raptiformica.shell.config import run_resource_command
 from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.hooks import fire_hooks
@@ -42,7 +42,7 @@ def retrieve_provisioning_config(server_type=None):
 
 def provision_machine(host, port=22, server_type=None):
     """
-    Ensure the remote machine is provisioned with the sources from the config file
+    Deploy the bootstrapping repo on the remote machine and run the bootstrap command
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str server_type: name of the server type. i.e. headless
@@ -50,9 +50,10 @@ def provision_machine(host, port=22, server_type=None):
     """
     server_type = server_type or get_first_server_type()
     log.info("Provisioning host {} as server type {}".format(host, server_type))
+    server_type = server_type or get_first_server_type()
     source, name, command = retrieve_provisioning_config(server_type)
     ensure_latest_source(source, name, host, port=port)
-    run_configured_bootstrap_command(command, name, host, port=port)
+    run_resource_command(command, name, host, port=port)
 
 
 def assimilate_machine(host, port=22, uuid=None):
