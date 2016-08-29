@@ -1,7 +1,7 @@
 from logging import getLogger
 from operator import itemgetter
 
-from raptiformica.settings import MUTABLE_CONFIG, CJDNS_DEFAULT_PORT
+from raptiformica.settings import MUTABLE_CONFIG, CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR
 from raptiformica.settings.load import load_config
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
@@ -69,6 +69,11 @@ def configure_consul_conf(config):
     """
     log.info("Configuring consul config")
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
+    cluster_change_handler = "bash -c \"" \
+                             "cd '{}'; " \
+                             "export PYTHONPATH=.; " \
+                             "./bin/raptiformica_prune.py " \
+                             "--verbose\"".format(RAPTIFORMICA_DIR)
     consul_config = {
         'bootstrap_expect': 3,
         'data_dir': '/opt/consul',
@@ -79,7 +84,14 @@ def configure_consul_conf(config):
         'bind_addr': '::',  # todo: bind only to the TUN ipv6 address
         'advertise_addr': cjdroute_config['ipv6'],
         'encrypt': config['meshnet']['consul']['password'],
-        'disable_remote_exec': False
+        'disable_remote_exec': False,
+        'watches': [
+            {
+                'type': 'service',
+                'service': 'consul',
+                'handler': cluster_change_handler
+            }
+        ]
     }
     for directory in ('/etc/consul.d', '/etc/opt/consul'):
         ensure_directory(directory)

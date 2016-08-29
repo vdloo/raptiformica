@@ -54,7 +54,18 @@ class TestConfigureConsulConf(TestCase):
             'bind_addr': '::',
             'advertise_addr': 'the_ipv6_address',
             'encrypt': 'the_symmetric_password',
-            'disable_remote_exec': False
+            'disable_remote_exec': False,
+            'watches': [
+                {
+                    'type': 'service',
+                    'service': 'consul',
+                    'handler': "bash -c \""
+                               "cd '/usr/etc/raptiformica'; "
+                               "export PYTHONPATH=.; "
+                               "./bin/raptiformica_prune.py --verbose"
+                               "\""
+                }
+            ]
         }
         self.write_json.assert_called_once_with(
             expected_config,
