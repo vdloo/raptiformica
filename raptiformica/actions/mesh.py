@@ -131,7 +131,10 @@ def start_detached_consul_agent():
     :return None:
     """
     log.info("Starting a detached consul agent")
-    start_detached_consul_agent_command = "/usr/bin/env screen -d -m /usr/bin/consul agent --config-dir /etc/consul.d/"
+    start_detached_consul_agent_command = "/usr/bin/env screen -d -m " \
+                                          "/usr/bin/consul agent " \
+                                          "-config-dir /etc/consul.d/ " \
+                                          "-ui -ui-dir /usr/etc/consul_web_ui"
     run_command_print_ready(
         start_detached_consul_agent_command,
         failure_callback=raise_failure_factory(

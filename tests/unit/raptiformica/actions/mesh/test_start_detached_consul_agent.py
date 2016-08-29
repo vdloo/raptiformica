@@ -19,7 +19,10 @@ class TestStartDetachedConsulAgent(TestCase):
     def test_start_detached_consul_agent_starts_detached_consul_agent(self):
         start_detached_consul_agent()
 
-        expected_command = "/usr/bin/env screen -d -m /usr/bin/consul agent --config-dir /etc/consul.d/"
+        expected_command = "/usr/bin/env screen -d -m " \
+                           "/usr/bin/consul agent " \
+                           "-config-dir /etc/consul.d/ " \
+                           "-ui -ui-dir /usr/etc/consul_web_ui"
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
