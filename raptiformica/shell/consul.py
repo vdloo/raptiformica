@@ -1,13 +1,16 @@
 from os import path
 from logging import getLogger
 
-from raptiformica.settings import RAPTIFORMICA_DIR
+from raptiformica.settings import RAPTIFORMICA_DIR, CONSUL_WEB_UI_DIR
 from raptiformica.shell.execute import run_critical_unbuffered_command_remotely_print_ready, \
     run_remote_multiple_labeled_commands
+from raptiformica.shell.unzip import unzip
+from raptiformica.shell.wget import wget
 
 log = getLogger(__name__)
 
 CONSUL_RELEASE = 'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip'
+CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_web_ui.zip'
 
 
 def ensure_consul_dependencies(host, port=22):
@@ -43,13 +46,14 @@ def ensure_latest_consul_release(host, port=22):
     """
     log.info("Ensuring consul release {} is on disk "
              "on the remote machine".format(CONSUL_RELEASE.split('/')[-1]))
-    run_critical_unbuffered_command_remotely_print_ready(
-        ['wget', '-nc', CONSUL_RELEASE], host, port=port,
-        failure_message="Failed to retrieve latest consul release"
-    )
+    for url in (CONSUL_RELEASE, CONSUL_WEB_UI_RELEASE):
+        wget(
+            url, host, port=port,
+            failure_message="Failed to retrieve {}".format(url.split('/')[-1])
+        )
 
 
-def unzip_consul_release(host, port=22):
+def unzip_consul_binary(host, port=22):
     """
     Unzip the consul binary to /usr/bin
     :param str host: hostname or ip of the remote machine
@@ -57,10 +61,38 @@ def unzip_consul_release(host, port=22):
     :return None:
     """
     log.info("Making sure the consul binary is placed in /usr/bin")
-    run_critical_unbuffered_command_remotely_print_ready(
-        ['unzip', '-o', CONSUL_RELEASE.split('/')[-1], '-d', '/usr/bin'],
-        host, port=port, failure_message="Failed to retrieve latest consul release"
+    unzip(
+        CONSUL_RELEASE.split('/')[-1], '/usr/bin',
+        host, port=port,
+        failure_message="Failed to unpack the consul binary"
     )
+
+
+def unzip_consul_web_ui(host, port=22):
+    """
+    Unzip the consul web_ui to /usr/etc/consul_web_ui
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return None:
+    """
+    log.info("Making sure the web_ui is placed in {}".format(CONSUL_WEB_UI_DIR))
+    unzip(
+        zip_file=CONSUL_WEB_UI_RELEASE.split('/')[-1],
+        unpack_dir=CONSUL_WEB_UI_DIR,
+        host=host, port=port,
+        failure_message="Failed to unpack the consul web ui"
+    )
+
+
+def unzip_consul_release(host, port=22):
+    """
+    Unzip the consul binary to /usr/bin and the web_ui to the INSTALL_DIR
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return None:
+    """
+    unzip_consul_binary(host, port=port)
+    unzip_consul_web_ui(host, port=port)
 
 
 def consul_setup(host, port=22):
