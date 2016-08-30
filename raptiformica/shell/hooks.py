@@ -41,10 +41,11 @@ def fire_hooks(hook_name, platform_type=None):
     :param str hook_name: hook to collect triggers for. e.g. 'after_mesh'
     :param str platform_type: the name of the platform type to collect
     the hooks in. defaults to the first configured type
-    :return None:
+    :return int amount: the amount of hooks found and fired
     """
     log.info("Gathering hooks for {}".format(hook_name))
     platform_type = platform_type or get_first_platform_type()
-    hooks = collect_hooks(hook_name, platform_type=platform_type)
+    hooks = list(collect_hooks(hook_name, platform_type=platform_type))
     for hook in hooks:
         fire_hook(hook)
+    return len(hooks)

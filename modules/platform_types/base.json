@@ -21,7 +21,17 @@
       "predicate": {"content": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]"},
       "command": {"content": "cat /dev/zero | ssh-keygen -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add; export PYTHONPATH=.; ./bin/raptiformica_spawn.py --verbose"}
     },
+    "prune_trigger_prototype": {
+      "predicate": {"content": "/bin/true"},
+      "command": {"content": "export PYTHONPATH=.; ./bin/raptiformica_prune.py --verbose"}
+    },
+    "evict_gone_machines_trigger_prototype": {
+      "predicate": {"content": "type consul 1> /dev/null"},
+      "command": {"content": "consul members | grep server | grep -v 'alive' | grep -v 'left'  | awk '{print $1}' | xargs -I {} consul force-leave {}"}
+    },
     "default_platform_type_hooks": {
+      "clean_up_gone_resources": {"cluster_change": {"prototype": "prune_trigger_prototype"}},
+      "evict_gone_machines": {"cluster_change": {"prototype": "evict_gone_machines_trigger_prototype"}},
       "ensure_second_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}},
       "ensure_third_machine": {"after_mesh": {"prototype": "ensure_consensus_trigger_prototype"}},
       "notify_after_starting_instance": {"after_start_instance": {"prototype": "notify_after_start_instance_trigger_prototype"}},

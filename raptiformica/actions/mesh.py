@@ -72,7 +72,7 @@ def configure_consul_conf(config):
     cluster_change_handler = "bash -c \"" \
                              "cd '{}'; " \
                              "export PYTHONPATH=.; " \
-                             "./bin/raptiformica_prune.py " \
+                             "./bin/raptiformica_hook.py cluster_change " \
                              "--verbose\"".format(RAPTIFORMICA_DIR)
     consul_config = {
         'bootstrap_expect': 3,

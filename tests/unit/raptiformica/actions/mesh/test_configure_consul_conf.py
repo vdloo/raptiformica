@@ -62,7 +62,8 @@ class TestConfigureConsulConf(TestCase):
                     'handler': "bash -c \""
                                "cd '/usr/etc/raptiformica'; "
                                "export PYTHONPATH=.; "
-                               "./bin/raptiformica_prune.py --verbose"
+                               "./bin/raptiformica_hook.py cluster_change "
+                               "--verbose"
                                "\""
                 }
             ]

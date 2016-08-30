@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 
+from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.members import show_members
 from raptiformica.actions.mesh import mesh_machine
 from raptiformica.actions.prune import prune_local_machines
@@ -116,10 +117,39 @@ def parse_mesh_arguments():
 def mesh():
     """
     Join this machine into the distributed network
-    :return:
+    :return None:
     """
     parse_mesh_arguments()
     mesh_machine()
+
+
+def parse_hook_arguments():
+    """
+    Parse the commandline options for running a hook
+    :return dict args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica hook",
+        description='Run all handlers for a specific hook from the config'
+    )
+    parser.add_argument(
+        'name', type=str,
+        help='Name of the hook to fire. i.e. after_mesh or cluster_change'
+    )
+    return parse_arguments(parser)
+
+
+def hook():
+    """
+    Run the handlers for a specific hook
+    :return None:
+    """
+    args = parse_hook_arguments()
+    # todo: In the future this could pass the input from stdin down to
+    # each handler so that the json provided on stdin by consul watches
+    # that trigger this hook can be used to perform actions based on the
+    # content of the event.
+    trigger_handlers(hook_name=args.name)
 
 
 def parse_members_arguments():
@@ -137,7 +167,7 @@ def parse_members_arguments():
 def members():
     """
     Show the members of the distributed network
-    :return:
+    :return None:
     """
     parse_members_arguments()
     show_members()
@@ -159,7 +189,7 @@ def parse_prune_arguments():
 def prune():
     """
     Clean up inactive instances
-    :return:
+    :return None:
     """
     parse_prune_arguments()
     prune_local_machines()
