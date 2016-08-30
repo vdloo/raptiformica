@@ -1,4 +1,3 @@
-from functools import partial
 from logging import getLogger
 from os import path
 from uuid import uuid4

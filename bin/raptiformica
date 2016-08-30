@@ -6,6 +6,7 @@ PRUNE_ENTRYPOINT="raptiformica_prune.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 MESH_ENTRYPOINT="raptiformica_mesh.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
+HOOK_ENTRYPOINT="raptiformica_hook.py"
 
 function print_help {
     cat <<'END'
@@ -23,6 +24,9 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
                              join the distributed network
 
   prune                      Clean up inactive instances
+
+  hook                       Run all handlers for a specific 
+                             hook from the config
 
   members                    Show the members of the 
                              distributed network.
@@ -48,6 +52,10 @@ case $1 in
     ;;
     slave)
     RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
+    shift
+    ;;
+    hook)
+    RAPTIFORMICA_CMD=$HOOK_ENTRYPOINT
     shift
     ;;
     *)
