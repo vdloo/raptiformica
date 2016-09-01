@@ -1,4 +1,4 @@
-from raptiformica.settings import MODULES_DIR
+from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR
 from raptiformica.settings.load import load_unresolved_modules
 from tests.testcase import TestCase
 
@@ -22,14 +22,14 @@ class TestLoadUnresolvedModules(TestCase):
         load_unresolved_modules()
 
         self.load_modules.assert_called_once_with(
-            modules_dir=MODULES_DIR
+            modules_dirs=(MODULES_DIR, ABS_CACHE_DIR)
         )
 
     def test_load_unresolved_modules_loads_specified_modules_dir(self):
-        load_unresolved_modules(modules_dir='/tmp/modules/dir')
+        load_unresolved_modules(modules_dirs=('/tmp/modules/dir', '/tmp/a/nother/modules/dir'))
 
         self.load_modules.assert_called_once_with(
-            modules_dir='/tmp/modules/dir'
+            modules_dirs=('/tmp/modules/dir', '/tmp/a/nother/modules/dir')
         )
 
     def test_load_unresolved_modules_resolves_prototypes_if_module_prototype_in_config(self):

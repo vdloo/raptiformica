@@ -78,15 +78,13 @@ def load_module_configs(modules_dir=MODULES_DIR):
     )
 
     def try_load_module(filename):
+        log.debug("Loading module config from {}".format(filename))
         try:
             return load_json(filename)
         except ValueError:
             log.warning("Failed to parse module config in {}, "
                         "skipping..".format(filename))
-    configs = filter(lambda x: x is not None, map(try_load_module, file_names))
-    # cast to list because the result of this function is likely to be
-    # iterated multiple times
-    return list(configs)
+    return filter(lambda x: x is not None, map(try_load_module, file_names))
 
 
 def find_key_in_module_configs_recursively(configs, key_to_find):
@@ -219,13 +217,17 @@ def compose_types(configs, types_name):
     return merge_module_types(compute_types)
 
 
-def load_modules(modules_dir=MODULES_DIR):
+def load_modules(modules_dirs=(MODULES_DIR, ABS_CACHE_DIR)):
     """
     Construct the mutable_config from the module configuration files on disk.
-    :param str modules_dir: path to look for .json config files in
+    :param iterable(str, ..) modules_dirs: paths to look for .json config files in
     :return dict: mutable_config
     """
-    configs = load_module_configs(modules_dir=modules_dir)
+    # cast to list because the result of this function is likely to be
+    # iterated multiple times
+    configs = list(chain.from_iterable(
+        map(load_module_configs, modules_dirs))
+    )
     prototypes = compose_module_prototypes(configs)
     modules = list(chain.from_iterable(
         find_key_in_module_configs_recursively(configs, 'module_name'))
@@ -235,14 +237,14 @@ def load_modules(modules_dir=MODULES_DIR):
     return modules
 
 
-def load_unresolved_modules(modules_dir=MODULES_DIR):
+def load_unresolved_modules(modules_dirs=(MODULES_DIR, ABS_CACHE_DIR)):
     """
     Load the modules and un_resolve all un-resolvable
     prototypes to compact the config.
-    :param str modules_dir: path to look for .json config files in
+    :param iterable(str, ..) modules_dirs: paths to look for .json config files in
     :return dict: mutable_config
     """
-    config = load_modules(modules_dir=modules_dir)
+    config = load_modules(modules_dirs=modules_dirs)
     prototypes = config.get('module_prototype')
     if prototypes:
         # resolve and un_resolve the prototypes instead of just not

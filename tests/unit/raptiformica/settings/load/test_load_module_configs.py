@@ -19,14 +19,14 @@ class TestLoadModuleConfigs(TestCase):
         self.log = self.set_up_patch('raptiformica.settings.load.log')
 
     def test_load_module_configs_lists_all_files_with_extension_in_directory(self):
-        load_module_configs(modules_dir='/tmp/some/directory')
+        list(load_module_configs(modules_dir='/tmp/some/directory'))
 
         self.list_all_files_with_extension_in_directory.assert_called_once_with(
             '/tmp/some/directory', 'json'
         )
 
     def test_load_configs_json_loads_all_module_configs(self):
-        load_module_configs(modules_dir='/tmp/some/directory')
+        list(load_module_configs(modules_dir='/tmp/some/directory'))
 
         expected_calls = map(call, self.files)
         self.assertCountEqual(self.load_json.mock_calls, expected_calls)
@@ -34,7 +34,7 @@ class TestLoadModuleConfigs(TestCase):
     def test_load_configs_ignores_configs_that_fail_to_load(self):
         self.load_json.side_effect = [{}, ValueError, {}]
 
-        ret = load_module_configs(modules_dir='/tmp/some/directory')
+        ret = list(load_module_configs(modules_dir='/tmp/some/directory'))
 
         expected_configs = [{}] * 2
         self.assertCountEqual(ret, expected_configs)
@@ -42,7 +42,7 @@ class TestLoadModuleConfigs(TestCase):
     def test_load_configs_logs_warning_for_configs_that_fail_to_load(self):
         self.load_json.side_effect = [ValueError, {}, ValueError]
 
-        load_module_configs(modules_dir='/tmp/some/directory')
+        list(load_module_configs(modules_dir='/tmp/some/directory'))
 
         expected_calls = map(call, (
             'Failed to parse module config in /tmp/some/directory/file1.json, skipping..',

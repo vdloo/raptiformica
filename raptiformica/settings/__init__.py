@@ -12,5 +12,6 @@ MACHINES_DIR = join(EPHEMERAL_DIR, 'machines')
 BASE_CONFIG = join(PROJECT_DIR, '.base_config.json')
 MUTABLE_CONFIG = join(ABS_CACHE_DIR, 'mutable_config.json')
 MODULES_DIR = join(PROJECT_DIR, 'modules')
+USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
 
 CJDNS_DEFAULT_PORT = 4863
