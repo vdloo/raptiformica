@@ -13,7 +13,7 @@ def verify_ssh_agent_running():
         failure_callback=raise_failure_factory(
             "There is no SSH agent running on the host or there are no keys in this agent.\n"
             "Please load your ssh agent by running: "
-            "eval $(ssh-agent -s); ssh-add ~/.ssh/some_key"
+            "eval $(ssh-agent -s); ssh-add"
         )
     )
     return exit_code
