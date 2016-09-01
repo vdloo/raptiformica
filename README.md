@@ -95,17 +95,17 @@ eval $(ssh-agent -s); ssh-add
 
 Booting a virtualized cluster:
 ```
-sudo rm -f mutable_config.json  # clean up configs from a previous cluster if there is one
+rm ~/.raptiformica.d/mutable_config  # clean up configs from a previous cluster if there is one
 ```
 
 ```
 # Boot a Vagrant (will spawn two dockers in the VM to ensure 3 machines)
-sudo -E raptiformica spawn --compute-type vagrant --verbose
+raptiformica spawn --compute-type vagrant --verbose
 ```
 
 Log in to one of the machines to access the network
 ```
-sudo -E raptiformica members
+raptiformica members
 Node           Address               Status  Type    Build  Protocol  DC
 fc16:...:fd12  [fc16:...:fd12]:8301  alive   server  0.6.4  2         raptiformica
 fc16:...:fa0e  [fc16:...:fa0e]:8301  alive   server  0.6.4  2         raptiformica
