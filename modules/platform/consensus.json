@@ -1,0 +1,19 @@
+{
+  "platform": {
+    "default": {
+      "hooks": {
+        "after_mesh": {
+	  "ensure_second_node": {
+	    "predicate": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]",
+	    "command": "cat /dev/zero | ssh-keygen -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add; export PYTHONPATH=.; ./bin/raptiformica_spawn.py --verbose"
+	  },
+	  "ensure_third_node": {
+	    "predicate": "[ $(/usr/bin/consul members | grep alive | wc -l) -lt 3 ]",
+	    "command": "cat /dev/zero | ssh-keygen -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add; export PYTHONPATH=.; ./bin/raptiformica_spawn.py --verbose"
+	  }
+	}
+      }
+    }
+  }
+}
+

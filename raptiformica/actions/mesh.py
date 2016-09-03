@@ -1,11 +1,11 @@
+from os.path import join
 from logging import getLogger
-from operator import itemgetter
 
-from raptiformica.settings import MUTABLE_CONFIG, CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR
-from raptiformica.settings.load import load_config
+from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
+from raptiformica.settings.load import get_config
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
-from raptiformica.utils import load_json, write_json, ensure_directory
+from raptiformica.utils import load_json, write_json, ensure_directory, startswith
 
 log = getLogger(__name__)
 
@@ -13,46 +13,89 @@ CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 
 
-def parse_cjdns_neighbours(meshnet_config):
+def list_neighbours(mapping):
+    """
+    List all cjdns neighbours by public key
+    :param dict mapping: the config mapping to parse the neighbours from
+    :return iter[str, ..]: public keys of all neighbours in the config
+    """
+    neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
+    public_keys = set(map(
+        lambda p: p.replace(neighbours_path, '').split('/')[0],
+        filter(
+            startswith(neighbours_path),
+            mapping
+        )
+    ))
+    return public_keys
+
+
+def get_cjdns_password(mapping):
+    """
+    Retrieve the cjdns password from the config mapping
+    :param dict mapping: the config mapping to get the shared secret from
+    :return str secret: the shared cjdns secret
+    """
+    return mapping["{}/meshnet/cjdns/password".format(KEY_VALUE_PATH)]
+
+
+def get_consul_password(mapping):
+    """
+    Retrieve the consul password from the config mapping
+    :param dict mapping: the config mapping to get the shared secret from
+    :return str secret: the shared consul secret
+    """
+    return mapping["{}/meshnet/consul/password".format(KEY_VALUE_PATH)]
+
+
+def parse_cjdns_neighbours(mapping):
     """
     Create a dict of entries for connectTo in the cjdroute.conf from the
-    meshnet segment of the inherited mutable config
-    :param dict meshnet_config: The 'meshnet' part of the inherited mutable config
+    meshnet segment of the distributed k v config mapping
+    :param dict mapping: the config mapping to parse the neighbours from
     :return dict neighbours: a dict of neighbouring machines with as dict-key their
     CJDNS public key.
     """
     neighbours = dict()
+
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
-    for neighbour in meshnet_config['neighbours'].values():
-        host = neighbour['host']
-        cjdns_port = neighbour['cjdns_port']
-        public_key = neighbour['cjdns_public_key']
-        if public_key == cjdroute_config['publicKey']:
+    local_public_key = cjdroute_config['publicKey']
+
+    neighbours_path = "{}/meshnet/neighbours/".format(
+        KEY_VALUE_PATH
+    )
+    public_keys = list_neighbours(mapping)
+    for pk in public_keys:
+        if pk == local_public_key:
             continue
+        neighbour_path = join(neighbours_path, pk)
+        password = get_cjdns_password(mapping)
+        host = mapping[join(neighbour_path, 'host')]
+        cjdns_port = mapping[join(neighbour_path, 'cjdns_port')]
         address = "{}:{}".format(host, cjdns_port)
         neighbours[address] = {
-            'password': meshnet_config['cjdns']['password'],
-            'publicKey': public_key,
-            'peerName': address,
+            'password': password,
+            'publicKey': pk,
+            'peerName': address
         }
     return neighbours
 
 
-def configure_cjdroute_conf(config):
+def configure_cjdroute_conf():
     """
     Configure the cjdroute config according to the
-    information in the inherited mutable config.
-    :param dict config: the mutable config
+    information in the retrieved mutable config.
     :return:
     """
     log.info("Configuring cjdroute config")
-    meshnet_config = config['meshnet']
+
+    mapping = get_config()
+    cjdns_secret = get_cjdns_password(mapping)
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
     cjdroute_config['authorizedPasswords'] = [{
-        'password': meshnet_config['cjdns']['password']
+        'password': cjdns_secret,
     }]
-    neighbours = parse_cjdns_neighbours(meshnet_config)
-    # do not add self as neighbour
+    neighbours = parse_cjdns_neighbours(mapping)
     cjdroute_config['interfaces']['UDPInterface'] = [{
         'connectTo': neighbours,
         'bind': '0.0.0.0:{}'.format(CJDNS_DEFAULT_PORT)
@@ -60,7 +103,7 @@ def configure_cjdroute_conf(config):
     write_json(cjdroute_config, CJDROUTE_CONF_PATH)
 
 
-def configure_consul_conf(config):
+def configure_consul_conf():
     """
     Configure the consul config according to the
     information in the inherited mutable config.
@@ -74,6 +117,7 @@ def configure_consul_conf(config):
                              "export PYTHONPATH=.; " \
                              "./bin/raptiformica_hook.py cluster_change " \
                              "--verbose\"".format(RAPTIFORMICA_DIR)
+    shared_secret = get_consul_password(get_config())
     consul_config = {
         'bootstrap_expect': 3,
         'data_dir': '/opt/consul',
@@ -83,7 +127,7 @@ def configure_consul_conf(config):
         'server': True,
         'bind_addr': '::',  # todo: bind only to the TUN ipv6 address
         'advertise_addr': cjdroute_config['ipv6'],
-        'encrypt': config['meshnet']['consul']['password'],
+        'encrypt': shared_secret,
         'disable_remote_exec': False,
         'watches': [
             {
@@ -98,16 +142,16 @@ def configure_consul_conf(config):
     write_json(consul_config, CONSUL_CONF_PATH)
 
 
-def enough_neighbours(config):
+def enough_neighbours():
     """
     Check if there are enough neighbours to bootstrap or
     join a meshnet. Need a minimum of 3 endpoints to form
     a consensus.
-    :param dict config: the mutable config
     :return:
     """
     log.info("Checking if there are enough neighbours to mesh with")
-    neighbours = parse_cjdns_neighbours(config['meshnet'])
+    mapping = get_config()
+    neighbours = parse_cjdns_neighbours(mapping)
     enough = len(neighbours) >= 2
     if not enough:
         log.warning("Not enough machines to bootstrap meshnet. "
@@ -168,20 +212,28 @@ def start_meshing_services():
     start_detached_consul_agent()
 
 
-def join_meshnet(config):
+def join_meshnet():
     """
     Bootstrap or join the distributed network by
     joining consul agents running on the neighbours
     specified in the mutable config
-    :param dict config: the mutable config
     :return None:
     """
     log.info("Joining the meshnet")
-    neighbours = config['meshnet']['neighbours'].values()
+    mapping = get_config()
+    neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
+    public_keys = list_neighbours(mapping)
+    ipv6_addresses = list()
+    for pk in public_keys:
+        neighbour_path = join(neighbours_path, pk)
+        ipv6_addresses.append(
+            mapping[join(neighbour_path, 'cjdns_ipv6_address')]
+        )
+
     # todo: poll for consul agent to start instead of stupidly sleeping
     # give the agent some time to start
     consul_join_command = 'sleep 5; consul join '
-    for ipv6_address in sorted(map(itemgetter('cjdns_ipv6_address'), neighbours)):
+    for ipv6_address in sorted(ipv6_addresses):
         consul_join_command += '[{}]:8301 '.format(
             ipv6_address
         )
@@ -205,9 +257,8 @@ def attempt_join_meshnet():
     :return None:
     """
     log.info("Joining the machine into the distributed network")
-    config = load_config(MUTABLE_CONFIG)
-    configure_cjdroute_conf(config)
-    configure_consul_conf(config)
+    configure_cjdroute_conf()
+    configure_consul_conf()
     start_meshing_services()
     # todo: in the future, if there are not enough neighbours to bootstrap
     # the network the running machine should 'boot' faux instances with their
@@ -215,8 +266,8 @@ def attempt_join_meshnet():
     # the information derived from consul in the case of less than 3 active
     # machines. Maybe a chroot would be the most compatible way to do something
     # like that.
-    if enough_neighbours(config):
-        join_meshnet(config)
+    if enough_neighbours():
+        join_meshnet()
 
 
 def mesh_machine():

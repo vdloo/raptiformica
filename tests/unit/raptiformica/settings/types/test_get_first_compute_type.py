@@ -12,7 +12,7 @@ class TestGetFirstComputeType(TestCase):
         get_first_compute_type()
 
         self.get_first_from_types.assert_called_once_with(
-                'compute_types'
+            'compute'
         )
 
     def test_get_first_compute_type_returns_first_compute_type(self):

@@ -1,0 +1,27 @@
+{
+  "platform": {
+    "default": {
+      "hooks": {
+        "after_start_instance": {
+	  "notify_start_instance": {
+	    "predicate": "type noti 1> /dev/null",
+	    "command": "noti -t raptiformica -m 'New machine was booted'"
+	  }
+	},
+        "after_slave": {
+	  "notify_slave_instance": {
+	    "predicate": "type noti 1> /dev/null",
+	    "command": "noti -t raptiformica -m 'New machine was slaved'"
+	  }
+	},
+        "after_assimilate": {
+	  "notify_assimilate_instance": {
+	    "predicate": "type noti 1> /dev/null",
+	    "command": "noti -t raptiformica -m 'Deployed meshnet config to new machine'"
+	  }
+	}
+      }
+    }
+  }
+}
+

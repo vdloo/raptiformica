@@ -12,7 +12,7 @@ class TestGetFirstPlatformType(TestCase):
         get_first_platform_type()
 
         self.get_first_from_types.assert_called_once_with(
-                'platform_types'
+            'platform'
         )
 
     def test_get_first_platform_type_returns_first_platform_type(self):

@@ -1,13 +1,13 @@
-from functools import partial
 from logging import getLogger
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings.load import get_config_value
-from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
-    retrieve_compute_type_config_for_server_type
+from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings.load import get_config
+from raptiformica.settings.types import get_first_compute_type, get_first_server_type
 from raptiformica.shell.compute import start_instance
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.ssh import verify_ssh_agent_running
+from raptiformica.utils import startswith, endswith
 
 log = getLogger(__name__)
 
@@ -22,24 +22,28 @@ def retrieve_start_instance_config(server_type=None, compute_type=None):
     log.debug("Retrieving start instance config")
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
-    compute_type_config_for_server_type = retrieve_compute_type_config_for_server_type(
-        server_type=server_type,
-        compute_type=compute_type
+    mapped = get_config()
+
+    start_instance_path = '{}/compute/{}/{}/'.format(
+        KEY_VALUE_PATH, compute_type, server_type
     )
-    return tuple(
-        map(
-            partial(
-                get_config_value,
-                compute_type_config_for_server_type
-            ),
-            (
-                "source",
-                "start_instance_command",
-                "get_hostname_command",
-                "get_port_command"
-            )
+    start_instance_keys = list(filter(
+        startswith(start_instance_path),
+        mapped
+    ))
+
+    def get_first_mapped(item):
+        return mapped[next(filter(endswith(item), start_instance_keys))]
+
+    return tuple(map(
+        get_first_mapped,
+        (
+            'source',
+            'start_instance',
+            'get_hostname',
+            'get_port'
         )
-    )
+    ))
 
 
 def start_compute_type(server_type=None, compute_type=None):

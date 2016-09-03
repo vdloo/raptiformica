@@ -1,7 +1,7 @@
-from functools import partial
 from logging import getLogger
 
-from raptiformica.settings import MUTABLE_CONFIG
+from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings.load import get_config
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.cjdns import ensure_cjdns_installed
@@ -11,7 +11,7 @@ from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
 from raptiformica.shell.rsync import upload_self
-from raptiformica.settings.load import load_config, get_config_value
+from raptiformica.utils import endswith, startswith
 
 log = getLogger(__name__)
 
@@ -24,18 +24,25 @@ def retrieve_provisioning_config(server_type=None):
     """
     log.debug("Retrieving provisioning config")
     server_type = server_type or get_first_server_type()
-    config = load_config(MUTABLE_CONFIG)
-    return tuple(
-        map(
-            partial(
-                get_config_value,
-                config['server_types'][server_type]
-            ),
-            (
-                "source",
-                "name",
-                "bootstrap_command"
-            )
+    mapped = get_config()
+
+    server_path = '{}/server/{}/'.format(
+        KEY_VALUE_PATH, server_type,
+    )
+    server_path_keys = list(filter(
+        startswith(server_path),
+        mapped
+    ))
+
+    def get_first_mapped(item):
+        return mapped[next(filter(endswith(item), server_path_keys))]
+
+    return map(
+        get_first_mapped,
+        (
+            'source',
+            'name',
+            'bootstrap',
         )
     )
 
@@ -67,7 +74,7 @@ def assimilate_machine(host, port=22, uuid=None):
     log.info("Preparing to machine to be joined into the distributed network")
     ensure_cjdns_installed(host, port=port)
     ensure_consul_installed(host, port=port)
-    update_meshnet_config(host, port=port, uuid=uuid)
+    update_meshnet_config(host, port=port, compute_checkout_uuid=uuid)
 
 
 def deploy_meshnet(host, port=22):

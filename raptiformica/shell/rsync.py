@@ -1,6 +1,8 @@
 from functools import partial
 from logging import getLogger
 
+from os.path import isfile
+
 from raptiformica.settings import PROJECT_DIR, INSTALL_DIR, MUTABLE_CONFIG
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, log_success_factory
 from raptiformica.shell.raptiformica import create_remote_raptiformica_cache
@@ -52,7 +54,7 @@ def upload_self(host, port=22):
     create_cache_exit_code = create_remote_raptiformica_cache(host, port=port)
     upload_config_exit_code = upload_partial(
         MUTABLE_CONFIG, "$HOME/.raptiformica.d"
-    )
+    ) if isfile(MUTABLE_CONFIG) else 0
     return not any(
         (
             upload_project_exit_code,

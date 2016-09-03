@@ -1,59 +1,17 @@
-from functools import partial
 from itertools import chain
-
-from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR
-from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, \
-    find_key_in_dict_recursively, transform_key_in_dict_recursively, config_equals, ensure_directory
-
+from json import loads
+from base64 import b64decode
+from os.path import join
+from urllib.error import URLError, HTTPError
+from urllib import request
 from logging import getLogger
 
+from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
+    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG
+from raptiformica.utils import load_json, write_json, \
+    list_all_files_with_extension_in_directory, ensure_directory
+
 log = getLogger(__name__)
-
-
-def load_config(config_file, unresolved=False):
-    """
-    Load a config file or default to the base config
-    :param str config_file: path to the .json config file
-    :param bool unresolved: whether or not to resolve the prototypes
-    :return dict: the config data
-    """
-    try:
-        return load_existing_config(config_file, unresolved=unresolved)
-    except (OSError, ValueError):
-        log.warning("Failed loading config file. Falling back to base config")
-        config = create_new_config(config_file)
-        return config
-
-
-def create_new_config(config_file):
-    """
-    Load the modules and create a fresh configuration
-    file without the prototypes resolved.
-    :param str config_file: the path to write the config to
-    :return dict config: the loaded config
-    """
-    config = load_unresolved_modules()
-    if not config:
-        raise ValueError("No valid config available")
-    write_config(config, config_file)
-    prototypes = config.get('module_prototype')
-    return resolve_prototypes(prototypes, config) if prototypes else config
-
-
-def load_existing_config(config_file, unresolved=False):
-    """
-    Load an existing mutable_config with the
-    prototypes resolved.
-    :param str config_file: the path to write the config to
-    :param bool unresolved: whether or not to resolve the prototypes
-    :return dict config: the loaded config
-    """
-    config = load_json(config_file)
-    prototypes = config.get('module_prototype')
-    if not unresolved and prototypes:
-        return resolve_prototypes(prototypes, config)
-    else:
-        return config
 
 
 def write_config(config, config_file):
@@ -67,7 +25,7 @@ def write_config(config, config_file):
     write_json(config, config_file)
 
 
-def load_module_configs(modules_dir=MODULES_DIR):
+def load_module_config(modules_dir=MODULES_DIR):
     """
     Find all configuration files in the modules_dir and return them as parsed a list
     :param str modules_dir: path to look for .json config files in
@@ -87,202 +45,206 @@ def load_module_configs(modules_dir=MODULES_DIR):
     return filter(lambda x: x is not None, map(try_load_module, file_names))
 
 
-def find_key_in_module_configs_recursively(configs, key_to_find):
+def load_module_configs(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     """
-    Find a key in a list of dicts recursively and return the matching values
-    in a list.
-    :param list[dict, ..] configs: list of config dictionaries
-    :param str key_to_find: the key to look for recursively in all dicts
-    :return list values: list of values matching the key in the configs
+    Load the module configs for all the specified modules dirs and
+    return a flattened list containing the configs
+    :param iterable module_dirs: directories to look for module configs in
+    :return list configs: list of parsed configs
     """
-    return map(partial(find_key_in_dict_recursively, key_to_find=key_to_find), configs)
-
-
-def merge_module_configs(configs):
-    """
-    Take a list of dicts and merge them into one dict.
-    Later keys overwrite previous previously defined keys.
-    :param list[dict, ..] configs: list of config dictionaries
-    :return dict merged_config: the merged config
-    """
-
-    return {k: v for i in map(lambda c: c.items(), configs) for k, v in i}
-
-
-def merge_module_types(configs):
-    """
-    Take a list of type configs and merges the module configs after flattening the list.
-    :param list[dict, ..] configs: list of config dictionaries
-    :return dict merged_config: the merged config
-    """
-    return merge_module_configs(chain.from_iterable(configs))
-
-
-def compose_module_prototypes(configs):
-    """
-    Gather all prototypes in a list of configs dictionaries recursively
-    and merge them flattened into a dictionary.
-    :param list[dict, ..] configs: list of config dictionaries
-    :return dict module_prototypes: dict of module prototypes
-    """
-    module_prototypes = find_key_in_module_configs_recursively(
-        configs, 'module_prototype'
-    )
-    return merge_module_types(module_prototypes)
-
-
-def resolve_prototypes(prototypes, config):
-    """
-    Iteratively loop over a config and resolve prototype keys recursively
-    from the passed prototypes directory. Will raise a RuntimeError if an
-    encountered prototype can not be resolved.
-    :param dict prototypes: dict of module prototypes
-    :param dict config: config to resolve the prototypes in recursively
-    (if a resolved prototype contains a prototype that prototype will also
-    be resolved)
-    :return dict resolved_config: the config with all prototypes resolved.
-    """
-    def resolve_prototype(_, value):
-        if not isinstance(value, str):
-            return value
-        if value not in prototypes:
-            raise RuntimeError("Missing prototype {}".format(value))
-        prototype = dict(prototypes[value])
-        prototype['resolved_prototype_name'] = value
-        return resolve_prototypes(prototypes, prototype)
-    return transform_key_in_dict_recursively(
-        config, 'prototype', resolve_prototype
+    return chain.from_iterable(
+        map(load_module_config, module_dirs)
     )
 
 
-def un_resolve_prototypes(prototypes, config):
+def loop_config(config, path='/', callback=lambda path, k, v: None):
     """
-    All resolved prototypes that can be resolved from
-    the module_prototypes key will be removed and replaced
-    with a reference (name instead of the dict with content)
-    :param dict prototypes: dict of module prototypes
-    :param dict config: the config in which to un-resolve the prototypes
-    :return return config: the config with the prototypes unresolved
+    Loop the config and perform the callback for each value
+    :param dict config: config to loop for values
+    :param str path: the depth in the dict joined by /
+    :param func callback: the callback to perform for each value
+    :return None:
     """
-    def un_resolve(_, value):
-        if isinstance(value, str):
-            return value  # already an unresolved prototype
-        name = value.get('resolved_prototype_name')
-        if name and name in prototypes:
-            module_prototype = prototypes[name]
-            # if the resolved_prototype_name has the same content
-            # as the matching module_prototype we can replace it
-            # with a reference to that module_prototype
-            # if it does not, then the config for that module has
-            # changed and we need to keep a copy. This is also
-            # the reason why we need to run un_resolve multiple
-            # times because we can only un_resolve the most
-            # deep layer every iteration.
-            resolved_prototype = dict(value)
-            del resolved_prototype['resolved_prototype_name']
-            can_un_resolve = config_equals(
-                module_prototype, resolved_prototype
+    for k, v in config.items():
+        if isinstance(v, dict):
+            loop_config(v, path=join(path, k), callback=callback)
+        else:
+            callback(path, k, v)
+
+
+def put_kv(path, k, v):
+    """
+    Put a key and value to the distributed key value store at the location path
+    :param str path: api path to PUT to
+    :param str k: the key to put
+    :param str v: the value to put
+    :return None:
+    """
+    encoded = str.encode(str(v))
+    url = join(path, k)
+    req = request.Request(url=url, data=encoded, method='PUT')
+    with request.urlopen(req) as f:
+        log.debug("PUT k v pair ({}, {}) to {}: {}, {}".format(
+            k, v, url, f.status, f.reason
+        ))
+
+
+def upload_config(mapped):
+    """
+    Upload a mapped config to the distributed key value store
+    :param iterable[dict, ..] mapped: list of key value pairs
+    :return None:
+    """
+    log.debug("Uploading local configs to distributed key value store")
+    for key, value in mapped.items():
+        put_kv(KEY_VALUE_ENDPOINT, key, value)
+
+
+def download_config():
+    """
+    Get the entire config from the distributed key value store
+    :return dict mapping: all registered key value pairs
+    """
+    log.info(
+        "Attempting to retrieve the shared config "
+        "from the distributed key value store"
+    )
+    endpoint = join(KEY_VALUE_ENDPOINT, KEY_VALUE_PATH)
+    recurse_kv = join(endpoint, '?recurse')
+    req = request.Request(url=recurse_kv, method='GET')
+    with request.urlopen(req) as r:
+        result = loads(r.read().decode('utf-8'))
+    mapping = {r['Key']: b64decode(r['Value']).decode('utf-8') for r in result}
+    return mapping
+
+
+def map_configs(configs):
+    """
+    Map the module configs to the key value associative array
+    :param iterable[dict, ..] configs: list of configs to map as key value pairs
+    :return dict mapping: key value mapping with config data
+    """
+    d = dict()
+    for config in configs:
+        loop_config(
+            config,
+            path=join(KEY_VALUE_ENDPOINT, KEY_VALUE_PATH),
+            callback=lambda path, k, v: d.update(
+                {join(path.replace(KEY_VALUE_ENDPOINT, ''), k): v}
             )
-            if can_un_resolve:
-                return name
-            else:
-                return un_resolve_prototypes(prototypes, dict(value))
-
-    done = False
-    transformed_config = None
-    while not done:
-        done = config_equals(config, transformed_config)
-        # if the config does not match the transformed_config it means
-        # there are still prototypes we can attempt to un_resolve because
-        # every iteration a less-deep layer can be attempted as the nested
-        # resolved prototypes are unresolved.
-        config = config if transformed_config is None else transformed_config
-        transformed_config = transform_key_in_dict_recursively(
-            dict(config), 'prototype', un_resolve
         )
-    return transformed_config
+    return d
 
 
-def compose_types(configs, types_name):
+def on_disk_mapping():
     """
-    Compose a types configuration of name types_name based on the config provided.
-    Resolves encountered module_prototypes using the passed prototypes dictionary.
-    :param list[dict, ..] configs: list of config dictionaries
-    :param str types_name: name of the type to compose
-    :return dict resolved_config: the config with all prototypes resolved.
+    Retrieve the on disk config mapping
+    :return dict mapping: retrieved key value mapping with config data
     """
-    compute_types = list(
-        find_key_in_module_configs_recursively(configs, types_name)
-    )
-    return merge_module_types(compute_types)
+    configs = load_module_configs()
+    return map_configs(configs)
 
 
-def load_modules(modules_dirs=(MODULES_DIR, ABS_CACHE_DIR)):
+def try_update_config(mapping):
     """
-    Construct the mutable_config from the module configuration files on disk.
-    :param iterable(str, ..) modules_dirs: paths to look for .json config files in
-    :return dict: mutable_config
+    If no consul cluster has been established yet there is no
+    distributed key value store yet, in that case write the mapping
+    to the local cache so this can be copied by rsync to new hosts
+    until at least three can be linked together and form consensus
+    :param dict mapping: key value mapping with config data
+    :return dict mapping: retrieved key value mapping with config data
     """
-    # cast to list because the result of this function is likely to be
-    # iterated multiple times
-    configs = list(chain.from_iterable(
-        map(load_module_configs, modules_dirs))
-    )
-    prototypes = compose_module_prototypes(configs)
-    modules = list(chain.from_iterable(
-        find_key_in_module_configs_recursively(configs, 'module_name'))
-    )
-    modules = {m: compose_types(configs, m) for m in modules}
-    modules['module_prototype'] = prototypes
-    return modules
+    try:
+        mapping = update_config(mapping)
+    except (HTTPError, URLError, ConnectionRefusedError):
+        cached_mapping = get_config()
+        cached_mapping.update(mapping)
+        cache_config(cached_mapping)
+        mapping = cached_mapping
+    return mapping
 
 
-def load_unresolved_modules(modules_dirs=(MODULES_DIR, ABS_CACHE_DIR)):
+def update_config(mapping):
     """
-    Load the modules and un_resolve all un-resolvable
-    prototypes to compact the config.
-    :param iterable(str, ..) modules_dirs: paths to look for .json config files in
-    :return dict: mutable_config
+    Upload a new mapping to the distributed key value store and
+    retrieve the latest mapping
+    :param dict mapping: the mapping to PUT to the k v API
+    :return dict mapping: retrieved key value mapping with config data
     """
-    config = load_modules(modules_dirs=modules_dirs)
-    prototypes = config.get('module_prototype')
-    if prototypes:
-        # resolve and un_resolve the prototypes instead of just not
-        # resolving them to validate that the config is valid
-        resolved_modules = resolve_prototypes(prototypes, config)
-        return un_resolve_prototypes(prototypes, resolved_modules)
-    else:
-        return config
+    upload_config(mapping)
+    return download_config()
 
 
-def get_config_value(config, item_name, default=''):
+def sync_shared_config_mapping():
     """
-    Compose a config value based for key item_name based on the config
-    passed by traversing up the prototype tree if necessary. Returns
-    default if no matching value was encountered. The default value
-    must have + implemented.
+    Retrieve the remote config mapping or upload
+    the local configuration mapping if none exists in
+    the distributed key value store yet. Also caches
+    the downloaded result.
+    :return dict mapping: retrieved key value mapping with config data
+    """
+    try:
+        mapping = download_config()
+    except HTTPError:
+        mapping = get_local_config()
+        mapping = update_config(mapping)
+    cache_config(mapping)
+    return mapping
 
-    :param dict config: a module config to look for the item_name key in
-    :param str item_name: item name to look for in config
-    :param mul default: a value of a type that has + implemented. e.g. '' as a string
-    :return mul: the constructed config value
+
+def cache_config(mapping):
     """
-    # filter out prototypes from the config dict so we search by
-    # breadth first instead of depth first
-    flat_config = transform_key_in_dict_recursively(
-        dict(config), 'prototype', lambda k, v: {}
-    )
-    values = find_key_in_dict_recursively(flat_config, item_name) or [
-        {'content': default}
-    ]
-    for value in values:
-        try:
-            if not value['content'] or value.get('append_prototype_content'):
-                value['content'] += get_config_value(
-                    config['prototype'],
-                    item_name
-                ) or default
-            return value['content']
-        except (KeyError, TypeError):
-            continue
-    return default
+    Write the retrieved config to disk so the mutations are retained
+    even in case of network failure
+    :param dict mapping: the cached k v mapping
+    :return None:
+    """
+    if not mapping:
+        raise RuntimeError(
+            "Passed key value mapping was null. "
+            "Refusing to cache empty mapping!"
+        )
+    write_config(mapping, MUTABLE_CONFIG)
+
+
+def cached_config():
+    """
+    Retrieve the cached config of the last successful config download
+    from distributed key value store
+    :return dict mapping: the k v config mapping
+    """
+    return load_json(MUTABLE_CONFIG)
+
+
+def get_local_config():
+    """
+    Get the local config, either from cache or from the mapped modules
+    :return dict mapping: key value mapping with config data
+    """
+    failed_cached_config = "No cache is available. Returning the mapped " \
+                           "configs on disk."
+    try:
+        return cached_config()
+    except FileNotFoundError:
+        log.debug(failed_cached_config)
+        return on_disk_mapping()
+
+
+def get_config():
+    """
+    Get the most recent config we can
+    - check if we can download the mapping from the distributed
+    key value store
+    - if we can not, try uploading the config mapping on disk
+    - if we can not, try returning a cached config
+    - if there is no cached config, return the config mapping on disk
+    :return dict mapping: key value mapping with config data
+    """
+    failed_distributed_config = "Failed to retrieve the config from the " \
+                                "distributed key value store, will try " \
+                                "to get the latest state from the cache now."
+    try:
+        return sync_shared_config_mapping()
+    except URLError:
+        log.debug(failed_distributed_config)
+        return get_local_config()

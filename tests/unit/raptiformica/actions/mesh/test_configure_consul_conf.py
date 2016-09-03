@@ -7,13 +7,24 @@ from tests.testcase import TestCase
 class TestConfigureConsulConf(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
-        self.mutable_config = {
-            'meshnet': {
-                'consul': {
-                    'password': "the_symmetric_password"
-                }
-            }
+        self.mapping = {
+            "raptiformica/meshnet/cjdns/password": "a_secret",
+            "raptiformica/meshnet/consul/password": "a_different_secret",
+            "raptiformica/meshnet/neighbours/a_pubkey.k/cjdns_ipv6_address": "some_ipv6_address",
+            "raptiformica/meshnet/neighbours/a_pubkey.k/cjdns_port": 4863,
+            "raptiformica/meshnet/neighbours/a_pubkey.k/cjdns_public_key": "a_pubkey.k",
+            "raptiformica/meshnet/neighbours/a_pubkey.k/host": "192.168.178.23",
+            "raptiformica/meshnet/neighbours/a_pubkey.k/ssh_port": "2200",
+            "raptiformica/meshnet/neighbours/a_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf2",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_ipv6_address": "some_other_ipv6_address",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_port": 4863,
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_public_key": "a_different_pubkey.k",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/host": "192.168.178.24",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/ssh_port": "2201",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf1",
         }
+        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config')
+        self.get_config.return_value = self.mapping
         self.cjdroute_config = {
             'ipv6': 'the_ipv6_address',
         }
@@ -23,17 +34,17 @@ class TestConfigureConsulConf(TestCase):
         self.write_json = self.set_up_patch('raptiformica.actions.mesh.write_json')
 
     def test_configure_consul_conf_logs_configuring_consul_config_message(self):
-        configure_consul_conf(self.mutable_config)
+        configure_consul_conf()
 
         self.assertTrue(self.log.info.called)
 
     def test_configure_consul_conf_loads_cjdroute_config(self):
-        configure_consul_conf(self.mutable_config)
+        configure_consul_conf()
 
         self.load_json.assert_called_once_with(CJDROUTE_CONF_PATH)
 
     def test_configure_consul_conf_ensures_consul_settings_directories_exist(self):
-        configure_consul_conf(self.mutable_config)
+        configure_consul_conf()
 
         expected_calls = [
             call('/etc/consul.d'),
@@ -42,7 +53,7 @@ class TestConfigureConsulConf(TestCase):
         self.assertTrue(expected_calls, self.ensure_directory.mock_calls)
 
     def test_configure_consul_conf_writes_generated_consul_conf_to_disk(self):
-        configure_consul_conf(self.mutable_config)
+        configure_consul_conf()
 
         expected_config = {
             'bootstrap_expect': 3,
@@ -53,7 +64,7 @@ class TestConfigureConsulConf(TestCase):
             'server': True,
             'bind_addr': '::',
             'advertise_addr': 'the_ipv6_address',
-            'encrypt': 'the_symmetric_password',
+            'encrypt': 'a_different_secret',
             'disable_remote_exec': False,
             'watches': [
                 {

@@ -28,12 +28,14 @@ class TestAssimilateMachine(TestCase):
         assimilate_machine('1.2.3.4', port=2222)
 
         self.update_meshnet_config.assert_called_once_with(
-            '1.2.3.4', port=2222, uuid=None
+            '1.2.3.4', port=2222,
+            compute_checkout_uuid=None
         )
 
     def test_assimilate_machine_updates_meshnet_config_with_optional_uuid(self):
         assimilate_machine('1.2.3.4', port=2222, uuid='some_uuid_1234')
 
         self.update_meshnet_config.assert_called_once_with(
-                '1.2.3.4', port=2222, uuid='some_uuid_1234'
+            '1.2.3.4', port=2222,
+            compute_checkout_uuid='some_uuid_1234'
         )

@@ -1,23 +1,10 @@
 import json
-from functools import partial
 from itertools import chain
 from os import path, makedirs, walk
 
 from logging import getLogger
 
-from collections import Iterable
-
 log = getLogger(__name__)
-
-
-def keys_sorted(dictionary, item):
-    """
-    Get keys from a dictionary item and sort them
-    :param dict dictionary: dictionary with an item with keys
-    :param str item: name of the item to get the keys for. i.e. 'server_types'
-    :return list types: list of all the types like ['headless, 'workstation']
-    """
-    return list(sorted(dictionary.get(item, {}).keys()))
 
 
 def load_json(json_file):
@@ -75,78 +62,27 @@ def list_all_files_with_extension_in_directory(directory, extension):
     return filter(lambda f: f.endswith(".{}".format(extension)), file_names)
 
 
-def transform_key_in_dict_recursively(dictionary, key_to_find, transformer=lambda k, v: v):
+def endswith(suffix):
     """
-    Find every occurrence of a specific key in a directory and transform the value with the transformer function and
-    return the mutated dict
-    Note: mutates the passed dictionary and returns it. Wrap argument in dict() to not mutate the original.
-    :param dict dictionary: the dictionary to look in
-    :param str key_to_find: the key to look for
-    :param func transformer: function to mutate the value with. takes the key and value as arguments.
-    defaults to identity function
-    :return dict dictionary: the mutated dictionary
+    Create a function that checks if the argument
+    that is passed in ends with string
+    :param str suffix: string to check the end for
+    :return func endswith_function: a function that checks if the
+    argument ends with the specified string
     """
-    for key, value in sorted(dictionary.items()):
-        if key == key_to_find:
-            dictionary[key] = transformer(key, value)
-        elif isinstance(value, dict):
-            dictionary[key] = transform_key_in_dict_recursively(
-                value, key_to_find, transformer=transformer
-            )
-        elif isinstance(value, Iterable) and not isinstance(value, str):
-            dictionary[key] = list(chain.from_iterable(
-                map(
-                    partial(
-                        transform_key_in_dict_recursively,
-                        key_to_find=key_to_find,
-                        transformer=transformer
-                    ),
-                    value
-                )
-            ))
-    return dictionary
+    def string_ends_with(string):
+        return str.endswith(string, suffix)
+    return string_ends_with
 
 
-def find_key_in_dict_recursively(dictionary, key_to_find):
+def startswith(prefix):
     """
-    Find every occurrence of a specific key in a dictionary recursively and return a list of the found values
-    :param dict dictionary: the dictionary to look in
-    :param str key_to_find: the key to look for
-    :return list[dict, ..]: list with the found dicts
+    Create a function that checks if the argument
+    that is passed in starts with string
+    :param str prefix: string to check the start for
+    :return func startswith_function: a function that checks if the
+    argument starts with the specified string
     """
-    found = list()
-    for key, value in dictionary.items():
-        if key == key_to_find:
-            found.append(value)
-        elif isinstance(value, dict):  # I wish python had a macro system
-            found.extend(
-                find_key_in_dict_recursively(value, key_to_find)
-            )
-        elif isinstance(value, Iterable) and not isinstance(value, str):
-            found.extend(
-                chain.from_iterable(
-                    map(
-                        partial(
-                            find_key_in_dict_recursively,
-                            key_to_find=key_to_find
-                        ),
-                        value
-                    )
-                )
-            )
-    return found
-
-
-def config_equals(config_a, config_b):
-    """
-    Return true or false based on whether the configs are equal.
-    Sorts keys because the dicts may contain lists (which have
-    an undetermined order in python 3)
-    :param dict config_a: the first config
-    :param dict config_b: the second config, which it will be compared to
-    :return bool equals: true or false based on whether the configs
-    are the same or not
-    """
-    def serialize(config):
-        return json.dumps(config, sort_keys=True)
-    return serialize(config_a) == serialize(config_b)
+    def string_starts_with(string):
+        return str.startswith(string, prefix)
+    return string_starts_with

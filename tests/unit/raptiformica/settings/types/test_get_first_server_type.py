@@ -12,7 +12,7 @@ class TestGetFirstServerType(TestCase):
         get_first_server_type()
 
         self.get_first_from_types.assert_called_once_with(
-            'server_types'
+            'server'
         )
 
     def test_get_first_server_type_returns_first_server_type(self):

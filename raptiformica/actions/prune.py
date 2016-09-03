@@ -1,18 +1,14 @@
-from functools import partial
 from logging import getLogger
 from os import listdir
 from os.path import join, isdir
-
 from shutil import rmtree
 
-from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, MUTABLE_CONFIG
-from raptiformica.settings.load import load_config, get_config_value
-from raptiformica.settings.meshnet import ensure_neighbour_removed_from_config
+from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
-    retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types, \
-    verify_server_type_implemented_in_compute_type
+    retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types
 from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory, \
     run_command_in_directory_factory
+from raptiformica.utils import endswith
 
 log = getLogger(__name__)
 
@@ -30,22 +26,19 @@ def retrieve_instance_config_items(items, default='/bin/true', server_type=None,
     log.debug("Retrieving prune instance config")
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
-    compute_type_config_for_server_type = retrieve_compute_type_config_for_server_type(
+    mapping = retrieve_compute_type_config_for_server_type(
         server_type=server_type,
         compute_type=compute_type
     )
-    return tuple(
+    return tuple(map(
+        lambda s: s or default,
         map(
-            lambda s: s or default,
-            map(
-                partial(
-                    get_config_value,
-                    compute_type_config_for_server_type,
-                    default=''
-                ),
-                items
-            )
-        )
+            lambda item: mapping[next(filter(
+                endswith('/{}'.format(item)),
+                mapping
+            ))],
+            items
+        ))
     )
 
 
@@ -61,7 +54,7 @@ def retrieve_prune_instance_config(server_type=None, compute_type=None):
     log.debug("Retrieving prune instance config")
     return retrieve_instance_config_items(
         (
-            "detect_stale_instance_command",
+            "detect_stale_instance",
             "clean_up_instance_command"
         ),
         default='/bin/true',
@@ -99,16 +92,8 @@ def list_compute_checkouts_by_server_type_and_compute_type():
     item the server type, the second item the compute checkout and the third item the directory of the checkout
     """
     compute_checkouts = list()
-    config = load_config(MUTABLE_CONFIG)
     for compute_type in get_compute_types():
         for server_type in get_server_types():
-            try:
-                compute_type_config = config['compute_types'][compute_type]
-                verify_server_type_implemented_in_compute_type(
-                    compute_type_config, server_type
-                )
-            except SystemExit:
-                continue
             compute_checkouts.extend(
                 list_compute_checkouts_for_server_type_of_compute_type(
                     server_type, compute_type
@@ -201,8 +186,9 @@ def fire_clean_up_triggers(clean_up_triggers):
         if check_if_instance_is_stale(directory, detect_stale_instance_command):
             clean_up_stale_instance(directory, clean_up_stale_instance_command)
             rmtree(directory, ignore_errors=True)
-            uuid = directory.split('/')[-1]
-            ensure_neighbour_removed_from_config(uuid)
+            # todo: re-enable ensure_neighbour_removed_from_config
+            # uuid = directory.split('/')[-1]
+            # ensure_neighbour_removed_from_config(uuid)
 
 
 def prune_local_machines():
