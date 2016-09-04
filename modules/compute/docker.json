@@ -3,7 +3,7 @@
     "docker": {
       "headless": {
         "available": "docker -v",
-        "source": "https://github.com/vdloo/dockerfiles.git",
+        "source": "https://github.com/vdloo/dockerfiles",
         "start_instance": "cd ubuntu64 && chmod 0600 insecure_key && ssh-add insecure_key && sudo docker build -t raptiformica-baseimage . && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 5",
         "get_hostname": "bash -c \"sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
         "get_port": "echo 22",

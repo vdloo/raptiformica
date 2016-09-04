@@ -2,7 +2,7 @@
   "server": {
     "headless": {
       "name": "puppetfiles",
-      "source": "https://github.com/vdloo/puppetfiles.git",
+      "source": "https://github.com/vdloo/puppetfiles",
       "bootstrap": "./papply.sh manifests/headless.pp"
     }
   }
