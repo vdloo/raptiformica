@@ -105,7 +105,7 @@ def download_config():
     Get the entire config from the distributed key value store
     :return dict mapping: all registered key value pairs
     """
-    log.info(
+    log.debug(
         "Attempting to retrieve the shared config "
         "from the distributed key value store"
     )
