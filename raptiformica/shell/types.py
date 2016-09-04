@@ -1,6 +1,8 @@
-from raptiformica.settings import MUTABLE_CONFIG
-from raptiformica.settings.load import load_config, get_config_value
+from raptiformica.settings import KEY_VALUE_PATH
+
+from raptiformica.settings.load import get_config
 from raptiformica.shell.execute import run_command_print_ready
+from raptiformica.utils import startswith, endswith
 
 cached_available = {}
 
@@ -31,16 +33,26 @@ def check_type_available(item, type_name):
     this machine if a check_available predicate exists, otherwise
     return True because there are no requirements configured for
     the type and we assume it is available.
+    Short circuit evaluation, returns False and exits as soon as the
+    first predicate returns False
     :param str item: name of the item to check the type for. i.e. 'server_types
     :param str type_name: name of the type. i.e. 'headless'
-    :return bool type_available: whether or not the type is available
+    :return bool type_available: True if available, False if not
     """
-    config = load_config(MUTABLE_CONFIG)
-    type_config = config[item][type_name]
-    predicate = get_config_value(type_config, "check_available_command")
-    if predicate:
-        return evaluate_available(
-            item, type_name, predicate
-        ) if predicate else True
-    else:
-        return True
+    mapped = get_config()
+    keys = filter(
+        endswith('/available'),
+        filter(
+            startswith('{}/{}/{}/'.format(
+                KEY_VALUE_PATH, item, type_name
+            )),
+            mapped
+        )
+    )
+
+    for key in keys:
+        predicate = mapped[key]
+        if predicate:
+            if not evaluate_available(item, type_name, predicate):
+                return False
+    return True
