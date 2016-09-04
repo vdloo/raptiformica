@@ -3,7 +3,7 @@
     "vagrant": {
       "headless": {
         "available": "vagrant -v",
-        "source": "https://github.com/vdloo/vagrantfiles.git",
+        "source": "https://github.com/vdloo/vagrantfiles",
         "start_instance": "cd headless && vagrant up",
         "get_hostname": "cd headless && vagrant ssh-config | grep HostName | awk '{print $NF}'",
         "get_port": "cd headless && vagrant ssh-config | grep Port | awk '{print $NF}'",
