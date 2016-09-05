@@ -1,11 +1,9 @@
 from itertools import chain
-from json import loads
-from base64 import b64decode
 from os.path import join
 from urllib.error import URLError, HTTPError
-from urllib import request
 from logging import getLogger
 
+from raptiformica.distributed.kv import put_kv, get_kv
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
     KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG
 from raptiformica.utils import load_json, write_json, \
@@ -72,23 +70,6 @@ def loop_config(config, path='/', callback=lambda path, k, v: None):
             callback(path, k, v)
 
 
-def put_kv(path, k, v):
-    """
-    Put a key and value to the distributed key value store at the location path
-    :param str path: api path to PUT to
-    :param str k: the key to put
-    :param str v: the value to put
-    :return None:
-    """
-    encoded = str.encode(str(v))
-    url = join(path, k)
-    req = request.Request(url=url, data=encoded, method='PUT')
-    with request.urlopen(req) as f:
-        log.debug("PUT k v pair ({}, {}) to {}: {}, {}".format(
-            k, v, url, f.status, f.reason
-        ))
-
-
 def upload_config(mapped):
     """
     Upload a mapped config to the distributed key value store
@@ -110,12 +91,7 @@ def download_config():
         "from the distributed key value store"
     )
     endpoint = join(KEY_VALUE_ENDPOINT, KEY_VALUE_PATH)
-    recurse_kv = join(endpoint, '?recurse')
-    req = request.Request(url=recurse_kv, method='GET')
-    with request.urlopen(req) as r:
-        result = loads(r.read().decode('utf-8'))
-    mapping = {r['Key']: b64decode(r['Value']).decode('utf-8') for r in result}
-    return mapping
+    return get_kv(endpoint, recurse=True)
 
 
 def map_configs(configs):
