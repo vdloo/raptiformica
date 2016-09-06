@@ -24,6 +24,9 @@ class TestFireCleanUpTriggers(TestCase):
             'raptiformica.actions.prune.clean_up_stale_instance'
         )
         self.rmtree = self.set_up_patch('raptiformica.actions.prune.rmtree')
+        self. ensure_neighbour_removed_from_config = self.set_up_patch(
+            'raptiformica.actions.prune.ensure_neighbour_removed_from_config'
+        )
 
     def test_fire_clean_up_triggers_checks_if_instances_are_stale(self):
         fire_clean_up_triggers(self.clean_up_triggers)
@@ -66,13 +69,13 @@ class TestFireCleanUpTriggers(TestCase):
             expected_calls
         )
 
-    # def test_fire_clean_up_triggers_ensures_cleaned_machine_is_not_in_the_mutable_config_anymore(self):
-    #     # pretend the secoond and third instance are stale
-    #     self.check_if_instance_is_stale.side_effect = [False, True, True]
-    #
-    #     fire_clean_up_triggers(self.clean_up_triggers)
-    #
-    #     expected_calls = map(call, ('some_uuid_2', 'some_uuid_3'))
-    #     self.assertCountEqual(
-    #         self.ensure_neighbour_removed_from_config.mock_calls, expected_calls
-    #     )
+    def test_fire_clean_up_triggers_ensures_cleaned_machine_is_not_in_the_mutable_config_anymore(self):
+        # pretend the secoond and third instance are stale
+        self.check_if_instance_is_stale.side_effect = [False, True, True]
+
+        fire_clean_up_triggers(self.clean_up_triggers)
+
+        expected_calls = map(call, ('some_uuid_2', 'some_uuid_3'))
+        self.assertCountEqual(
+            self.ensure_neighbour_removed_from_config.mock_calls, expected_calls
+        )

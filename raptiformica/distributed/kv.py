@@ -46,3 +46,23 @@ def get_kv(path, recurse=False):
         r['Key']: b64decode(r['Value']).decode('utf-8') for r in result
     }
     return mapping
+
+
+def delete_kv(path, recurse=False):
+    """
+    Delete a key from the distributed key value mapping
+    :param str path: path to the key to remove
+    :param bool recurse: recurse the path and delete all entries
+    :return:
+    """
+    req = request.Request(
+        url=join(path, '?recurse') if recurse else path,
+        method='DELETE'
+    )
+    with request.urlopen(req) as f:
+        log.debug("DELETEd key {}{}: {} {}".format(
+            path,
+            ' recursively' if recurse else '',
+            f.status,
+            f.reason
+        ))
