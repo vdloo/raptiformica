@@ -17,7 +17,7 @@ class TestGetKV(TestCase):
             )
         )
 
-    def test_kv_instantiates_request_object(self):
+    def test_get_kv_instantiates_request_object(self):
         get_kv('some/path')
 
         self.request.Request.assert_called_once_with(
@@ -25,22 +25,22 @@ class TestGetKV(TestCase):
             method='GET'
         )
 
-    def test_kv_gets_all_nested_values_if_specified(self):
+    def test_get_kv_gets_all_nested_values_if_specified(self):
         get_kv('some/path', recurse=True)
 
         self.request.Request.assert_called_once_with(
-                url='some/path/?recurse',
-                method='GET'
+            url='some/path/?recurse',
+            method='GET'
         )
 
-    def test_kv_does_request(self):
+    def test_get_kv_does_request(self):
         get_kv('some/path', recurse=True)
 
         self.request.urlopen.assert_called_once_with(
-                self.request.Request.return_value
+            self.request.Request.return_value
         )
 
-    def test_kv_returns_mapping(self):
+    def test_get_kv_returns_mapping(self):
         ret = get_kv('some/path', recurse=True)
 
         expected_mapping = {

@@ -3,7 +3,7 @@ from os.path import join
 from urllib.error import URLError, HTTPError
 from logging import getLogger
 
-from raptiformica.distributed.kv import put_kv, get_kv
+from raptiformica.distributed.kv import put_kv, get_kv, delete_kv
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
     KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG
 from raptiformica.utils import load_json, write_json, \
@@ -138,6 +138,36 @@ def try_update_config(mapping):
         cache_config(cached_mapping)
         mapping = cached_mapping
     return mapping
+
+
+def try_delete_config(key, recurse=False):
+    """
+    Try to delete a key in the distributed key value store,
+    if there is no distributed key value store yet or we can't
+    connect, then remove the key from the local config.
+    :param str key: key to remove
+    :param bool recurse: recurse the path and delete all entries
+    :return:
+    """
+    # todo: in the case of an offline delete those changes will
+    # never be synced back to the distributed k v store but
+    # should instead be fixed by some form of eventual consistency
+    try:
+        path = join(KEY_VALUE_ENDPOINT, key)
+        delete_kv(path, recurse=recurse)
+    except URLError:
+        log.debug(
+            "Could not connect to the distributed key value store to "
+            "delete the key. Only deleting from local cache for now."
+        )
+        cached_mapping = get_config()
+        mapping = {
+            k: v for k, v in cached_mapping.items() if
+            # find all keys starting with the key if recurse,
+            # else only filter away the key with an exact match
+            not (k.startswith(key) if recurse else k == key)
+        }
+        cache_config(mapping)
 
 
 def update_config(mapping):

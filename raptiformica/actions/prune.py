@@ -2,13 +2,16 @@ from logging import getLogger
 from os import listdir
 from os.path import join, isdir
 from shutil import rmtree
+from urllib.error import URLError
 
-from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
+from raptiformica.distributed.kv import delete_kv
+from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH, KEY_VALUE_ENDPOINT
+from raptiformica.settings.load import get_config, try_delete_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types
 from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory, \
     run_command_in_directory_factory
-from raptiformica.utils import endswith
+from raptiformica.utils import endswith, startswith
 
 log = getLogger(__name__)
 
@@ -173,6 +176,39 @@ def clean_up_stale_instance(compute_checkout_directory, clean_up_stale_instance_
     )
 
 
+def ensure_neighbour_removed_from_config(uuid):
+    """
+    Remove a neighbour from the distributed k v mapping by uuid
+    :param str uuid: uuid of the neighbour to remove from the config
+    :return None:
+    """
+    mapping = get_config()
+    # get the matching key for the roots of all
+    # neighbours with the specified uuid
+    neighbour_keys = map(
+        lambda path: join('/'.join(path.split('/')[:-1]), ''),
+        filter(
+            lambda path: mapping[path] == uuid,
+            filter(
+                endswith('/uuid'),
+                filter(
+                    startswith(
+                        '{}/meshnet/neighbours/'.format(
+                            KEY_VALUE_PATH
+                        )
+                    ),
+                    mapping
+                )
+            )
+        )
+    )
+    for neighbour_key in neighbour_keys:
+        try_delete_config(
+            neighbour_key,
+            recurse=True
+        )
+
+
 def fire_clean_up_triggers(clean_up_triggers):
     """
     Fire the clean up triggers. Look for stale instances and then run the clean up instance command in
@@ -186,9 +222,8 @@ def fire_clean_up_triggers(clean_up_triggers):
         if check_if_instance_is_stale(directory, detect_stale_instance_command):
             clean_up_stale_instance(directory, clean_up_stale_instance_command)
             rmtree(directory, ignore_errors=True)
-            # todo: re-enable ensure_neighbour_removed_from_config
-            # uuid = directory.split('/')[-1]
-            # ensure_neighbour_removed_from_config(uuid)
+            uuid = directory.split('/')[-1]
+            ensure_neighbour_removed_from_config(uuid)
 
 
 def prune_local_machines():

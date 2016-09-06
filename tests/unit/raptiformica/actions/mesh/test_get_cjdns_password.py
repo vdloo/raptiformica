@@ -15,7 +15,7 @@ class TestGetCJDNSPassword(TestCase):
             "raptiformica/meshnet/neighbours/a_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf2",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_ipv6_address": "some_other_ipv6_address",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_port": 4863,
-            "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_public_key": "a_different_ubkey.k",
+            "raptiformica/meshnet/neighbours/a_different_pubkey.k/cjdns_public_key": "a_different_pubkey.k",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/host": "127.0.0.1",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/ssh_port": "2201",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf1",
