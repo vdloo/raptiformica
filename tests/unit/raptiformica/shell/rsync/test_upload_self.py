@@ -17,6 +17,10 @@ class TestUploadSelf(TestCase):
             return_value=0
         )
         self.create_remote_raptiformica_cache.return_value = 0
+        self.isfile = self.set_up_patch(
+            'raptiformica.shell.rsync.isfile',
+            return_value=True
+        )
 
     def test_upload_self_logs_uploading_self_message(self):
         upload_self('1.2.3.4', port=22)
