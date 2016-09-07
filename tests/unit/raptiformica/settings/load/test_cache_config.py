@@ -24,3 +24,4 @@ class TestCacheConfig(TestCase):
             self.mapping,
             MUTABLE_CONFIG
         )
+
