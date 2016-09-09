@@ -155,6 +155,7 @@ def try_delete_config(key, recurse=False):
     try:
         path = join(KEY_VALUE_ENDPOINT, key)
         delete_kv(path, recurse=recurse)
+        sync_shared_config_mapping()
     except URLError:
         log.debug(
             "Could not connect to the distributed key value store to "
