@@ -33,6 +33,9 @@ class TestTryDeleteConfig(TestCase):
         self.cache_config = self.set_up_patch(
             'raptiformica.settings.load.cache_config'
         )
+        self.sync_shared_config_mapping = self.set_up_patch(
+            'raptiformica.settings.load.sync_shared_config_mapping'
+        )
 
     def test_try_delete_config_deletes_key_pair_from_distributed_kv_store(self):
         try_delete_config('some/key')
@@ -41,6 +44,11 @@ class TestTryDeleteConfig(TestCase):
             'http://localhost:8500/v1/kv/some/key',
             recurse=False
         )
+
+    def test_try_delete_config_syncs_shared_config_mapping(self):
+        try_delete_config('some/key')
+
+        self.sync_shared_config_mapping.assert_called_once_with()
 
     def test_try_delete_config_deletes_key_pair_from_distributed_kv_store_recursively_if_specified(self):
         try_delete_config('some/key', recurse=True)
