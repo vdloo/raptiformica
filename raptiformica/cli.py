@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.members import show_members
 from raptiformica.actions.mesh import mesh_machine
+from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.spawn import spawn_machine
@@ -16,7 +17,7 @@ def parse_arguments(parser):
     """
     Add default parser arguments to parser and parse arguments. Also sets logging level.
     :param obj parser:
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser.add_argument('--verbose', '-v', action='store_true')
     args = parser.parse_args()
@@ -28,7 +29,7 @@ def parse_slave_arguments():
     """
     Parse the commandline options for provisioning and assimilating a machine
     into the network
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica slave",
@@ -66,7 +67,7 @@ def slave():
 def parse_spawn_arguments():
     """
     Parse the commandline options for spawning a machine
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica spawn",
@@ -103,7 +104,7 @@ def parse_mesh_arguments():
     """
     Parse the commandline options for joining a machine
     into the distributed network
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica mesh",
@@ -126,7 +127,7 @@ def mesh():
 def parse_hook_arguments():
     """
     Parse the commandline options for running a hook
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica hook",
@@ -155,7 +156,7 @@ def hook():
 def parse_members_arguments():
     """
     Parse the commandline options for showing the members in the distributed network
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica members",
@@ -177,7 +178,7 @@ def parse_prune_arguments():
     """
     Parse the commandline options for pruning stale machines. Will run the configured clean_up_stale_instance
     command for the server type at the compute type for each inactive machine and will clean up the instance checkout
-    :return dict args: parsed arguments
+    :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica prune",
@@ -193,3 +194,36 @@ def prune():
     """
     parse_prune_arguments()
     prune_local_machines()
+
+
+def parse_modprobe_arguments():
+    """
+    Parse the commandline options for loading or unloading a module into the system.
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica modprobe",
+        description="Load or unload a module into the system"
+    )
+    parser.add_argument(
+        'name', type=str,
+        help='Name of the module to load or '
+             'unload. Like "vdloo/puppetfiles"'
+    )
+    parser.add_argument(
+        '--remove', '-r', action='store_true',
+        help='Unload the module'
+    )
+    return parse_arguments(parser)
+
+
+def modprobe():
+    """
+    Load or unload a module into the system
+    :return None:
+    """
+    args = parse_modprobe_arguments()
+    if args.remove:
+        unload_module(args.name)
+    else:
+        load_module(args.name)

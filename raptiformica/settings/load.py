@@ -112,12 +112,13 @@ def map_configs(configs):
     return d
 
 
-def on_disk_mapping():
+def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     """
     Retrieve the on disk config mapping
+    :param iterable module_dirs: directories to look for module configs in
     :return dict mapping: retrieved key value mapping with config data
     """
-    configs = load_module_configs()
+    configs = load_module_configs(module_dirs=module_dirs)
     return map_configs(configs)
 
 
