@@ -1,9 +1,9 @@
 {
   "server": {
     "headless": {
-      "name": "puppetfiles",
-      "source": "https://github.com/vdloo/puppetfiles",
-      "bootstrap": "./papply.sh manifests/headless.pp"
+      "name": "default_provisioning_script",
+      "source": "https://github.com/vdloo/raptiformica",
+      "bootstrap": "bash -c 'echo provisioned > $HOME/provisioned.txt'"
     }
   }
 }
