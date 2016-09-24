@@ -43,8 +43,8 @@ def load_module_config(modules_dir=MODULES_DIR):
                 )
             return config
         except ValueError:
-            log.warning("Failed to parse module config in {}, "
-                        "skipping..".format(filename))
+            log.debug("Failed to parse module config in {}, "
+                      "skipping..".format(filename))
     return filter(lambda x: x is not None, map(try_load_module, file_names))
 
 
