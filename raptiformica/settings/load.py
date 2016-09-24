@@ -36,7 +36,12 @@ def load_module_config(modules_dir=MODULES_DIR):
     def try_load_module(filename):
         log.debug("Loading module config from {}".format(filename))
         try:
-            return load_json(filename)
+            config = load_json(filename)
+            if 'raptiformica_api_version' not in config:
+                raise ValueError(
+                    "Not a raptiformica config file. Skipping.."
+                )
+            return config
         except ValueError:
             log.warning("Failed to parse module config in {}, "
                         "skipping..".format(filename))

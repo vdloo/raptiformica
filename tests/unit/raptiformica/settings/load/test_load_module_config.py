@@ -16,6 +16,7 @@ class TestLoadModuleConfig(TestCase):
         ]
         self.list_all_files_with_extension_in_directory.return_value = self.files
         self.load_json = self.set_up_patch('raptiformica.settings.load.load_json')
+        self.load_json.return_value = {'raptiformica_api_version': '0.1'}
         self.log = self.set_up_patch('raptiformica.settings.load.log')
 
     def test_load_module_config_lists_all_files_with_extension_in_directory(self):
@@ -32,15 +33,36 @@ class TestLoadModuleConfig(TestCase):
         self.assertCountEqual(self.load_json.mock_calls, expected_calls)
 
     def test_load_configs_ignores_configs_that_fail_to_load(self):
-        self.load_json.side_effect = [{}, ValueError, {}]
+        self.load_json.side_effect = [
+            {'raptiformica_api_version': '0.1'},
+            ValueError,
+            {'raptiformica_api_version': '0.1'}
+        ]
 
         ret = list(load_module_config(modules_dir='/tmp/some/directory'))
 
-        expected_configs = [{}] * 2
+        expected_configs = [{'raptiformica_api_version': '0.1'}] * 2
         self.assertCountEqual(ret, expected_configs)
 
     def test_load_configs_logs_warning_for_configs_that_fail_to_load(self):
-        self.load_json.side_effect = [ValueError, {}, ValueError]
+        self.load_json.side_effect = [
+            ValueError,
+            {'raptiformica_api_version': '0.1'},
+            ValueError
+        ]
+
+        list(load_module_config(modules_dir='/tmp/some/directory'))
+
+        expected_calls = map(call, (
+            'Failed to parse module config in /tmp/some/directory/file1.json, skipping..',
+            'Failed to parse module config in /tmp/some/directory/file3.json, skipping..'
+        ))
+        self.assertCountEqual(self.log.warning.mock_calls, expected_calls)
+
+    def test_load_configs_logs_warning_for_json_files_that_are_not_raptiformica_configs(self):
+        self.load_json.side_effect = [
+            {}, {'raptiformica_api_version': '0.1'}, {}
+        ]
 
         list(load_module_config(modules_dir='/tmp/some/directory'))
 
