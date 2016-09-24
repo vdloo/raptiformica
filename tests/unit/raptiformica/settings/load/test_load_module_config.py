@@ -44,7 +44,7 @@ class TestLoadModuleConfig(TestCase):
         expected_configs = [{'raptiformica_api_version': '0.1'}] * 2
         self.assertCountEqual(ret, expected_configs)
 
-    def test_load_configs_logs_warning_for_configs_that_fail_to_load(self):
+    def test_load_configs_logs_debug_for_configs_that_fail_to_load(self):
         self.load_json.side_effect = [
             ValueError,
             {'raptiformica_api_version': '0.1'},
@@ -54,12 +54,15 @@ class TestLoadModuleConfig(TestCase):
         list(load_module_config(modules_dir='/tmp/some/directory'))
 
         expected_calls = map(call, (
+            'Loading module config from /tmp/some/directory/file1.json',
+            'Loading module config from /tmp/some/directory/file2.json',
+            'Loading module config from /tmp/some/directory/file3.json',
             'Failed to parse module config in /tmp/some/directory/file1.json, skipping..',
             'Failed to parse module config in /tmp/some/directory/file3.json, skipping..'
         ))
-        self.assertCountEqual(self.log.warning.mock_calls, expected_calls)
+        self.assertCountEqual(self.log.debug.mock_calls, expected_calls)
 
-    def test_load_configs_logs_warning_for_json_files_that_are_not_raptiformica_configs(self):
+    def test_load_configs_logs_debug_for_json_files_that_are_not_raptiformica_configs(self):
         self.load_json.side_effect = [
             {}, {'raptiformica_api_version': '0.1'}, {}
         ]
@@ -67,7 +70,10 @@ class TestLoadModuleConfig(TestCase):
         list(load_module_config(modules_dir='/tmp/some/directory'))
 
         expected_calls = map(call, (
+            'Loading module config from /tmp/some/directory/file1.json',
+            'Loading module config from /tmp/some/directory/file2.json',
+            'Loading module config from /tmp/some/directory/file3.json',
             'Failed to parse module config in /tmp/some/directory/file1.json, skipping..',
             'Failed to parse module config in /tmp/some/directory/file3.json, skipping..'
         ))
-        self.assertCountEqual(self.log.warning.mock_calls, expected_calls)
+        self.assertCountEqual(self.log.debug.mock_calls, expected_calls)
