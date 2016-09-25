@@ -22,7 +22,8 @@ def upload(source, destination, host, port=22):
     upload_command = [
         '/usr/bin/env', 'rsync', '-L', '-avz',
         source, 'root@{}:{}'.format(host, destination),
-        '--exclude=.venv', '--exclude', '*.pyc',
+        '--exclude=.venv', '--exclude=*.pyc',
+        '--exclude=var',
         '-e', 'ssh -p {} '
               '-oStrictHostKeyChecking=no '
               '-oUserKnownHostsFile=/dev/null'.format(port)

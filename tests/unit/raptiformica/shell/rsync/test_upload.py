@@ -17,7 +17,7 @@ class TestUpload(TestCase):
         expected_upload_command = [
             '/usr/bin/env', 'rsync', '-L', '-avz', PROJECT_DIR,
             'root@1.2.3.4:{}'.format(INSTALL_DIR), '--exclude=.venv',
-            '--exclude', '*.pyc', '-e',
+            '--exclude=*.pyc', '--exclude=var', '-e',
             'ssh -p 22 '
             '-oStrictHostKeyChecking=no '
             '-oUserKnownHostsFile=/dev/null'
