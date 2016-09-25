@@ -142,6 +142,17 @@ def configure_consul_conf():
     write_json(consul_config, CONSUL_CONF_PATH)
 
 
+def count_neighbours():
+    """
+    Count the amount of peers in the distributed network
+    :return:
+    """
+    mapping = get_config()
+    cjdroute_config = load_json(CJDROUTE_CONF_PATH)
+    local_public_key = cjdroute_config['publicKey']
+    return len([pk for pk in list_neighbours(mapping) if pk != local_public_key])
+
+
 def enough_neighbours():
     """
     Check if there are enough neighbours to bootstrap or
@@ -150,13 +161,13 @@ def enough_neighbours():
     :return:
     """
     log.info("Checking if there are enough neighbours to mesh with")
-    mapping = get_config()
-    neighbours = parse_cjdns_neighbours(mapping)
-    enough = len(neighbours) >= 2
+    amount = count_neighbours()
+
+    enough = amount >= 2
     if not enough:
         log.warning("Not enough machines to bootstrap meshnet. "
-                    "Need {} more.".format(2 - len(neighbours)))
-    elif len(neighbours) == 2:
+                    "Need {} more.".format(2 - amount))
+    elif amount == 2:
         log.info("New meshnet will be established")
     return enough
 
