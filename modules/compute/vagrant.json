@@ -6,8 +6,8 @@
         "available": "vagrant -v",
         "source": "https://github.com/vdloo/vagrantfiles",
         "start_instance": "cd headless && vagrant up",
-        "get_hostname": "cd headless && vagrant ssh-config | grep HostName | awk '{print $NF}'",
-        "get_port": "cd headless && vagrant ssh-config | grep Port | awk '{print $NF}'",
+        "get_hostname": "cd headless &&  vagrant ssh -c 'ip addr show' |& grep 'inet ' | tail -n 1 | awk '{print$2}' | cut -d '/' -f1",
+        "get_port": "22",
         "detect_stale_instance": "cd headless && vagrant status | grep running",
         "clean_up_instance_command": "cd headless && vagrant destroy -f"
       }
