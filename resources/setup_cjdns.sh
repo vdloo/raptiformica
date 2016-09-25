@@ -23,6 +23,8 @@ echo "ensuring binary and config to /usr/bin"
 cp cjdroute /usr/bin/
 cp cjdroute.conf /etc/
 
-echo "installing cjdns service file"
-cp /usr/etc/raptiformica/resources/cjdns.service /etc/systemd/system/multi-user.target.wants/
-chmod 664 /etc/systemd/system/multi-user.target.wants/cjdns.service
+if [ -d /etc/systemd ]; then
+    echo "installing cjdns service file"
+    cp /usr/etc/raptiformica/resources/cjdns.service /etc/systemd/system/multi-user.target.wants/
+    chmod 664 /etc/systemd/system/multi-user.target.wants/cjdns.service
+fi
