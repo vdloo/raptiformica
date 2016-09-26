@@ -1,5 +1,4 @@
 from raptiformica.actions.slave import provision_machine
-from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
 
@@ -20,19 +19,23 @@ class TestProvision(TestCase):
         self.run_resource_command = self.set_up_patch(
             'raptiformica.actions.slave.run_resource_command'
         )
+        self.get_first_server_type = self.set_up_patch(
+                'raptiformica.actions.slave.get_first_server_type'
+        )
+        self.get_first_server_type.return_value = 'headless'
 
     def test_provision_logs_provisioning_host_message(self):
         provision_machine('1.2.3.4')
 
         self.log.info.assert_called_once_with(
-            "Provisioning host 1.2.3.4 as server type {}".format(get_first_server_type())
+            "Provisioning host 1.2.3.4 as server type {}".format(self.get_first_server_type.return_value)
         )
 
     def test_provision_retrieves_provisioning_config(self):
         provision_machine('1.2.3.4')
 
         self.retrieve_provisioning_config.assert_called_once_with(
-                get_first_server_type()
+            self.get_first_server_type.return_value
         )
 
     def test_provision_retrieves_provisioning_config_for_specified_server_type(self):
