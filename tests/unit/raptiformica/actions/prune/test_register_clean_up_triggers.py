@@ -23,7 +23,7 @@ class TestRegisterCleanUpTriggers(TestCase):
             "raptiformica/compute/docker/headless/get_port": "echo 22",
             "raptiformica/compute/docker/headless/source": "https://github.com/vdloo/dockerfiles.git",
         }
-        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config')
+        self.get_config = self.set_up_patch('raptiformica.settings.types.get_config')
         self.get_config.return_value = self.mapping
 
     def test_register_clean_up_triggers_returns_triggers(self):

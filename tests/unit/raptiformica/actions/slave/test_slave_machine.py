@@ -1,7 +1,6 @@
 from mock import call
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings.types import get_first_server_type
 from tests.testcase import TestCase
 
 
@@ -13,6 +12,10 @@ class TestSlaveMachine(TestCase):
         self.fire_hooks = self.set_up_patch('raptiformica.actions.slave.fire_hooks')
         self.assimilate_machine = self.set_up_patch('raptiformica.actions.slave.assimilate_machine')
         self.deploy_meshnet = self.set_up_patch('raptiformica.actions.slave.deploy_meshnet')
+        self.get_first_server_type = self.set_up_patch(
+            'raptiformica.actions.slave.get_first_server_type'
+        )
+        self.get_first_server_type.return_value = 'headless'
 
     def test_slave_machine_logs_slaving_machine_message(self):
         slave_machine('1.2.3.4')
@@ -42,7 +45,7 @@ class TestSlaveMachine(TestCase):
         slave_machine('1.2.3.4')
 
         self.provision_machine.assert_called_once_with(
-            '1.2.3.4', port=22, server_type=get_first_server_type()
+            '1.2.3.4', port=22, server_type=self.get_first_server_type.return_value
         )
 
     def test_slave_machine_does_not_provision_host_if_provision_is_false(self):
