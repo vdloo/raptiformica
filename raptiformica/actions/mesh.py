@@ -1,5 +1,6 @@
 from os.path import join
 from logging import getLogger
+from time import sleep
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
@@ -191,6 +192,23 @@ def start_detached_cjdroute():
     )
 
 
+def ensure_ipv6_routing():
+    """
+    Ensure there are entries in the routing-table that point to the tun adapter
+    This needs to happen after cjdroute starts because only then tun0 exists.
+    :return:
+    """
+    log.info("Ensuring there is a route to the TUN adapter")
+    routing_rules = (
+        'fe80::/64 dev eth0  proto kernel  metric 256  pref medium',
+        'fc00::/8 dev tun0  proto kernel  metric 256  mtu 1304 pref medium'
+    )
+    for rule in routing_rules:
+        run_command_print_ready(
+            "ip -6 route add {}".format(rule), shell=True,
+        )
+
+
 def start_detached_consul_agent():
     """
     Start the consul agent running in the foreground in a detached screen
@@ -220,6 +238,9 @@ def start_meshing_services():
     """
     log.info("Starting meshing services")
     start_detached_cjdroute()
+    # give cjdroute some time to initialize before ensuring routes
+    sleep(10)
+    ensure_ipv6_routing()
     start_detached_consul_agent()
 
 
