@@ -255,6 +255,16 @@ def run_command_remotely_print_ready(command_as_list, host, port=22,
     )
 
 
+def check_nonzero_exit(command):
+    """
+    Return True or False based on whether the command exited nonzero
+    :param str command: shell command to test for a zero exit code
+    :return bool exited_zero: True if exited with 0, False if anything else
+    """
+    exit_code, _, _ = run_command(command, shell=True)
+    return exit_code == 0
+
+
 def run_critical_command_remotely_print_ready(command_as_list, host, port=22, buffered=True,
                                               failure_message='Command failed'):
     """

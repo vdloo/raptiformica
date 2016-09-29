@@ -6,8 +6,8 @@ from raptiformica.actions.mesh import ensure_ipv6_routing
 
 class TestEnsureIPv6Routing(TestCase):
     def setUp(self):
-        self.run_command_print_ready = self.set_up_patch(
-            'raptiformica.actions.mesh.run_command_print_ready'
+        self.run_command = self.set_up_patch(
+            'raptiformica.actions.mesh.run_command'
         )
 
     def test_ensure_ipv6_routing_runs_ip_add_command_for_all_routing_rules(self):
@@ -22,6 +22,6 @@ class TestEnsureIPv6Routing(TestCase):
                  shell=True),
         )
         self.assertCountEqual(
-                self.run_command_print_ready.mock_calls,
+                self.run_command.mock_calls,
                 expected_calls
         )

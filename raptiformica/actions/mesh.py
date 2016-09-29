@@ -1,17 +1,18 @@
 from os.path import join
 from logging import getLogger
-from time import sleep
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
-from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
+from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, run_command, check_nonzero_exit
 from raptiformica.shell.hooks import fire_hooks
-from raptiformica.utils import load_json, write_json, ensure_directory, startswith
+from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait
 
 log = getLogger(__name__)
 
 CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
+WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
+WAIT_FOR_CONSUL_TIMEOUT = 10
 
 
 def list_neighbours(mapping):
@@ -192,6 +193,27 @@ def start_detached_cjdroute():
     )
 
 
+def check_if_tun0_is_available():
+    """
+    Check if the virtual network adapter is available
+    :return bool available: True or False based on whether the tun0 devices is available
+    """
+    check_interface_command = "ip addr show tun0"
+    return check_nonzero_exit(check_interface_command)
+
+
+def block_until_tun0_becomes_available():
+    """
+    Poll the network interfaces list until the virtual network adapter becomes available
+    :return None || TimeoutError:
+    """
+    log.info("Waiting until virtual network adapter becomes availble")
+    wait(
+        check_if_tun0_is_available,
+        timeout=WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT
+    )
+
+
 def ensure_ipv6_routing():
     """
     Ensure there are entries in the routing-table that point to the tun adapter
@@ -204,7 +226,7 @@ def ensure_ipv6_routing():
         'fc00::/8 dev tun0  proto kernel  metric 256  mtu 1304 pref medium'
     )
     for rule in routing_rules:
-        run_command_print_ready(
+        run_command(
             "ip -6 route add {}".format(rule), shell=True,
         )
 
@@ -230,6 +252,29 @@ def start_detached_consul_agent():
     )
 
 
+def check_if_consul_is_available():
+    """
+    Check if consul is available
+    :return bool available: True or False based on whether consul is available
+    """
+    # If we can run 'consul members' with a nonzero exit code
+    # we can be sure that the agent is ready for interaction
+    check_consul_available_command = "consul members"
+    return check_nonzero_exit(check_consul_available_command)
+
+
+def block_until_consul_becomes_available():
+    """
+    Poll the consul API by running 'members' until it responds nonzero
+    :return None || TimeoutError:
+    """
+    log.info("Waiting until consul becomes available")
+    wait(
+        check_if_consul_is_available,
+        timeout=WAIT_FOR_CONSUL_TIMEOUT
+    )
+
+
 def start_meshing_services():
     """
     Start the meshnet services. This enables neighbours to connect
@@ -238,10 +283,10 @@ def start_meshing_services():
     """
     log.info("Starting meshing services")
     start_detached_cjdroute()
-    # give cjdroute some time to initialize before ensuring routes
-    sleep(10)
+    block_until_tun0_becomes_available()
     ensure_ipv6_routing()
     start_detached_consul_agent()
+    block_until_consul_becomes_available()
 
 
 def join_meshnet():
@@ -264,7 +309,7 @@ def join_meshnet():
 
     # todo: poll for consul agent to start instead of stupidly sleeping
     # give the agent some time to start
-    consul_join_command = 'sleep 5; consul join '
+    consul_join_command = 'consul join '
     for ipv6_address in sorted(ipv6_addresses):
         consul_join_command += '[{}]:8301 '.format(
             ipv6_address
