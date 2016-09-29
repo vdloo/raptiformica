@@ -3,6 +3,7 @@ from itertools import chain
 from os import path, makedirs, walk
 
 from logging import getLogger
+from time import sleep
 
 log = getLogger(__name__)
 
@@ -86,3 +87,24 @@ def startswith(prefix):
     def string_starts_with(string):
         return str.startswith(string, prefix)
     return string_starts_with
+
+
+def wait(predicate, timeout=5):
+    """
+    Block until the predicate returns True
+    :param func predicate: function to run that should evaluate to True
+    :param int timeout: how many seconds to try before erroring out?
+    :return None:
+    """
+    waited = 0
+    while True:
+        if waited > timeout:
+            raise TimeoutError(
+                "Waited {} seconds, will not "
+                "wait any longer".format(timeout)
+            )
+        if predicate():
+            return
+        else:
+            waited += 1
+            sleep(1)

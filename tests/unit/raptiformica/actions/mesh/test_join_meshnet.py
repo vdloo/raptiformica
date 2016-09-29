@@ -37,7 +37,7 @@ class TestJoinMeshnet(TestCase):
     def test_join_meshnet_runs_join_command(self):
         join_meshnet()
 
-        expected_command = "sleep 5; consul join [some_ipv6_address]:8301 [some_other_ipv6_address]:8301 "
+        expected_command = "consul join [some_ipv6_address]:8301 [some_other_ipv6_address]:8301 "
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
