@@ -8,6 +8,7 @@ MESH_ENTRYPOINT="raptiformica_mesh.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
 HOOK_ENTRYPOINT="raptiformica_hook.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
+SSH_ENTRYPOINT="raptiformica_ssh.py"
 
 function print_help {
     cat <<'END'
@@ -34,6 +35,8 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   members                    Show the members of the 
                              distributed network.
+
+  ssh                        SSH into one of the machines
 END
 }
 
@@ -44,6 +47,10 @@ case $1 in
     ;;
     prune)
     RAPTIFORMICA_CMD=$PRUNE_ENTRYPOINT
+    shift
+    ;;
+    ssh)
+    RAPTIFORMICA_CMD=$SSH_ENTRYPOINT
     shift
     ;;
     members)

@@ -7,6 +7,7 @@ from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.spawn import spawn_machine
+from raptiformica.actions.ssh_connect import ssh_connect
 from raptiformica.settings import MUTABLE_CONFIG
 from raptiformica.settings.types import get_server_types, get_first_server_type, get_first_compute_type, \
     get_compute_types
@@ -151,6 +152,31 @@ def hook():
     # that trigger this hook can be used to perform actions based on the
     # content of the event.
     trigger_handlers(hook_name=args.name)
+
+
+def parse_ssh_arguments():
+    """
+    Parse the commandline options for connecting to one of the machines over SSH
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica ssh",
+        description="SSH into one of the machines"
+    )
+    parser.add_argument(
+        '--info-only', action='store_true',
+        help="Don't get a shell. Only print the command to connect."
+    )
+    return parse_arguments(parser)
+
+
+def ssh():
+    """
+    Connect to one of the machines over ssh
+    :return None:
+    """
+    args = parse_ssh_arguments()
+    ssh_connect(info_only=args.info_only)
 
 
 def parse_members_arguments():

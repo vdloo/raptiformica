@@ -5,9 +5,10 @@ from tests.testcase import TestCase
 class TestTryGetMembersList(TestCase):
     def setUp(self):
         self.try_machine_command = self.set_up_patch('raptiformica.distributed.members.try_machine_command')
+        self.try_machine_command.return_value = ('output', '5.6.7.8', '22')
         self.host_and_port_pairs = [
-            ('1.2.3.4', 2222),
-            ('5.6.7.8', 22)
+            ('1.2.3.4', '2222'),
+            ('5.6.7.8', '22')
         ]
 
     def test_try_get_members_list_tries_machine_command(self):
@@ -22,3 +23,8 @@ class TestTryGetMembersList(TestCase):
                                "Maybe no meshnet has been established yet. "
                                "Do you have at least three machines running?"
         )
+
+    def test_try_get_members_list_returns_output_from_first_successful_members_list(self):
+        ret = try_get_members_list(self.host_and_port_pairs)
+
+        self.assertEqual(ret, 'output')

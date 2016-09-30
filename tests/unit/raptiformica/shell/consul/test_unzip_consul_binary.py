@@ -20,9 +20,11 @@ class TestUnzipConsulBinary(TestCase):
         unzip_consul_binary('1.2.3.4', port=2222)
 
         expected_command = [
-            '/usr/bin/env', 'ssh', '-o',
-            'StrictHostKeyChecking=no', '-o',
-            'UserKnownHostsFile=/dev/null', 'root@1.2.3.4',
+            '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
+            'root@1.2.3.4',
             '-p', '2222', 'unzip', '-o',
             'consul_0.6.4_linux_amd64.zip',
             '-d', '/usr/bin'

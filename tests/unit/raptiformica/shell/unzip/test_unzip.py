@@ -21,6 +21,7 @@ class TestUnzip(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '22',
             'unzip',

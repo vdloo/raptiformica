@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+from raptiformica.cli import ssh
+
+if __name__ == '__main__':
+    ssh()
+else:
+    raise RuntimeError("This script is an entry point and can not be imported")

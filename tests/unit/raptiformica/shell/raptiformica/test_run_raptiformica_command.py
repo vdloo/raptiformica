@@ -29,6 +29,7 @@ class TestRunRaptiformicaCommand(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
             'sh', '-c',
             '"cd /usr/etc/raptiformica; '

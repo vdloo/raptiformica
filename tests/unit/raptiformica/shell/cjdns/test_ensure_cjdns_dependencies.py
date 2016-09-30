@@ -20,6 +20,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
             "sh", "-c",
             '"type pacman 1> /dev/null '
@@ -30,6 +31,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
             "sh", "-c",
             '"type apt-get 1> /dev/null && '

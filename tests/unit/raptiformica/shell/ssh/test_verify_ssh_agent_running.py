@@ -2,11 +2,11 @@ from raptiformica.shell.ssh import verify_ssh_agent_running
 from tests.testcase import TestCase
 
 
-class TestVerifySshAgentRunning(TestCase):
+class TestVerifySSHAgentRunning(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.ssh.log')
         self.execute_process = self.set_up_patch(
-                'raptiformica.shell.execute.execute_process'
+            'raptiformica.shell.execute.execute_process'
         )
         self.process_output = (0, 'standard out output', '')
         self.execute_process.return_value = self.process_output
