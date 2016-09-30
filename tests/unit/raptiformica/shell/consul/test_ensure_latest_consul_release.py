@@ -22,16 +22,20 @@ class TestEnsureLatestConsulRelease(TestCase):
         ensure_latest_consul_release('1.2.3.4', port=2222)
 
         expected_binary_command = [
-            '/usr/bin/env', 'ssh', '-o',
-            'StrictHostKeyChecking=no', '-o',
-            'UserKnownHostsFile=/dev/null', 'root@1.2.3.4',
+            '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
+            'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
             'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip'
         ]
         expected_web_ui_command = [
-            '/usr/bin/env', 'ssh', '-o',
-            'StrictHostKeyChecking=no', '-o',
-            'UserKnownHostsFile=/dev/null', 'root@1.2.3.4',
+            '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
+            'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
             'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_web_ui.zip'
         ]

@@ -20,8 +20,11 @@ class TestCreateRemoteRaptiformicaCache(TestCase):
         create_remote_raptiformica_cache('1.2.3.4', port=1234)
 
         expected_upload_command = [
-            '/usr/bin/env', 'ssh', '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null', 'root@1.2.3.4',
+            '/usr/bin/env', 'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
+            'root@1.2.3.4',
             '-p', '1234', 'mkdir', '-p', '$HOME/.raptiformica.d'
         ]
         self.execute_process.assert_called_once_with(

@@ -16,9 +16,10 @@ def try_get_members_list(host_and_port_pairs):
     all_failed_message = "Could not list members in the distributed network. " \
                          "Maybe no meshnet has been established yet. " \
                          "Do you have at least three machines running?"
-    return try_machine_command(
+    output, _, _ = try_machine_command(
         host_and_port_pairs,
         list_members_command,
         attempt_message=attempt_message,
         all_failed_message=all_failed_message
     )
+    return output

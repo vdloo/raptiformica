@@ -17,6 +17,7 @@ class TestGetCjdnsConfigItem(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
             'sh', '-c',
             '"cat /etc/cjdroute.conf | '
@@ -36,6 +37,7 @@ class TestGetCjdnsConfigItem(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2223',
             'sh', '-c',
             '"cat /etc/cjdroute.conf | '

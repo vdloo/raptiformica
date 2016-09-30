@@ -10,12 +10,12 @@ class TestTryMachineCommand(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.distributed.exec.log')
         self.host_and_port_pairs = [
-            ('1.2.3.4', 2222),
-            ('5.6.7.8', 22),
-            ('9.9.9.9', 1222)
+            ('1.2.3.4', '2222'),
+            ('5.6.7.8', '22'),
+            ('9.9.9.9', '1222')
         ]
         self.execute_process = self.set_up_patch(
-                'raptiformica.shell.execute.execute_process'
+            'raptiformica.shell.execute.execute_process'
         )
         self.process_output = (1, 'standard out output', 'standard error output')
         self.execute_process.return_value = self.process_output
@@ -40,14 +40,23 @@ class TestTryMachineCommand(TestCase):
 
         try_machine_command(self.host_and_port_pairs, self.command)
 
-        expected_command_as_list1 = ['/usr/bin/env', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                                     '-o', 'UserKnownHostsFile=/dev/null', 'root@1.2.3.4',
+        expected_command_as_list1 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'StrictHostKeyChecking=no',
+                                     '-o', 'UserKnownHostsFile=/dev/null',
+                                     '-o', 'PasswordAuthentication=no',
+                                     'root@1.2.3.4',
                                      '-p', '2222', '/bin/true']
-        expected_command_as_list2 = ['/usr/bin/env', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                                     '-o', 'UserKnownHostsFile=/dev/null', 'root@5.6.7.8',
+        expected_command_as_list2 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'StrictHostKeyChecking=no',
+                                     '-o', 'UserKnownHostsFile=/dev/null',
+                                     '-o', 'PasswordAuthentication=no',
+                                     'root@5.6.7.8',
                                      '-p', '22', '/bin/true']
-        expected_command_as_list3 = ['/usr/bin/env', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                                     '-o', 'UserKnownHostsFile=/dev/null', 'root@9.9.9.9',
+        expected_command_as_list3 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'StrictHostKeyChecking=no',
+                                     '-o', 'UserKnownHostsFile=/dev/null',
+                                     '-o', 'PasswordAuthentication=no',
+                                     'root@9.9.9.9',
                                      '-p', '1222', '/bin/true']
         expected_command_list = [
             expected_command_as_list1,
@@ -66,7 +75,12 @@ class TestTryMachineCommand(TestCase):
 
         ret = try_machine_command(self.host_and_port_pairs, self.command)
 
-        self.assertEqual(ret, 'standard out output')
+        self.assertEqual(ret, ('standard out output', '9.9.9.9', '1222'))
+
+    def test_try_machine_command_returns_tuple_of_nones_if_no_remote_host_succeeded_running_the_command(self):
+        ret = try_machine_command(self.host_and_port_pairs, self.command)
+
+        self.assertEqual(ret, (None, None, None))
 
     def test_try_machine_command_warns_failed_when_no_remote_host_succeeded_running_the_command(self):
         try_machine_command(self.host_and_port_pairs, self.command)

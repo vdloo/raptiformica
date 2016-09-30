@@ -69,7 +69,7 @@ def execute_process(command, buffered=True, shell=False):
         command, stdout=PIPE,
         universal_newlines=buffered,
         stderr=PIPE, shell=shell,
-        bufsize=-1 if buffered else 1
+        bufsize=-1 if buffered else 0
     )
     if not buffered:
         for line in iter(process.stdout.readline, b''):
@@ -225,6 +225,7 @@ def run_command_remotely(command_as_list, host, port=22,
     ssh_command_as_list = ['/usr/bin/env', 'ssh',
                            '-o', 'StrictHostKeyChecking=no',
                            '-o', 'UserKnownHostsFile=/dev/null',
+                           '-o', 'PasswordAuthentication=no',
                            'root@{}'.format(host), '-p', str(port)]
     return run_command(
         ssh_command_as_list + command_as_list,

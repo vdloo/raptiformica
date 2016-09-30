@@ -24,6 +24,7 @@ class TestRunResourceCommand(TestCase):
             '/usr/bin/env', 'ssh',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
             'cd', '/usr/etc/puppetfiles',
             ';', './papply.sh manifests/headless.pp'

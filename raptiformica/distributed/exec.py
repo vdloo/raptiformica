@@ -16,7 +16,7 @@ def try_machine_command(host_and_port_pairs, command_as_list,
     :param list[str, ..] command_as_list: list of strings which build up the command that will be executed
     :param str attempt_message: The message to log to debug before every attempt. Formats 'host' and 'port'
     :param str all_failed_message: The message to log as warning when we ran out of hosts to try
-    :return str standard_out_output | None: command result or None
+    :return tuple(str standard_out_output, str host, str port) | tuple(None, None, None)
     """
     for host, port in host_and_port_pairs:
         log.debug(attempt_message.format(host, port))
@@ -24,5 +24,6 @@ def try_machine_command(host_and_port_pairs, command_as_list,
             command_as_list, host, port=port
         )
         if exit_code == 0:
-            return standard_out_output.strip()
+            return standard_out_output.strip(), host, port
     log.warning(all_failed_message)
+    return None, None, None
