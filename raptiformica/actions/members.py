@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from raptiformica.actions.mesh import join_meshnet
 from raptiformica.distributed.discovery import host_and_port_pairs_from_mutable_config
 from raptiformica.distributed.members import try_get_members_list
 
@@ -15,3 +16,11 @@ def show_members():
     members_list = try_get_members_list(host_and_port_pairs)
     if members_list:
         print(members_list)
+
+
+def rejoin_members():
+    """
+    Attempt to join all the members found in the available config
+    :return None:
+    """
+    join_meshnet()

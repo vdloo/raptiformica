@@ -4,15 +4,15 @@
     "default": {
       "hooks": {
         "cluster_change": {
-	  "clean_up_gone_resources": {
-	    "predicate": "/bin/true",
-	    "command": "export PYTHONPATH=.; ./bin/raptiformica_prune.py --verbose"
-	  },
-	  "evict_gone_machines": {
-	    "predicate": "type consul 1> /dev/null",
-	    "command": "consul members | grep server | grep -v 'alive' | grep -v 'left'  | awk '{print $1}' | xargs -I {} consul force-leave {}"
-	  }
-	}
+          "clean_up_gone_resources": {
+            "predicate": "/bin/true",
+            "command": "export PYTHONPATH=.; ./bin/raptiformica_prune.py --verbose"
+          },
+          "evict_gone_machines": {
+            "predicate": "type consul 1> /dev/null",
+            "command": "consul members | grep server | grep -v 'alive' | grep -v 'left'  | awk '{print $1}' | xargs -I {} consul force-leave {}"
+          }
+        }
       }
     }
   }
