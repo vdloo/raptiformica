@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.hook import trigger_handlers
-from raptiformica.actions.members import show_members
+from raptiformica.actions.members import rejoin_members, show_members
 from raptiformica.actions.mesh import mesh_machine
 from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.prune import prune_local_machines
@@ -181,23 +181,30 @@ def ssh():
 
 def parse_members_arguments():
     """
-    Parse the commandline options for showing the members in the distributed network
+    Parse the commandline options for managing the members in the distributed network
     :return obj args: parsed arguments
     """
     parser = ArgumentParser(
         prog="raptiformica members",
-        description="Show the members of the distributed network."
+        description="Manage the members of the distributed network."
+    )
+    parser.add_argument(
+        '--rejoin', '-r', action='store_true',
+        help='Attempt to (re)join all members found in the available config'
     )
     return parse_arguments(parser)
 
 
 def members():
     """
-    Show the members of the distributed network
+    Manage the members of the distributed network
     :return None:
     """
-    parse_members_arguments()
-    show_members()
+    args = parse_members_arguments()
+    if args.rejoin:
+        rejoin_members()
+    else:
+        show_members()
 
 
 def parse_prune_arguments():
