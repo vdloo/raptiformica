@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from raptiformica.actions.mesh import join_meshnet, configure_cjdroute_conf, configure_consul_conf
+from raptiformica.actions.mesh import join_meshnet, configure_cjdroute_conf, configure_consul_conf, ensure_cjdns_routing
 from raptiformica.distributed.discovery import host_and_port_pairs_from_mutable_config
 from raptiformica.distributed.members import try_get_members_list
 
@@ -25,4 +25,5 @@ def rejoin_members():
     """
     configure_cjdroute_conf()
     configure_consul_conf()
+    ensure_cjdns_routing()
     join_meshnet()
