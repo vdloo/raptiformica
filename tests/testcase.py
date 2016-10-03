@@ -7,3 +7,4 @@ class TestCase(unittest.TestCase):
         patcher = patch(patch_target, mock_target or Mock(**kwargs))
         self.addCleanup(patcher.stop)
         return patcher.start()
+

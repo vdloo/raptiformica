@@ -307,8 +307,6 @@ def join_meshnet():
             mapping[join(neighbour_path, 'cjdns_ipv6_address')]
         )
 
-    # todo: poll for consul agent to start instead of stupidly sleeping
-    # give the agent some time to start
     consul_join_command = 'consul join '
     for ipv6_address in sorted(ipv6_addresses):
         consul_join_command += '[{}]:8301 '.format(

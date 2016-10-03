@@ -4,6 +4,12 @@ from tests.testcase import TestCase
 
 class TestRejoinMembers(TestCase):
     def setUp(self):
+        self.configure_cjdroute_conf = self.set_up_patch(
+            'raptiformica.actions.members.configure_cjdroute_conf'
+        )
+        self.configure_consul_conf = self.set_up_patch(
+            'raptiformica.actions.members.configure_consul_conf'
+        )
         self.join_meshnet = self.set_up_patch(
             'raptiformica.actions.members.join_meshnet'
         )
