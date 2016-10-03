@@ -181,10 +181,11 @@ def start_detached_cjdroute():
     :return None:
     """
     log.info("Starting cjdroute in the background")
+    kill_running = "pkill -f 'cjdroute --nobg'; "
     start_cjdroute_command = "/usr/bin/env screen -d -m bash -c 'cat {} | " \
                              "cjdroute --nobg'".format(CJDROUTE_CONF_PATH)
     run_command_print_ready(
-        start_cjdroute_command,
+        kill_running + start_cjdroute_command,
         failure_callback=raise_failure_factory(
             "Failed to start cjdroute in the background"
         ),
@@ -275,6 +276,17 @@ def block_until_consul_becomes_available():
     )
 
 
+def ensure_cjdns_routing():
+    """
+    Start a new cjdroute instanc, wait until the distributed
+    network is available and ensure the routes
+    :return:
+    """
+    start_detached_cjdroute()
+    block_until_tun0_becomes_available()
+    ensure_ipv6_routing()
+
+
 def start_meshing_services():
     """
     Start the meshnet services. This enables neighbours to connect
@@ -282,9 +294,7 @@ def start_meshing_services():
     :return None:
     """
     log.info("Starting meshing services")
-    start_detached_cjdroute()
-    block_until_tun0_becomes_available()
-    ensure_ipv6_routing()
+    ensure_cjdns_routing()
     start_detached_consul_agent()
     block_until_consul_becomes_available()
 
