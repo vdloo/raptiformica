@@ -174,18 +174,32 @@ def enough_neighbours():
     return enough
 
 
+def stop_detached_cjdroute():
+    """
+    Stop any possible already running cjdroute processes.
+    :return:
+    """
+    log.info("Stopping cjdroute in the background")
+    kill_running = "pkill -f 'cjdroute --nobg'"
+    run_command_print_ready(
+        kill_running,
+        shell=True,
+        buffered=False
+    )
+
+
 def start_detached_cjdroute():
     """
     Start cjdroute running in the foreground in a detached screen
-    Doing it this way because at this point in the process it could be that the remote host does not have an init system
+    Doing it this way because at this point in the process it could
+    be that the remote host does not have an init system
     :return None:
     """
     log.info("Starting cjdroute in the background")
-    kill_running = "pkill -f 'cjdroute --nobg'; "
     start_cjdroute_command = "/usr/bin/env screen -d -m bash -c 'cat {} | " \
                              "cjdroute --nobg'".format(CJDROUTE_CONF_PATH)
     run_command_print_ready(
-        kill_running + start_cjdroute_command,
+        start_cjdroute_command,
         failure_callback=raise_failure_factory(
             "Failed to start cjdroute in the background"
         ),
@@ -282,6 +296,7 @@ def ensure_cjdns_routing():
     network is available and ensure the routes
     :return:
     """
+    stop_detached_cjdroute()
     start_detached_cjdroute()
     block_until_tun0_becomes_available()
     ensure_ipv6_routing()
