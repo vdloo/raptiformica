@@ -3,8 +3,20 @@ set -e
 echo "changing directory to /usr/etc/cjdns"
 cd /usr/etc/cjdns
 
+echo "Checking for a pre-compiled cjdroute"
+
 echo "ensuring binary is compiled"
-[ ! -f cjdroute ] && ./do
+if [ ! -f cjdroute ]; then
+    if [ -f ~/.raptiformica.d/artifacts/$(arch)/cjdns/cjdroute ]; then
+        echo 'using stored artifact'
+        cp ~/.raptiformica.d/artifacts/$(arch)/cjdns/cjdroute .
+    else
+        echo 'compiling new cjdoute'
+        ./do
+        mkdir -p ~/.raptiformica.d/artifacts/$(arch)/cjdns/
+        cp -f cjdroute ~/.raptiformica.d/artifacts/$(arch)/cjdns/
+    fi
+fi
 
 echo "ensuring tun device exists"
 if cat /dev/net/tun | grep -q "File descriptor in bad state" ; then
@@ -20,8 +32,8 @@ else
 fi
 
 echo "ensuring binary and config to /usr/bin"
-cp cjdroute /usr/bin/
-cp cjdroute.conf /etc/
+cp -f cjdroute /usr/bin/
+cp -f cjdroute.conf /etc/
 
 if [ -d /etc/systemd ]; then
     echo "installing cjdns service file"

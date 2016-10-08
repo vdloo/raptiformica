@@ -10,7 +10,7 @@ from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
-from raptiformica.shell.rsync import upload_self
+from raptiformica.shell.rsync import upload_self, download_artifacts
 from raptiformica.utils import endswith, startswith
 
 log = getLogger(__name__)
@@ -74,6 +74,7 @@ def assimilate_machine(host, port=22, uuid=None):
     log.info("Preparing to machine to be joined into the distributed network")
     ensure_cjdns_installed(host, port=port)
     ensure_consul_installed(host, port=port)
+    download_artifacts(host, port=port)
     update_meshnet_config(host, port=port, compute_checkout_uuid=uuid)
 
 
