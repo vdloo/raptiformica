@@ -4,7 +4,7 @@
     "headless": {
       "raptiformica": {
         "source": "https://github.com/vdloo/raptiformica",
-        "bootstrap": "export PYTHONPATH=/usr/etc/raptiformica; ./modules/server/deploy.py"
+        "bootstrap": "cat /dev/zero | ssh-keygen -f loopback -q -N '' > /dev/null 2>&1; eval $(ssh-agent -s); ssh-add loopback; cat loopback.pub >> ~/.ssh/authorized_keys; export PYTHONPATH=/usr/etc/raptiformica; ./modules/server/deploy.py"
       }
     }
   }
