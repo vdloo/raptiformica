@@ -113,9 +113,9 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=No
     """
     log.info("Slaving machine {}".format(host))
     server_type = server_type or get_first_server_type()
+    upload_self(host, port=port)
     if provision:
         provision_machine(host, port=port, server_type=server_type)
-    upload_self(host, port=port)
     fire_hooks('after_slave')
     if assimilate:
         assimilate_machine(host, port=port, uuid=uuid)
