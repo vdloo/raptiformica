@@ -1,6 +1,6 @@
 from mock import call
 
-from raptiformica.settings import INSTALL_DIR, MUTABLE_CONFIG, ABS_CACHE_DIR
+from raptiformica.settings import INSTALL_DIR, ABS_CACHE_DIR
 from raptiformica.settings import PROJECT_DIR
 from raptiformica.shell.rsync import upload_self
 from tests.testcase import TestCase

@@ -1,4 +1,4 @@
-from raptiformica.actions.mesh import stop_detached_cjdroute, CJDROUTE_CONF_PATH
+from raptiformica.actions.mesh import stop_detached_cjdroute
 from tests.testcase import TestCase
 
 
