@@ -4,9 +4,7 @@ from raptiformica.settings import KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
-from raptiformica.shell.cjdns import ensure_cjdns_installed
 from raptiformica.shell.config import run_resource_command
-from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
@@ -16,17 +14,17 @@ from raptiformica.utils import endswith, startswith
 log = getLogger(__name__)
 
 
-def retrieve_provisioning_config(server_type=None):
+def retrieve_provisioning_configs(server_type=None):
     """
-    Get the source, name and bootstrap command from the settings for the specified server type
+    Get the source, name and bootstrap commands from the settings for the specified server type
     :param str server_type: name of the server type. i.e. headless
-    :return tuple provisioning_config: tuple of source, name and bootstrap command
+    :return list provisioning_configs: dict of provisioning configs
     """
     log.debug("Retrieving provisioning config")
     server_type = server_type or get_first_server_type()
     mapped = get_config()
 
-    server_path = '{}/server/{}/'.format(
+    server_path = '{}/server/{}'.format(
         KEY_VALUE_PATH, server_type,
     )
     server_path_keys = list(filter(
@@ -34,17 +32,28 @@ def retrieve_provisioning_config(server_type=None):
         mapped
     ))
 
-    def get_first_mapped(item):
-        return mapped[next(filter(endswith(item), server_path_keys))]
+    names = set(map(
+        lambda x: x.split('/')[3],
+        server_path_keys
+    ))
 
-    return map(
-        get_first_mapped,
-        (
-            'source',
-            'name',
-            'bootstrap',
-        )
-    )
+    def get_item_for_name(name, item):
+        return mapped[next(
+            filter(
+                endswith("{}/{}/{}".format(
+                    server_path, name, item
+                )),
+                mapped
+            )
+        )]
+
+    return {
+        name: {
+            item: get_item_for_name(name, item) for item in (
+                'source', 'bootstrap'
+            )
+        } for name in names
+    }
 
 
 def provision_machine(host, port=22, server_type=None):
@@ -58,9 +67,11 @@ def provision_machine(host, port=22, server_type=None):
     server_type = server_type or get_first_server_type()
     log.info("Provisioning host {} as server type {}".format(host, server_type))
     server_type = server_type or get_first_server_type()
-    source, name, command = retrieve_provisioning_config(server_type)
-    ensure_latest_source(source, name, host, port=port)
-    run_resource_command(command, name, host, port=port)
+    provisioning_configs = retrieve_provisioning_configs(server_type)
+    for name, config in provisioning_configs.items():
+        log.info("Provisioning for {}".format(name))
+        ensure_latest_source(config['source'], name, host, port=port)
+        run_resource_command(config['bootstrap'], name, host, port=port)
 
 
 def assimilate_machine(host, port=22, uuid=None):
@@ -72,8 +83,6 @@ def assimilate_machine(host, port=22, uuid=None):
     :return None:
     """
     log.info("Preparing to machine to be joined into the distributed network")
-    ensure_cjdns_installed(host, port=port)
-    ensure_consul_installed(host, port=port)
     download_artifacts(host, port=port)
     update_meshnet_config(host, port=port, compute_checkout_uuid=uuid)
 
