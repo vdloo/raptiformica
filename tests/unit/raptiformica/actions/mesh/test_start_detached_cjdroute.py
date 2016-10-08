@@ -19,8 +19,7 @@ class TestStartDetachedCjdroute(TestCase):
     def test_start_detached_cjdroute_starts_detached_cjdroute(self):
         start_detached_cjdroute()
 
-        expected_command = "pkill -f 'cjdroute --nobg'; " \
-                           "/usr/bin/env screen -d -m bash -c '" \
+        expected_command = "/usr/bin/env screen -d -m bash -c '" \
                            "cat {} | cjdroute --nobg" \
                            "'".format(CJDROUTE_CONF_PATH)
         self.execute_process.assert_called_once_with(
