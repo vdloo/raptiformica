@@ -4,9 +4,7 @@ from raptiformica.settings import KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
-from raptiformica.shell.cjdns import ensure_cjdns_installed
 from raptiformica.shell.config import run_resource_command
-from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.git import ensure_latest_source
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
@@ -85,8 +83,6 @@ def assimilate_machine(host, port=22, uuid=None):
     :return None:
     """
     log.info("Preparing to machine to be joined into the distributed network")
-    ensure_cjdns_installed(host, port=port)
-    ensure_consul_installed(host, port=port)
     download_artifacts(host, port=port)
     update_meshnet_config(host, port=port, compute_checkout_uuid=uuid)
 

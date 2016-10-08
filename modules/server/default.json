@@ -2,9 +2,9 @@
   "raptiformica_api_version": "0.1",
   "server": {
     "headless": {
-      "default_provisioning_script": {
+      "raptiformica": {
         "source": "https://github.com/vdloo/raptiformica",
-        "bootstrap": "bash -c 'echo provisioned > $HOME/provisioned.txt'"
+        "bootstrap": "export PYTHONPATH=/usr/etc/raptiformica; ./modules/server/deploy.py"
       }
     }
   }
