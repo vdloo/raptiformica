@@ -6,7 +6,6 @@ from tests.testcase import TestCase
 
 class TestEnsureConsulDependencies(TestCase):
     def setUp(self):
-        self.log = self.set_up_patch('raptiformica.shell.consul.log')
         self.execute_process = self.set_up_patch(
             'raptiformica.shell.execute.execute_process'
         )

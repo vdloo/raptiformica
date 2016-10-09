@@ -1,10 +1,10 @@
 from mock import call
 
-from raptiformica.shell.cjdns import ensure_cjdns_dependencies
+from raptiformica.shell.package_manager import update_package_manager_cache
 from tests.testcase import TestCase
 
 
-class TestEnsureCjdnsDependencies(TestCase):
+class TestUpdatePackageManagerCache(TestCase):
     def setUp(self):
         self.execute_process = self.set_up_patch(
             'raptiformica.shell.execute.execute_process'
@@ -13,8 +13,8 @@ class TestEnsureCjdnsDependencies(TestCase):
         self.execute_process.return_value = self.process_output
         self.maxDiff = None
 
-    def test_ensure_cjdns_dependencies_tries_commands_for_all_supported_distros(self):
-        ensure_cjdns_dependencies('1.2.3.4', port=2222)
+    def test_update_package_manager_cache_tries_commands_for_all_supported_distros(self):
+        update_package_manager_cache('1.2.3.4', port=2222)
 
         expected_archlinux_call = call(
             '/usr/bin/env ssh '
@@ -23,7 +23,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             '-o PasswordAuthentication=no '
             'root@1.2.3.4 -p 2222 sh -c \''
             'type pacman 1> /dev/null && '
-            'pacman -S --noconfirm nodejs base-devel --needed '
+            'pacman -Syy '
             '|| /bin/true'
             '\'',
             buffered=False, shell=True
@@ -35,8 +35,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             '-o PasswordAuthentication=no '
             'root@1.2.3.4 -p 2222 sh -c \''
             'type apt-get 1> /dev/null && '
-            'apt-get install -yy nodejs '
-            'build-essential git python '
+            'apt-get update -yy '
             '|| /bin/true'
             '\'',
             buffered=False, shell=True
@@ -44,37 +43,36 @@ class TestEnsureCjdnsDependencies(TestCase):
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
 
-    def test_ensure_cjdns_dependencies_tries_commands_on_local_machine_if_no_host(self):
-        ensure_cjdns_dependencies()
+    def test_update_package_manager_cache_tries_commands_on_local_machine_if_no_host(self):
+        update_package_manager_cache()
 
         expected_archlinux_call = call(
             'type pacman 1> /dev/null && '
-            'pacman -S --noconfirm nodejs base-devel --needed '
+            'pacman -Syy '
             '|| /bin/true',
             buffered=False, shell=True
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
-            'apt-get install -yy nodejs '
-            'build-essential git python '
+            'apt-get update -yy '
             '|| /bin/true',
             buffered=False, shell=True
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
 
-    def test_ensure_cjdns_dependencies_raises_error_when_the_first_command_fails(self):
+    def test_update_package_manager_cache_raises_error_when_the_first_command_fails(self):
         self.execute_process.side_effect = [(1, 'standard out output', ''), self.process_output]
 
         with self.assertRaises(RuntimeError):
-            ensure_cjdns_dependencies('1.2.3.4', port=2222)
+            update_package_manager_cache('1.2.3.4', port=2222)
 
         self.assertEqual(1, len(self.execute_process.mock_calls))
 
-    def test_ensure_cjdns_dependencies_raises_error_when_the_second_command_fails(self):
+    def test_update_package_manager_cache_raises_error_when_the_second_command_fails(self):
         self.execute_process.side_effect = [self.process_output, (1, 'standard out output', '')]
 
         with self.assertRaises(RuntimeError):
-            ensure_cjdns_dependencies('1.2.3.4', port=2222)
+            update_package_manager_cache('1.2.3.4', port=2222)
 
         self.assertEqual(2, len(self.execute_process.mock_calls))
