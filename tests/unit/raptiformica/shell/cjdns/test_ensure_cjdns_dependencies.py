@@ -12,33 +12,55 @@ class TestEnsureCjdnsDependencies(TestCase):
         )
         self.process_output = (0, 'standard out output', '')
         self.execute_process.return_value = self.process_output
+        self.maxDiff = None
 
     def test_ensure_cjdns_dependencies_tries_commands_for_all_supported_distros(self):
         ensure_cjdns_dependencies('1.2.3.4', port=2222)
 
-        expected_archlinux_call = call([
-            '/usr/bin/env', 'ssh',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4', '-p', '2222',
-            "sh", "-c",
-            '"type pacman 1> /dev/null '
-            '&& pacman -S --noconfirm '
-            'nodejs base-devel --needed || /bin/true"'
-        ], buffered=False, shell=False)
-        expected_debian_call = call([
-            '/usr/bin/env', 'ssh',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4', '-p', '2222',
-            "sh", "-c",
-            '"type apt-get 1> /dev/null && '
-            '(apt-get update -yy && '
-            'apt-get install -yy nodejs '
-            'build-essential git python) || /bin/true"'
-        ], buffered=False, shell=False)
+        expected_archlinux_call = call(
+                '/usr/bin/env ssh '
+                '-o StrictHostKeyChecking=no '
+                '-o UserKnownHostsFile=/dev/null '
+                '-o PasswordAuthentication=no '
+                'root@1.2.3.4 -p 2222 sh -c \''
+                'type pacman 1> /dev/null && '
+                'pacman -S --noconfirm nodejs base-devel --needed '
+                '|| /bin/true'
+                '\'',
+                buffered=False, shell=True
+        )
+        expected_debian_call = call(
+                '/usr/bin/env ssh '
+                '-o StrictHostKeyChecking=no '
+                '-o UserKnownHostsFile=/dev/null '
+                '-o PasswordAuthentication=no '
+                'root@1.2.3.4 -p 2222 sh -c \''
+                'type apt-get 1> /dev/null && '
+                '(apt-get update -yy && apt-get install -yy nodejs '
+                'build-essential git python) '
+                '|| /bin/true'
+                '\'',
+                buffered=False, shell=True
+        )
+        expected_calls = [expected_archlinux_call, expected_debian_call]
+        self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
+
+    def test_ensure_cjdns_dependencies_tries_commands_on_local_machine_if_no_host(self):
+        ensure_cjdns_dependencies()
+
+        expected_archlinux_call = call(
+            'type pacman 1> /dev/null && '
+            'pacman -S --noconfirm nodejs base-devel --needed '
+            '|| /bin/true',
+            buffered=False, shell=True
+        )
+        expected_debian_call = call(
+            'type apt-get 1> /dev/null && '
+            '(apt-get update -yy && apt-get install -yy nodejs '
+            'build-essential git python) '
+            '|| /bin/true',
+            buffered=False, shell=True
+        )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
 

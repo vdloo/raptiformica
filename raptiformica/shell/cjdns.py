@@ -2,8 +2,9 @@ from os import path
 from logging import getLogger
 
 from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
-from raptiformica.shell.execute import run_remote_multiple_labeled_commands, raise_failure_factory, \
-    run_critical_unbuffered_command_print_ready, run_command_print_ready
+from raptiformica.shell.execute import raise_failure_factory, \
+    run_critical_unbuffered_command_print_ready, run_command_print_ready, \
+    run_multiple_labeled_commands
 from raptiformica.shell.git import ensure_latest_source
 
 CJDNS_REPOSITORY = "https://github.com/cjdelisle/cjdns.git"
@@ -74,14 +75,14 @@ def ensure_cjdns_dependencies(host=None, port=22):
     log.info("Ensuring the CJDNS dependencies are installed")
 
     ensure_cjdns_dependencies_commands = (
-        ('archlinux', '"type pacman 1> /dev/null && '
-                      'pacman -S --noconfirm nodejs base-devel --needed || /bin/true"'),
-        ('debian', '"type apt-get 1> /dev/null && '
+        ('archlinux', 'type pacman 1> /dev/null && '
+                      'pacman -S --noconfirm nodejs base-devel --needed || /bin/true'),
+        ('debian', 'type apt-get 1> /dev/null && '
                    '(apt-get update -yy && '
                    'apt-get install -yy nodejs '
-                   'build-essential git python) || /bin/true"')
+                   'build-essential git python) || /bin/true')
     )
-    run_remote_multiple_labeled_commands(
+    run_multiple_labeled_commands(
         ensure_cjdns_dependencies_commands, host=host, port=port,
         failure_message="Failed to run (if {}) install cjdns "
                         "dependencies command"
