@@ -61,13 +61,13 @@ class TestProvision(TestCase):
             call(
                 'https://github.com/vdloo/raptiformica-map',
                 'raptiformica-map',
-                '1.2.3.4',
+                host='1.2.3.4',
                 port=22
             ),
             call(
                 'https://github.com/vdloo/puppetfiles',
                 'puppetfiles',
-                '1.2.3.4',
+                host='1.2.3.4',
                 port=22
             ),
         )
@@ -82,13 +82,13 @@ class TestProvision(TestCase):
             call(
                 './papply.sh manifests/headless.pp',
                 'puppetfiles',
-                '1.2.3.4',
+                host='1.2.3.4',
                 port=22
             ),
             call(
                 './deploy.sh',
                 'raptiformica-map',
-                '1.2.3.4',
+                host='1.2.3.4',
                 port=22
             )
         )

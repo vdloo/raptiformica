@@ -19,21 +19,16 @@ class TestPullOriginMaster(TestCase):
     def test_that_pull_origin_master_pulls_origin_master_on_remote_host(self):
         pull_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
-        expected_command = [
-            '/usr/bin/env', 'ssh',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4',
-            '-p', '22',
-            'cd', '/usr/etc/puppetfiles',
-            ';', '/usr/bin/env', 'git',
-            'pull', 'origin', 'master'
-        ]
+        expected_command = "/usr/bin/env ssh " \
+                           "-o StrictHostKeyChecking=no " \
+                           "-o UserKnownHostsFile=/dev/null " \
+                           "-o PasswordAuthentication=no " \
+                           "root@1.2.3.4 -p 22 " \
+                           "'cd /usr/etc/puppetfiles; git pull origin master'"
         self.execute_process.assert_called_once_with(
             expected_command,
-            buffered=True,
-            shell=False
+            buffered=False,
+            shell=True
         )
 
     def test_that_pull_origin_master_returns_pull_origin_master_exit_code(self):

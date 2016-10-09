@@ -139,7 +139,7 @@ def run_command_remotely(command, host, port=22,
                            '-o', 'PasswordAuthentication=no',
                            'root@{}'.format(host), '-p', str(port)]
     if shell:
-        command = ' '.join(ssh_command_as_list) + ' sh -c ' + quote(command)
+        command = ' '.join(ssh_command_as_list) + ' ' + quote(command)
     else:
         command = ssh_command_as_list + command
     return run_command_locally(

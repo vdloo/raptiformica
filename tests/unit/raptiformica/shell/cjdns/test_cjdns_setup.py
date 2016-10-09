@@ -22,21 +22,17 @@ class TestCjdnsSetup(TestCase):
     def test_cjdns_setup_runs_cjdns_setup_script(self):
         cjdns_setup('1.2.3.4', port=2222)
 
-        expected_command = [
-            '/usr/bin/env', 'ssh',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4', '-p', '2222',
-            'bash', '-c', 'cd {} && {}'.format(
-                join(INSTALL_DIR, 'cjdns'),
-                join(RAPTIFORMICA_DIR, 'resources/setup_cjdns.sh')
-            )
-        ]
+        expected_command = "/usr/bin/env ssh " \
+                           "-o StrictHostKeyChecking=no " \
+                           "-o UserKnownHostsFile=/dev/null " \
+                           "-o PasswordAuthentication=no " \
+                           "root@1.2.3.4 -p 2222 " \
+                           "'cd /usr/etc/cjdns; " \
+                           "/usr/etc/raptiformica/resources/setup_cjdns.sh'"
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=False
+            shell=True
         )
 
     def test_cjdns_setup_raises_error_when_cjdns_setup_script_fails(self):

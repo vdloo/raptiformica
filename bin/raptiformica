@@ -6,6 +6,7 @@ PRUNE_ENTRYPOINT="raptiformica_prune.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 MESH_ENTRYPOINT="raptiformica_mesh.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
+UPDATE_ENTRYPOINT="raptiformica_update.py"
 HOOK_ENTRYPOINT="raptiformica_hook.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
@@ -19,6 +20,11 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   slave                      Provision and join a machine 
                              into the network
+
+  update                     Update the local machine by
+                             running the configured commands
+                             from the installed provisioning 
+                             modules
 
   mesh                       Deploy a mesh configuration 
                              based on the config file on 
@@ -63,6 +69,10 @@ case $1 in
     ;;
     slave)
     RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
+    shift
+    ;;
+    update)
+    RAPTIFORMICA_CMD=$UPDATE_ENTRYPOINT
     shift
     ;;
     modprobe)

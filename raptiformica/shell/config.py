@@ -1,5 +1,6 @@
 from os import path
 from logging import getLogger
+from shlex import quote
 
 from raptiformica.settings import INSTALL_DIR
 from raptiformica.shell.execute import log_failure_factory, log_success_factory, run_command_print_ready
@@ -18,9 +19,9 @@ def run_resource_command(command, name, host, port=22):
     """
     log.info("Running resource command: {}".format(command))
     provisioning_directory = path.join(INSTALL_DIR, name)
-    configured_resource_command = [
-        "cd", provisioning_directory, ";", command
-    ]
+    configured_resource_command = "cd {}; {}".format(
+        quote(provisioning_directory), command
+    )
     exit_code, _, _ = run_command_print_ready(
         configured_resource_command, host=host, port=port,
         failure_callback=log_failure_factory(
@@ -29,6 +30,7 @@ def run_resource_command(command, name, host, port=22):
         success_callback=log_success_factory(
             "Successfully ran resource command"
         ),
-        buffered=False
+        buffered=False,
+        shell=True
     )
     return exit_code

@@ -56,7 +56,7 @@ def retrieve_provisioning_configs(server_type=None):
     }
 
 
-def provision_machine(host, port=22, server_type=None):
+def provision_machine(host=None, port=22, server_type=None):
     """
     Deploy the bootstrapping repo on the remote machine and run the bootstrap command
     :param str host: hostname or ip of the remote machine
@@ -65,13 +65,15 @@ def provision_machine(host, port=22, server_type=None):
     :return None:
     """
     server_type = server_type or get_first_server_type()
-    log.info("Provisioning host {} as server type {}".format(host, server_type))
+    log.info("Provisioning host {} as server type {}".format(
+        host or 'local machine', server_type
+    ))
     server_type = server_type or get_first_server_type()
     provisioning_configs = retrieve_provisioning_configs(server_type)
     for name, config in provisioning_configs.items():
         log.info("Provisioning for {}".format(name))
-        ensure_latest_source(config['source'], name, host, port=port)
-        run_resource_command(config['bootstrap'], name, host, port=port)
+        ensure_latest_source(config['source'], name, host=host, port=port)
+        run_resource_command(config['bootstrap'], name, host=host, port=port)
 
 
 def assimilate_machine(host, port=22, uuid=None):
