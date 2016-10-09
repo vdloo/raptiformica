@@ -25,7 +25,8 @@ def run_resource_command(command, name, host, port=22):
     exit_code, _, _ = run_command_print_ready(
         configured_resource_command, host=host, port=port,
         failure_callback=log_failure_factory(
-            "Failed to run resource command"
+            "Resource command exited nonzero, that might not be a problem. "
+            "If something serious went wrong we'll try again next run."
         ),
         success_callback=log_success_factory(
             "Successfully ran resource command"
