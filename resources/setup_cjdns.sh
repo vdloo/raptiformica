@@ -7,14 +7,14 @@ echo "Checking for a pre-compiled cjdroute"
 
 echo "ensuring binary is compiled"
 if [ ! -f cjdroute ]; then
-    if [ -f ~/.raptiformica.d/artifacts/$(arch)/cjdns/cjdroute ]; then
+    if [ -f ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/cjdroute ]; then
         echo 'using stored artifact'
-        cp ~/.raptiformica.d/artifacts/$(arch)/cjdns/cjdroute .
+        cp ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/cjdroute .
     else
         echo 'compiling new cjdoute'
         ./do
-        mkdir -p ~/.raptiformica.d/artifacts/$(arch)/cjdns/
-        cp -f cjdroute ~/.raptiformica.d/artifacts/$(arch)/cjdns/
+        mkdir -p ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/
+        cp -f cjdroute ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/
     fi
 fi
 
