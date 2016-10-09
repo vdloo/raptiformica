@@ -1,6 +1,7 @@
 from functools import partial
 from os import path
 from logging import getLogger
+from shlex import quote
 
 from raptiformica.settings import INSTALL_DIR
 from raptiformica.shell.execute import run_command_print_ready, \
@@ -53,15 +54,16 @@ def pull_origin_master(directory, host=None, port=22):
     :return int exit_code: exit code of the remote command
     """
     log.info("Pulling origin master in {}".format(directory))
-    pull_origin_master_command = [
-        'cd', directory, ';',
-        '/usr/bin/env', 'git', 'pull', 'origin', 'master'
-    ]
+    pull_origin_master_command = 'cd {}; git pull origin master'.format(
+        quote(directory)
+    )
     exit_code, _, _ = run_command_print_ready(
         pull_origin_master_command, host=host, port=port,
         failure_callback=log_failure_factory(
             "Failed to pull origin master"
-        )
+        ),
+        buffered=False,
+        shell=True
     )
     return exit_code
 
@@ -75,15 +77,15 @@ def reset_hard_origin_master(directory, host=None, port=22):
     :return int exit_code: exit code of the remote command
     """
     log.info("Resetting origin master in {}".format(directory))
-    reset_hard_origin_master_command = [
-        'cd', directory, ';',
-        '/usr/bin/env', 'git', 'reset', '--hard', 'origin/master'
-    ]
+    reset_hard_origin_master_command = 'cd {}; git reset --hard ' \
+                                       'origin/master'.format(quote(directory))
     exit_code, _, _ = run_command_print_ready(
         reset_hard_origin_master_command, host=host, port=port,
         failure_callback=log_failure_factory(
             "Failed to reset --hard origin/master"
-        )
+        ),
+        buffered=False,
+        shell=True
     )
     return exit_code
 

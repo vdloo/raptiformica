@@ -20,19 +20,17 @@ class TestRunResourceCommand(TestCase):
     def test_run_resource_command_runs_command_remotely_print_ready(self):
         run_resource_command(self.resource_command, 'puppetfiles', '1.2.3.4', port=2222)
 
-        expected_remote_command = [
-            '/usr/bin/env', 'ssh',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4', '-p', '2222',
-            'cd', '/usr/etc/puppetfiles',
-            ';', './papply.sh manifests/headless.pp'
-        ]
+        expected_remote_command = "/usr/bin/env ssh " \
+                                  "-o StrictHostKeyChecking=no " \
+                                  "-o UserKnownHostsFile=/dev/null " \
+                                  "-o PasswordAuthentication=no " \
+                                  "root@1.2.3.4 -p 2222 " \
+                                  "'cd /usr/etc/puppetfiles; " \
+                                  "./papply.sh manifests/headless.pp'"
         self.execute_process.assert_called_once_with(
             expected_remote_command,
             buffered=False,
-            shell=False
+            shell=True
         )
 
     def test_run_resource_command_returns_command_output(self):

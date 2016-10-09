@@ -1,5 +1,6 @@
 from os import path
 from logging import getLogger
+from shlex import quote
 
 from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
 from raptiformica.shell.execute import raise_failure_factory, \
@@ -101,15 +102,14 @@ def cjdns_setup(host=None, port=22):
     log.info("Build, configure and install CJDNS")
     cjdns_checkout_directory = path.join(INSTALL_DIR, 'cjdns')
     setup_script = path.join(RAPTIFORMICA_DIR, 'resources/setup_cjdns.sh')
-    cjdns_setup_command = [
-        'bash', '-c', 'cd {} && {}'.format(
-            cjdns_checkout_directory, setup_script,
-        )
-    ]
+    cjdns_setup_command = 'cd {}; {}'.format(
+        quote(cjdns_checkout_directory), setup_script,
+    )
     exit_code, _, _ = run_critical_unbuffered_command_print_ready(
         cjdns_setup_command, host=host, port=port,
         failure_message="Failed to ensure that CJDNS was built, "
-                        "configured and installed"
+                        "configured and installed",
+        shell=True
     )
     return exit_code
 
