@@ -11,10 +11,8 @@ def main():
     :return None:
     """
     setup_logging()
-    # todo: refactor this so that the shell commands below run on the local
-    # host directly, instead of SSHing to the localhost and running it there
-    ensure_cjdns_installed('localhost')
-    ensure_consul_installed('localhost')
+    ensure_cjdns_installed()
+    ensure_consul_installed()
 
 if __name__ == '__main__':
     main()

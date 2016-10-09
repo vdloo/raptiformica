@@ -19,7 +19,7 @@ class TestUpdateSource(TestCase):
 
         self.pull_origin_master.assert_called_once_with(
             '/usr/etc/puppetfiles',
-            '1.2.3.4',
+            host='1.2.3.4',
             port=22
         )
 
@@ -30,7 +30,7 @@ class TestUpdateSource(TestCase):
 
         self.reset_hard_origin_master.assert_called_once_with(
             '/usr/etc/puppetfiles',
-            '1.2.3.4',
+            host='1.2.3.4',
             port=22
         )
 

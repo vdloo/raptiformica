@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from raptiformica.settings import RAPTIFORMICA_DIR, CACHE_DIR
-from raptiformica.shell.execute import raise_failure_factory, run_command_remotely_print_ready, run_command_remotely
+from raptiformica.shell.execute import raise_failure_factory, run_command_remotely, run_command_print_ready
 
 log = getLogger(__name__)
 
@@ -31,11 +31,11 @@ def run_raptiformica_command(command_as_string, host, port=22):
     """
     log.info("Running raptiformica command on "
              "remote host: {}".format(command_as_string))
-    exit_code, _, _ = run_command_remotely_print_ready(
+    exit_code, _, _ = run_command_print_ready(
         ['sh', '-c', '"cd {}; {}"'.format(
             RAPTIFORMICA_DIR, command_as_string
         )],
-        host, port=port,
+        host=host, port=port,
         failure_callback=raise_failure_factory(
             "Failed to run raptiformica command on remote host"
         ),

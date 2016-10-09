@@ -16,7 +16,11 @@ class TestEnsureLatestSourceSuccessFactory(TestCase):
         self.assertTrue(self.log.info.called)
 
     def test_that_ensure_latest_source_success_factory_returns_function_that_updates_source(self):
-        func = ensure_latest_source_success_factory('/usr/etc/puppetfiles', '1.2.3.4', port=22)
+        func = ensure_latest_source_success_factory(
+            '/usr/etc/puppetfiles', host='1.2.3.4', port=22
+        )
         func(self.process_output)
 
-        self.update_source.assert_called_once_with('/usr/etc/puppetfiles', '1.2.3.4', port=22)
+        self.update_source.assert_called_once_with(
+            '/usr/etc/puppetfiles', host='1.2.3.4', port=22
+        )

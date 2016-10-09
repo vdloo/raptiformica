@@ -17,8 +17,8 @@ class TestRetrieveModule(TestCase):
                 'puppetfiles'
             )
         )
-        self.clone_source_locally = self.set_up_patch(
-            'raptiformica.actions.modules.clone_source_locally'
+        self.clone_source = self.set_up_patch(
+            'raptiformica.actions.modules.clone_source'
         )
 
     def test_retrieve_module_logs_info_message(self):
@@ -41,7 +41,7 @@ class TestRetrieveModule(TestCase):
     def test_retrieve_module_clones_source_to_user_modules_dir(self):
         retrieve_module('vdloo/puppetfiles')
 
-        self.clone_source_locally.assert_called_once_with(
+        self.clone_source.assert_called_once_with(
             'https://github.com/vdloo/puppetfiles',
             join(USER_MODULES_DIR, 'puppetfiles')
         )

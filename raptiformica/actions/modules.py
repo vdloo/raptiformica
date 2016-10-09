@@ -5,7 +5,7 @@ from shutil import rmtree
 
 from raptiformica.settings import USER_MODULES_DIR
 from raptiformica.settings.load import on_disk_mapping, try_delete_config, try_update_config
-from raptiformica.shell.git import clone_source_locally
+from raptiformica.shell.git import clone_source
 
 log = getLogger(__name__)
 
@@ -36,7 +36,7 @@ def retrieve_module(module_name):
     log.info("Checking out {}".format(module_name))
     url, directory = determine_clone_data(module_name)
     log.debug("Cloning from {}".format(url))
-    clone_source_locally(
+    clone_source(
         url,
         join(USER_MODULES_DIR, directory)
     )

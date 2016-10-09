@@ -7,8 +7,8 @@ class CreateNewComputeCheckout(TestCase):
         self.ensure_new_compute_checkout_directory_exists = self.set_up_patch(
             'raptiformica.shell.compute.ensure_new_compute_checkout_directory_exists'
         )
-        self.clone_source_locally = self.set_up_patch(
-            'raptiformica.shell.compute.clone_source_locally'
+        self.clone_source = self.set_up_patch(
+            'raptiformica.shell.compute.clone_source'
         )
         self.path = self.set_up_patch('raptiformica.shell.compute.path')
         self.uuid4 = self.set_up_patch('raptiformica.shell.compute.uuid4')
@@ -31,7 +31,7 @@ class CreateNewComputeCheckout(TestCase):
     def test_create_new_compute_type_directory_clones_source_locally(self):
         create_new_compute_checkout('headless', 'vagrant', "https://github.com/vdloo/vagrantfiles")
 
-        self.clone_source_locally.assert_called_once_with(
+        self.clone_source.assert_called_once_with(
             'https://github.com/vdloo/vagrantfiles',
             self.path.join.return_value
         )

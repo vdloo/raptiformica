@@ -12,15 +12,15 @@ class TestUnzipConsulRelease(TestCase):
         )
 
     def test_unzip_consul_release_unzips_consul_binary_on_remote_host(self):
-        unzip_consul_release('1.2.3.4', port=22)
+        unzip_consul_release(host='1.2.3.4', port=22)
 
         self.unzip_consul_binary.assert_called_once_with(
-            '1.2.3.4', port=22
+            host='1.2.3.4', port=22
         )
 
     def test_unzip_consul_release_unzips_consul_web_ui_on_remote_host(self):
-        unzip_consul_release('1.2.3.4', port=22)
+        unzip_consul_release(host='1.2.3.4', port=22)
 
         self.unzip_consul_web_ui.assert_called_once_with(
-            '1.2.3.4', port=22
+            host='1.2.3.4', port=22
         )

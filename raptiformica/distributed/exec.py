@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from raptiformica.shell.execute import run_command_remotely_print_ready
+from raptiformica.shell.execute import run_command_print_ready
 
 log = getLogger(__name__)
 
@@ -20,8 +20,8 @@ def try_machine_command(host_and_port_pairs, command_as_list,
     """
     for host, port in host_and_port_pairs:
         log.debug(attempt_message.format(host, port))
-        exit_code, standard_out_output, _ = run_command_remotely_print_ready(
-            command_as_list, host, port=port
+        exit_code, standard_out_output, _ = run_command_print_ready(
+            command_as_list, host=host, port=port
         )
         if exit_code == 0:
             return standard_out_output.strip(), host, port
