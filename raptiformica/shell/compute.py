@@ -5,7 +5,7 @@ from uuid import uuid4
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
 from raptiformica.shell.execute import log_success_factory, raise_failure_factory, \
     run_command_print_ready_in_directory_factory, run_command_in_directory_factory
-from raptiformica.shell.git import clone_source_locally
+from raptiformica.shell.git import clone_source
 from raptiformica.utils import ensure_directory
 
 log = getLogger(__name__)
@@ -38,7 +38,7 @@ def create_new_compute_checkout(server_type, compute_type, source):
         server_type, compute_type
     )
     new_compute_checkout = path.join(server_type_directory, uuid4().hex)
-    clone_source_locally(source, new_compute_checkout)
+    clone_source(source, new_compute_checkout)
     return new_compute_checkout
 
 

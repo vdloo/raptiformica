@@ -93,24 +93,8 @@ def make_process_output_print_ready(process_output):
     return exit_code, un_escape_newlines(standard_out), un_escape_newlines(standard_error)
 
 
-def execute_process_print_ready(command, buffered=True, shell=False):
-    """
-    Wrapper around execute_process that first makes the returned output streams printable
-    :param list | str command: The command as a list or as string (when shell).
-    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
-    :param bool buffered: Store output in a variable instead of printing it live
-    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
-    :return tuple process_output (exit code, standard out, standard error):
-    """
-    exit_code, standard_out, standard_error = execute_process(
-        command, buffered=buffered, shell=shell
-    )
-    return make_process_output_print_ready(
-        (exit_code, standard_out, standard_error)
-    )
-
-
-def run_command(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret, buffered=True, shell=False):
+def run_command_locally(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
+                        buffered=True, shell=False):
     """
     Run a command and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
@@ -131,6 +115,75 @@ def run_command(command, success_callback=lambda ret: ret, failure_callback=lamb
     return exit_code, standard_out, standard_error
 
 
+def run_command_remotely(command_as_list, host, port=22,
+                         success_callback=lambda ret: ret,
+                         failure_callback=lambda ret: ret,
+                         buffered=True, shell=False):
+    """
+    Run a command remotely and return the exit code.
+    Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
+    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :param func failure_callback: function that takes the process output tuple, runs on failure
+    :param func success_callback: function that takes the process output tuple, runs on success
+    :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :return tuple process_output (exit code, standard out, standard error):
+    """
+    ssh_command_as_list = ['/usr/bin/env', 'ssh',
+                           '-o', 'StrictHostKeyChecking=no',
+                           '-o', 'UserKnownHostsFile=/dev/null',
+                           '-o', 'PasswordAuthentication=no',
+                           'root@{}'.format(host), '-p', str(port)]
+    composed_command_as_list = ssh_command_as_list + command_as_list
+    if shell:
+        command = ' '.join(composed_command_as_list)
+    else:
+        command = composed_command_as_list
+    return run_command_locally(
+        command,
+        success_callback=success_callback,
+        failure_callback=failure_callback,
+        buffered=buffered
+    )
+
+
+def run_command(command, host=None, port=22,
+                success_callback=lambda ret: ret,
+                failure_callback=lambda ret: ret,
+                buffered=True, shell=False):
+    """
+    Run a command and return the exit code, standard output and standard error output.
+    If no host is specified, the command will run locally.
+    If host is specified, it will run over SSH on that host.
+    :param list command | str command: The command as a list or string.
+    E.g. ['/bin/ls', '/root'] or if shell=True '/bin/ls/root'
+    :param str host: hostname or ip of the remote machine, or None for local
+    :param int port: port to use to connect to the remote machine over ssh
+    :param func failure_callback: function that takes the process output tuple, runs on failure
+    :param func success_callback: function that takes the process output tuple, runs on success
+    :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :return tuple process_output (exit code, standard out, standard error):
+    :return:
+    """
+    if host:
+        return run_command_remotely(
+            command, host=host, port=port,
+            success_callback=success_callback,
+            failure_callback=failure_callback,
+            buffered=buffered, shell=shell
+        )
+    else:
+        return run_command_locally(
+            command,
+            success_callback=success_callback,
+            failure_callback=failure_callback,
+            buffered=buffered, shell=shell
+        )
+
+
 def print_ready_callback_factory(callback):
     """
     Wrap a failure or success callback in a function that first
@@ -144,41 +197,21 @@ def print_ready_callback_factory(callback):
     return print_ready_callback
 
 
-def run_command_print_ready(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
-                            buffered=True, shell=False):
-    """
-    Print ready version of run_command. Un-escapes output so it can be printed.
-    Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
-    :param list | str command: The command as a list or as string (when shell).
-    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
-    :param func failure_callback: function that takes the process output tuple, runs on failure
-    :param func success_callback: function that takes the process output tuple, runs on success
-    :param bool buffered: Store output in a variable instead of printing it live
-    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
-    :return tuple process_output (exit code, standard out, standard error):
-    """
-    return run_command(
-        command,
-        success_callback=print_ready_callback_factory(success_callback),
-        failure_callback=print_ready_callback_factory(failure_callback),
-        buffered=buffered,
-        shell=shell
-    )
-
-
-def create_in_directory_factory(directory, command_as_string, proc):
+def create_in_directory_factory(directory, command_as_string, procedure):
     """
     Return a partially filled out proc function which executes "command" as a string in
     the provided directory.
     :param str directory: Directory to cwd to before running the command_as_string command
     :param str command_as_string: The command as string that will be executed as sh -c 'cd directory; command'
-    :param func proc: the command to use to build the partial
+    :param func procedure: the command to use to build the partial
     :return func: partial command with the command filled in
     """
     command_as_list = [
-        'sh', '-c', 'cd {}; {}'.format(directory, command_as_string)
+        'sh', '-c', 'cd {}; {}'.format(
+            directory, command_as_string
+        )
     ]
-    return partial(proc, command_as_list)
+    return partial(procedure, command_as_list)
 
 
 def run_command_in_directory_factory(directory, command_as_string):
@@ -207,52 +240,26 @@ def run_command_print_ready_in_directory_factory(directory, command_as_string):
     )
 
 
-def run_command_remotely(command_as_list, host, port=22,
-                         success_callback=lambda ret: ret,
-                         failure_callback=lambda ret: ret,
-                         buffered=True):
+def run_command_print_ready(command, host=None, port=22,
+                            success_callback=lambda ret: ret,
+                            failure_callback=lambda ret: ret,
+                            buffered=True, shell=False):
     """
-    Run a command remotely and return the exit code.
-    Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
-    :param str host: hostname or ip of the remote machine
+    Print ready version of run_command. Un-escapes output so it can be printed.
+    :param list command | str command: The command as a list or string.
+    :param str host: hostname or ip of the remote machine, or None for local
     :param int port: port to use to connect to the remote machine over ssh
     :param func failure_callback: function that takes the process output tuple, runs on failure
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
-    ssh_command_as_list = ['/usr/bin/env', 'ssh',
-                           '-o', 'StrictHostKeyChecking=no',
-                           '-o', 'UserKnownHostsFile=/dev/null',
-                           '-o', 'PasswordAuthentication=no',
-                           'root@{}'.format(host), '-p', str(port)]
     return run_command(
-        ssh_command_as_list + command_as_list,
-        success_callback=success_callback, failure_callback=failure_callback,
-        buffered=buffered
-    )
-
-
-def run_command_remotely_print_ready(command_as_list, host, port=22,
-                                     success_callback=lambda ret: ret,
-                                     failure_callback=lambda ret: ret,
-                                     buffered=True):
-    """
-    Print ready version of run_command_remotely. Un-escapes output so it can be printed.
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
-    :param str host: hostname or ip of the remote machine
-    :param int port: port to use to connect to the remote machine over ssh
-    :param func failure_callback: function that takes the process output tuple, runs on failure
-    :param func success_callback: function that takes the process output tuple, runs on success
-    :param bool buffered: Store output in a variable instead of printing it live
-    :return tuple process_output (exit code, standard out, standard error):
-    """
-    return run_command_remotely(
-        command_as_list, host, port=port,
+        command, host=host, port=port,
         success_callback=print_ready_callback_factory(success_callback),
         failure_callback=print_ready_callback_factory(failure_callback),
-        buffered=buffered
+        buffered=buffered, shell=shell
     )
 
 
@@ -266,48 +273,54 @@ def check_nonzero_exit(command):
     return exit_code == 0
 
 
-def run_critical_command_remotely_print_ready(command_as_list, host, port=22, buffered=True,
-                                              failure_message='Command failed'):
+def run_critical_command_print_ready(
+        command, host=None, port=22, buffered=True,
+        failure_message='Command failed', shell=False):
     """
     A wrapper around run_command_print_ready but with a failure callback specified.
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list command | str command: The command as a list or string.
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str failure_message: message to include in the raised failure
     if the exit code is nonzero
     :param bool buffered: Store output in a variable instead of printing it live
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
-    return run_command_remotely_print_ready(
-        command_as_list,
-        host, port=port,
+    return run_command_print_ready(
+        command,
+        host=host, port=port,
         failure_callback=raise_failure_factory(
             failure_message
         ),
-        buffered=buffered
+        buffered=buffered,
+        shell=shell
     )
 
 
-def run_critical_unbuffered_command_remotely_print_ready(command_as_list, host, port=22,
-                                                         failure_message='Command failed'):
+def run_critical_unbuffered_command_print_ready(
+        command, host=None, port=22,
+        failure_message='Command failed', shell=False
+):
     """
     Wrapper around run_critical_command_remotely_print_ready but with output to
     standard out instead of capturing it.
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list command | str command: The command as a list or string.
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str failure_message: message to include in the raised failure
     if the exit code is nonzero
+    :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
-    return run_critical_command_remotely_print_ready(
-        command_as_list, host, port=port,
+    return run_critical_command_print_ready(
+        command, host=host, port=port,
         failure_message=failure_message,
-        buffered=False
+        buffered=False, shell=shell
     )
 
 
-def run_remote_multiple_labeled_commands(distro_command_iterable, host, port=22,
+def run_remote_multiple_labeled_commands(distro_command_iterable, host=None, port=22,
                                          failure_message='Command failed for label {}'):
     """
     Takes a iterable of iterables with label and command_as_string and runs the
@@ -323,7 +336,7 @@ def run_remote_multiple_labeled_commands(distro_command_iterable, host, port=22,
     :return None
     """
     for label, command_as_string in distro_command_iterable:
-        run_critical_unbuffered_command_remotely_print_ready(
-            ["sh", "-c", command_as_string], host, port=port,
+        run_critical_unbuffered_command_print_ready(
+            ["sh", "-c", command_as_string], host=host, port=port,
             failure_message=failure_message.format(label)
         )
