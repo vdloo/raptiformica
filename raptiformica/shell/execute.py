@@ -1,4 +1,5 @@
 from functools import partial
+from shlex import quote
 from subprocess import Popen, PIPE
 from logging import getLogger
 from sys import stdout
@@ -115,14 +116,15 @@ def run_command_locally(command, success_callback=lambda ret: ret, failure_callb
     return exit_code, standard_out, standard_error
 
 
-def run_command_remotely(command_as_list, host, port=22,
+def run_command_remotely(command, host, port=22,
                          success_callback=lambda ret: ret,
                          failure_callback=lambda ret: ret,
                          buffered=True, shell=False):
     """
     Run a command remotely and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
-    :param list command_as_list: The command as a list. I.e. ['/bin/ls', '/root']
+    :param list command | str command: The command as a list or string.
+    E.g. ['/bin/ls', '/root'] or if shell=True '/bin/ls/root'
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param func failure_callback: function that takes the process output tuple, runs on failure
@@ -136,16 +138,16 @@ def run_command_remotely(command_as_list, host, port=22,
                            '-o', 'UserKnownHostsFile=/dev/null',
                            '-o', 'PasswordAuthentication=no',
                            'root@{}'.format(host), '-p', str(port)]
-    composed_command_as_list = ssh_command_as_list + command_as_list
     if shell:
-        command = ' '.join(composed_command_as_list)
+        command = ' '.join(ssh_command_as_list) + ' sh -c ' + quote(command)
     else:
-        command = composed_command_as_list
+        command = ssh_command_as_list + command
     return run_command_locally(
         command,
         success_callback=success_callback,
         failure_callback=failure_callback,
-        buffered=buffered
+        buffered=buffered,
+        shell=shell
     )
 
 
@@ -320,8 +322,8 @@ def run_critical_unbuffered_command_print_ready(
     )
 
 
-def run_remote_multiple_labeled_commands(distro_command_iterable, host=None, port=22,
-                                         failure_message='Command failed for label {}'):
+def run_multiple_labeled_commands(distro_command_iterable, host=None, port=22,
+                                  failure_message='Command failed for label {}'):
     """
     Takes a iterable of iterables with label and command_as_string and runs the
     command remotely and unbuffered, raising an error if it fails.
@@ -337,6 +339,7 @@ def run_remote_multiple_labeled_commands(distro_command_iterable, host=None, por
     """
     for label, command_as_string in distro_command_iterable:
         run_critical_unbuffered_command_print_ready(
-            ["sh", "-c", command_as_string], host=host, port=port,
-            failure_message=failure_message.format(label)
+            command_as_string, host=host, port=port,
+            failure_message=failure_message.format(label),
+            shell=True
         )
