@@ -76,11 +76,11 @@ def ensure_cjdns_dependencies(host=None, port=22):
 
     ensure_cjdns_dependencies_commands = (
         ('archlinux', 'type pacman 1> /dev/null && '
-                      'pacman -S --noconfirm nodejs base-devel --needed || /bin/true'),
+                      'pacman -S --noconfirm nodejs '
+                      'base-devel --needed || /bin/true'),
         ('debian', 'type apt-get 1> /dev/null && '
-                   '(apt-get update -yy && '
-                   'apt-get install -yy nodejs '
-                   'build-essential git python) || /bin/true')
+                   'apt-get install -yy nodejs build-essential '
+                   'git python || /bin/true')
     )
     run_multiple_labeled_commands(
         ensure_cjdns_dependencies_commands, host=host, port=port,

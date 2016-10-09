@@ -6,7 +6,6 @@ from tests.testcase import TestCase
 
 class TestEnsureConsulDependencies(TestCase):
     def setUp(self):
-        self.log = self.set_up_patch('raptiformica.shell.consul.log')
         self.execute_process = self.set_up_patch(
             'raptiformica.shell.execute.execute_process'
         )
@@ -36,7 +35,7 @@ class TestEnsureConsulDependencies(TestCase):
             '-o PasswordAuthentication=no '
             'root@1.2.3.4 -p 2222 sh -c \''
             'type apt-get 1> /dev/null && '
-            '(apt-get update -yy && apt-get install -yy wget unzip screen) '
+            'apt-get install -yy wget unzip screen '
             '|| /bin/true'
             '\'',
             buffered=False, shell=True
@@ -48,16 +47,16 @@ class TestEnsureConsulDependencies(TestCase):
         ensure_consul_dependencies()
 
         expected_archlinux_call = call(
-                'type pacman 1> /dev/null && '
-                'pacman -S --noconfirm wget unzip screen --needed '
-                '|| /bin/true',
-                buffered=False, shell=True
+            'type pacman 1> /dev/null && '
+            'pacman -S --noconfirm wget unzip screen --needed '
+            '|| /bin/true',
+            buffered=False, shell=True
         )
         expected_debian_call = call(
-                'type apt-get 1> /dev/null && '
-                '(apt-get update -yy && apt-get install -yy wget unzip screen) '
-                '|| /bin/true',
-                buffered=False, shell=True
+            'type apt-get 1> /dev/null && '
+            'apt-get install -yy wget unzip screen '
+            '|| /bin/true',
+            buffered=False, shell=True
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
