@@ -8,7 +8,7 @@ class TestEnsureCjdnsDependencies(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.cjdns.log')
         self.execute_process = self.set_up_patch(
-                'raptiformica.shell.execute.execute_process'
+            'raptiformica.shell.execute.execute_process'
         )
         self.process_output = (0, 'standard out output', '')
         self.execute_process.return_value = self.process_output
@@ -18,29 +18,29 @@ class TestEnsureCjdnsDependencies(TestCase):
         ensure_cjdns_dependencies('1.2.3.4', port=2222)
 
         expected_archlinux_call = call(
-                '/usr/bin/env ssh '
-                '-o StrictHostKeyChecking=no '
-                '-o UserKnownHostsFile=/dev/null '
-                '-o PasswordAuthentication=no '
-                'root@1.2.3.4 -p 2222 sh -c \''
-                'type pacman 1> /dev/null && '
-                'pacman -S --noconfirm nodejs base-devel --needed '
-                '|| /bin/true'
-                '\'',
-                buffered=False, shell=True
+            '/usr/bin/env ssh '
+            '-o StrictHostKeyChecking=no '
+            '-o UserKnownHostsFile=/dev/null '
+            '-o PasswordAuthentication=no '
+            'root@1.2.3.4 -p 2222 sh -c \''
+            'type pacman 1> /dev/null && '
+            'pacman -S --noconfirm nodejs base-devel --needed '
+            '|| /bin/true'
+            '\'',
+            buffered=False, shell=True
         )
         expected_debian_call = call(
-                '/usr/bin/env ssh '
-                '-o StrictHostKeyChecking=no '
-                '-o UserKnownHostsFile=/dev/null '
-                '-o PasswordAuthentication=no '
-                'root@1.2.3.4 -p 2222 sh -c \''
-                'type apt-get 1> /dev/null && '
-                '(apt-get update -yy && apt-get install -yy nodejs '
-                'build-essential git python) '
-                '|| /bin/true'
-                '\'',
-                buffered=False, shell=True
+            '/usr/bin/env ssh '
+            '-o StrictHostKeyChecking=no '
+            '-o UserKnownHostsFile=/dev/null '
+            '-o PasswordAuthentication=no '
+            'root@1.2.3.4 -p 2222 sh -c \''
+            'type apt-get 1> /dev/null && '
+            'apt-get install -yy nodejs '
+            'build-essential git python '
+            '|| /bin/true'
+            '\'',
+            buffered=False, shell=True
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
@@ -56,8 +56,8 @@ class TestEnsureCjdnsDependencies(TestCase):
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
-            '(apt-get update -yy && apt-get install -yy nodejs '
-            'build-essential git python) '
+            'apt-get install -yy nodejs '
+            'build-essential git python '
             '|| /bin/true',
             buffered=False, shell=True
         )

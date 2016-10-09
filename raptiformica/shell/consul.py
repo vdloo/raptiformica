@@ -27,8 +27,8 @@ def ensure_consul_dependencies(host=None, port=22):
         ('archlinux', 'type pacman 1> /dev/null && '
                       'pacman -S --noconfirm wget unzip screen --needed || /bin/true'),
         ('debian', 'type apt-get 1> /dev/null && '
-                   '(apt-get update -yy && '
-                   'apt-get install -yy wget unzip screen) || /bin/true')
+                   'apt-get install -yy wget unzip screen '
+                   '|| /bin/true')
     )
     run_multiple_labeled_commands(
         ensure_consul_dependencies_commands, host=host, port=port,

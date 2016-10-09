@@ -2,8 +2,8 @@
   "raptiformica_api_version": "0.1",
   "server": {
     "headless": {
-      "raptiformica": {
-        "source": "https://github.com/vdloo/raptiformica",
+      "raptiformica_default_provisioner": {
+        "source": "file:///usr/etc/raptiformica",
         "bootstrap": "export PYTHONPATH=/usr/etc/raptiformica; ./modules/server/deploy.py"
       }
     }
