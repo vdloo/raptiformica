@@ -9,8 +9,8 @@ from raptiformica.shell.wget import wget
 
 log = getLogger(__name__)
 
-CONSUL_RELEASE = 'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip'
-CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_web_ui.zip'
+CONSUL_RELEASE = 'https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip'
+CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_web_ui.zip'
 
 
 def ensure_consul_dependencies(host=None, port=22):

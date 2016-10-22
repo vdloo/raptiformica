@@ -1,6 +1,3 @@
-from os.path import join
-
-from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
 from raptiformica.shell.cjdns import cjdns_setup
 from tests.testcase import TestCase
 
