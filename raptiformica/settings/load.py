@@ -1,15 +1,19 @@
+from functools import reduce
 from itertools import chain
 from os.path import join
 from urllib.error import URLError, HTTPError
 from logging import getLogger
+from consul_kv import Connection, map_dictionary
+from consul_kv.utils import dict_merge
 
-from raptiformica.distributed.kv import put_kv, get_kv, delete_kv
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
     KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG
 from raptiformica.utils import load_json, write_json, \
     list_all_files_with_extension_in_directory, ensure_directory
 
 log = getLogger(__name__)
+
+consul_conn = Connection(endpoint=KEY_VALUE_ENDPOINT)
 
 
 def write_config(config, config_file):
@@ -60,21 +64,6 @@ def load_module_configs(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     )
 
 
-def loop_config(config, path='/', callback=lambda path, k, v: None):
-    """
-    Loop the config and perform the callback for each value
-    :param dict config: config to loop for values
-    :param str path: the depth in the dict joined by /
-    :param func callback: the callback to perform for each value
-    :return None:
-    """
-    for k, v in config.items():
-        if isinstance(v, dict):
-            loop_config(v, path=join(path, k), callback=callback)
-        else:
-            callback(path, k, v)
-
-
 def upload_config(mapped):
     """
     Upload a mapped config to the distributed key value store
@@ -82,8 +71,7 @@ def upload_config(mapped):
     :return None:
     """
     log.debug("Uploading local configs to distributed key value store")
-    for key, value in mapped.items():
-        put_kv(KEY_VALUE_ENDPOINT, key, value)
+    consul_conn.put_mapping(mapped)
 
 
 def download_config():
@@ -95,26 +83,7 @@ def download_config():
         "Attempting to retrieve the shared config "
         "from the distributed key value store"
     )
-    endpoint = join(KEY_VALUE_ENDPOINT, KEY_VALUE_PATH)
-    return get_kv(endpoint, recurse=True)
-
-
-def map_configs(configs):
-    """
-    Map the module configs to the key value associative array
-    :param iterable[dict, ..] configs: list of configs to map as key value pairs
-    :return dict mapping: key value mapping with config data
-    """
-    d = dict()
-    for config in configs:
-        loop_config(
-            config,
-            path=join(KEY_VALUE_ENDPOINT, KEY_VALUE_PATH),
-            callback=lambda path, k, v: d.update(
-                {join(path.replace(KEY_VALUE_ENDPOINT, ''), k): v}
-            )
-        )
-    return d
+    return consul_conn.get_mapping(KEY_VALUE_PATH)
 
 
 def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
@@ -124,7 +93,10 @@ def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     :return dict mapping: retrieved key value mapping with config data
     """
     configs = load_module_configs(module_dirs=module_dirs)
-    return map_configs(configs)
+    return {
+        join(KEY_VALUE_PATH, k): v for k, v in
+        reduce(dict_merge, map(map_dictionary, configs)).items()
+    }
 
 
 def try_update_config(mapping):
@@ -160,7 +132,7 @@ def try_delete_config(key, recurse=False):
     # should instead be fixed by some form of eventual consistency
     try:
         path = join(KEY_VALUE_ENDPOINT, key)
-        delete_kv(path, recurse=recurse)
+        consul_conn.delete(path, recurse=recurse)
         sync_shared_config_mapping()
     except URLError:
         log.debug(
