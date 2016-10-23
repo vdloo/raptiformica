@@ -13,7 +13,7 @@ BASE_CONFIG = join(PROJECT_DIR, '.base_config.json')
 MUTABLE_CONFIG = join(ABS_CACHE_DIR, 'mutable_config.json')
 MODULES_DIR = join(PROJECT_DIR, 'modules')
 USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
-KEY_VALUE_ENDPOINT = 'http://localhost:8500/v1/kv/'
+KEY_VALUE_ENDPOINT = 'http://localhost:8500/v1/kv'
 KEY_VALUE_PATH = 'raptiformica'
 
 CJDNS_DEFAULT_PORT = 4863
