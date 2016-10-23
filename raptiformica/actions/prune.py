@@ -2,10 +2,8 @@ from logging import getLogger
 from os import listdir
 from os.path import join, isdir
 from shutil import rmtree
-from urllib.error import URLError
 
-from raptiformica.distributed.kv import delete_kv
-from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH, KEY_VALUE_ENDPOINT
+from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config, try_delete_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types

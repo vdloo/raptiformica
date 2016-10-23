@@ -6,8 +6,8 @@ from tests.testcase import TestCase
 
 class TestTryDeleteConfig(TestCase):
     def setUp(self):
-        self.delete_kv = self.set_up_patch(
-            'raptiformica.settings.load.delete_kv'
+        self.delete = self.set_up_patch(
+            'raptiformica.settings.load.consul_conn.delete'
         )
         self.mapping = {
             "raptiformica/meshnet/cjdns/password": "a_secret",
@@ -40,7 +40,7 @@ class TestTryDeleteConfig(TestCase):
     def test_try_delete_config_deletes_key_pair_from_distributed_kv_store(self):
         try_delete_config('some/key')
 
-        self.delete_kv.assert_called_once_with(
+        self.delete.assert_called_once_with(
             'http://localhost:8500/v1/kv/some/key',
             recurse=False
         )
@@ -53,20 +53,20 @@ class TestTryDeleteConfig(TestCase):
     def test_try_delete_config_deletes_key_pair_from_distributed_kv_store_recursively_if_specified(self):
         try_delete_config('some/key', recurse=True)
 
-        self.delete_kv.assert_called_once_with(
+        self.delete.assert_called_once_with(
             'http://localhost:8500/v1/kv/some/key',
             recurse=True
         )
 
     def test_try_delete_config_gets_config_if_can_not_connect_to_shared_key_value_store(self):
-        self.delete_kv.side_effect = URLError('reason')
+        self.delete.side_effect = URLError('reason')
 
         try_delete_config('key')
 
         self.get_config.assert_called_once_with()
 
     def test_try_delete_config_caches_config_without_key_if_can_not_connect_to_shared_key_value_store(self):
-        self.delete_kv.side_effect = URLError('reason')
+        self.delete.side_effect = URLError('reason')
 
         try_delete_config('raptiformica/meshnet/neighbours/a_pubkey.k/uuid')
 
@@ -76,7 +76,7 @@ class TestTryDeleteConfig(TestCase):
         self.cache_config.assert_called_once_with(self.mapping)
 
     def test_try_delete_config_caches_config_without_entire_key_tree_if_no_shared_kv_and_recurse_is_specified(self):
-        self.delete_kv.side_effect = URLError('reason')
+        self.delete.side_effect = URLError('reason')
 
         try_delete_config(
             'raptiformica/meshnet/neighbours/a_pubkey.k/', recurse=True

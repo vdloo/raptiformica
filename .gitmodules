@@ -1,0 +1,3 @@
+[submodule "vendor/consul-kv"]
+	path = vendor/consul-kv
+	url = https://github.com/vdloo/consul-kv
