@@ -26,12 +26,12 @@ class TestTryDeleteConfig(TestCase):
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf1",
         }
         self.get_config = self.set_up_patch(
-            'raptiformica.settings.load.get_config',
+            'raptiformica.settings.load.get_config_mapping',
             return_value=self.mapping
         )
         self.get_config.return_value = self.mapping
         self.cache_config = self.set_up_patch(
-            'raptiformica.settings.load.cache_config'
+            'raptiformica.settings.load.cache_config_mapping'
         )
         self.sync_shared_config_mapping = self.set_up_patch(
             'raptiformica.settings.load.sync_shared_config_mapping'

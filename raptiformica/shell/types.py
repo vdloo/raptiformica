@@ -1,6 +1,6 @@
 from raptiformica.settings import KEY_VALUE_PATH
 
-from raptiformica.settings.load import get_config
+from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready
 from raptiformica.utils import startswith, endswith
 
@@ -39,7 +39,7 @@ def check_type_available(item, type_name):
     :param str type_name: name of the type. i.e. 'headless'
     :return bool type_available: True if available, False if not
     """
-    mapped = get_config()
+    mapped = get_config_mapping()
     keys = filter(
         endswith('/available'),
         filter(

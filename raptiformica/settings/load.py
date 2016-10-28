@@ -3,7 +3,7 @@ from itertools import chain
 from os.path import join
 from urllib.error import URLError, HTTPError
 from logging import getLogger
-from consul_kv import Connection, map_dictionary
+from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
@@ -16,7 +16,7 @@ log = getLogger(__name__)
 consul_conn = Connection(endpoint=KEY_VALUE_ENDPOINT)
 
 
-def write_config(config, config_file):
+def write_config_mapping(config, config_file):
     """
     Write the config to a config file
     :param dict config: The config to be dumped to json
@@ -64,7 +64,7 @@ def load_module_configs(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     )
 
 
-def upload_config(mapped):
+def upload_config_mapping(mapped):
     """
     Upload a mapped config to the distributed key value store
     :param iterable[dict, ..] mapped: list of key value pairs
@@ -74,7 +74,7 @@ def upload_config(mapped):
     consul_conn.put_mapping(mapped)
 
 
-def download_config():
+def download_config_mapping():
     """
     Get the entire config from the distributed key value store
     :return dict mapping: all registered key value pairs
@@ -99,7 +99,7 @@ def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     }
 
 
-def try_update_config(mapping):
+def try_update_config_mapping(mapping):
     """
     If no consul cluster has been established yet there is no
     distributed key value store yet, in that case write the mapping
@@ -109,11 +109,11 @@ def try_update_config(mapping):
     :return dict mapping: retrieved key value mapping with config data
     """
     try:
-        mapping = update_config(mapping)
+        mapping = update_config_mapping(mapping)
     except (HTTPError, URLError, ConnectionRefusedError):
-        cached_mapping = get_config()
+        cached_mapping = get_config_mapping()
         cached_mapping.update(mapping)
-        cache_config(cached_mapping)
+        cache_config_mapping(cached_mapping)
         mapping = cached_mapping
     return mapping
 
@@ -139,25 +139,25 @@ def try_delete_config(key, recurse=False):
             "Could not connect to the distributed key value store to "
             "delete the key. Only deleting from local cache for now."
         )
-        cached_mapping = get_config()
+        cached_mapping = get_config_mapping()
         mapping = {
             k: v for k, v in cached_mapping.items() if
             # find all keys starting with the key if recurse,
             # else only filter away the key with an exact match
             not (k.startswith(key) if recurse else k == key)
         }
-        cache_config(mapping)
+        cache_config_mapping(mapping)
 
 
-def update_config(mapping):
+def update_config_mapping(mapping):
     """
     Upload a new mapping to the distributed key value store and
     retrieve the latest mapping
     :param dict mapping: the mapping to PUT to the k v API
     :return dict mapping: retrieved key value mapping with config data
     """
-    upload_config(mapping)
-    return download_config()
+    upload_config_mapping(mapping)
+    return download_config_mapping()
 
 
 def sync_shared_config_mapping():
@@ -169,15 +169,15 @@ def sync_shared_config_mapping():
     :return dict mapping: retrieved key value mapping with config data
     """
     try:
-        mapping = download_config()
+        mapping = download_config_mapping()
     except HTTPError:
-        mapping = get_local_config()
-        mapping = update_config(mapping)
-    cache_config(mapping)
+        mapping = get_local_config_mapping()
+        mapping = update_config_mapping(mapping)
+    cache_config_mapping(mapping)
     return mapping
 
 
-def cache_config(mapping):
+def cache_config_mapping(mapping):
     """
     Write the retrieved config to disk so the mutations are retained
     even in case of network failure
@@ -189,10 +189,10 @@ def cache_config(mapping):
             "Passed key value mapping was null. "
             "Refusing to cache empty mapping!"
         )
-    write_config(mapping, MUTABLE_CONFIG)
+    write_config_mapping(mapping, MUTABLE_CONFIG)
 
 
-def cached_config():
+def cached_config_mapping():
     """
     Retrieve the cached config of the last successful config download
     from distributed key value store
@@ -201,7 +201,7 @@ def cached_config():
     return load_json(MUTABLE_CONFIG)
 
 
-def get_local_config():
+def get_local_config_mapping():
     """
     Get the local config, either from cache or from the mapped modules
     :return dict mapping: key value mapping with config data
@@ -209,15 +209,15 @@ def get_local_config():
     failed_cached_config = "No cache is available. Returning the mapped " \
                            "configs on disk."
     try:
-        return cached_config()
+        return cached_config_mapping()
     except FileNotFoundError:
         log.debug(failed_cached_config)
         return on_disk_mapping()
 
 
-def get_config():
+def get_config_mapping():
     """
-    Get the most recent config we can
+    Get the most recent config mapping we can
     - check if we can download the mapping from the distributed
     key value store
     - if we can not, try uploading the config mapping on disk
@@ -232,4 +232,13 @@ def get_config():
         return sync_shared_config_mapping()
     except URLError:
         log.debug(failed_distributed_config)
-        return get_local_config()
+        return get_local_config_mapping()
+
+
+def get_config():
+    """
+    Get the config mapping and return it as a dict
+    :return dict config: The retrieved config as a dict
+    """
+    mapping = get_config_mapping()
+    return dictionary_map(mapping)

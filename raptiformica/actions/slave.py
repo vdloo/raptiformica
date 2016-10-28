@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config
+from raptiformica.settings.load import get_config_mapping
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
@@ -22,7 +22,7 @@ def retrieve_provisioning_configs(server_type=None):
     """
     log.debug("Retrieving provisioning config")
     server_type = server_type or get_first_server_type()
-    mapped = get_config()
+    mapped = get_config_mapping()
 
     server_path = '{}/server/{}'.format(
         KEY_VALUE_PATH, server_type,

@@ -4,7 +4,6 @@ from logging import getLogger
 from raptiformica.settings import KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
 from raptiformica.shell.types import check_type_available
-from raptiformica.utils import startswith
 
 log = getLogger(__name__)
 
@@ -12,25 +11,17 @@ log = getLogger(__name__)
 def list_types_from_config(item):
     """
     List types from config.
-    :param str item: name of the type. i.e. 'server_types'
-    :return set types: set of all the types for the item like ['headless, 'workstation']
+    :param str item: name of the type. i.e. 'server'
+    :return dict_keys types: list of all the types for the item like ['headless, 'workstation']
     """
-    mapped = get_config()
-    return set(
-        map(
-            lambda x: x.split('/')[2],
-            filter(
-                startswith('{}/{}/'.format(KEY_VALUE_PATH, item)),
-                mapped
-            )
-        )
-    )
+    config = get_config()
+    return config[KEY_VALUE_PATH][item].keys()
 
 
 def get_available_types_for_item(item):
     """
     Get all available types from a type
-    :param str item: name of the type. i.e. 'server_types'
+    :param str item: name of the type. i.e. 'server'
     :return list types: list of all available types like ['headless, 'workstation']
     """
     return sorted(list(filter(
@@ -106,16 +97,11 @@ def retrieve_compute_type_config_for_server_type(server_type=None, compute_type=
     """
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
-    mapped = get_config()
-    compute_type_config_for_server_type = list(filter(
-        startswith("{}/compute/{}/{}/".format(
-            KEY_VALUE_PATH, compute_type, server_type
-        )),
-        mapped
-    ))
-    if not compute_type_config_for_server_type:
+    config = get_config()
+    try:
+        return config[KEY_VALUE_PATH]['compute'][compute_type][server_type]
+    except KeyError:
         raise RuntimeError(
             "This compute type has no implementation "
             "for server type {}!".format(server_type)
         )
-    return {k: mapped[k] for k in compute_type_config_for_server_type}

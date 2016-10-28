@@ -7,9 +7,9 @@ class TestEnsureSharedSecret(TestCase):
         self.uuid = self.set_up_patch('raptiformica.settings.meshnet.uuid')
         self.uuid.uuid4.return_value.hex = 'a_generated_shared_secret'
         self.try_update_config = self.set_up_patch(
-            'raptiformica.settings.meshnet.try_update_config'
+            'raptiformica.settings.meshnet.try_update_config_mapping'
         )
-        self.get_config = self.set_up_patch('raptiformica.settings.meshnet.get_config')
+        self.get_config = self.set_up_patch('raptiformica.settings.meshnet.get_config_mapping')
         self.get_config.return_value = {
             'raptiformica/meshnet/consul/password': 'a_secret'
         }

@@ -12,7 +12,7 @@ class TestRetrieveProvisioningConfigs(TestCase):
         )
         self.get_first_server_type.return_value = 'workstation'
         self.get_config = self.set_up_patch(
-            'raptiformica.actions.slave.get_config'
+            'raptiformica.actions.slave.get_config_mapping'
         )
         self.mapping = {
             "raptiformica/compute/vagrant/headless/get_port": "cd headless && vagrant ssh-config | grep Port | awk '{print $NF}'",

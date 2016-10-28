@@ -23,7 +23,7 @@ class TestConfigureConsulConf(TestCase):
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/ssh_port": "2201",
             "raptiformica/meshnet/neighbours/a_different_pubkey.k/uuid": "eb442c6170694b12b277c9e88d714cf1",
         }
-        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config')
+        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config_mapping')
         self.get_config.return_value = self.mapping
         self.cjdroute_config = {
             'ipv6': 'the_ipv6_address',

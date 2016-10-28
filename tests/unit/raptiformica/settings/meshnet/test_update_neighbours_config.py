@@ -9,7 +9,7 @@ class TestUpdateNeighboursConfig(TestCase):
         self.cjdns.get_ipv6_address.return_value = 'ipv6_address'
         self.config = {'meshnet': {'neighbours': {}}}
         self.try_update_config = self.set_up_patch(
-            'raptiformica.settings.meshnet.try_update_config'
+            'raptiformica.settings.meshnet.try_update_config_mapping'
         )
 
     def test_update_neighbours_config_gets_cjdns_public_key_from_remote_host(self):

@@ -7,7 +7,7 @@ from tests.testcase import TestCase
 class TestEnsureNeighbourRemovedFromConfig(TestCase):
     def setUp(self):
         self.get_config = self.set_up_patch(
-            'raptiformica.actions.prune.get_config'
+            'raptiformica.actions.prune.get_config_mapping'
         )
         self.mapping = {
             "raptiformica/meshnet/cjdns/password": "a_secret",

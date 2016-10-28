@@ -2,7 +2,7 @@ from os.path import join
 from logging import getLogger
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
-from raptiformica.settings.load import get_config
+from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, run_command, check_nonzero_exit
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait
@@ -91,7 +91,7 @@ def configure_cjdroute_conf():
     """
     log.info("Configuring cjdroute config")
 
-    mapping = get_config()
+    mapping = get_config_mapping()
     cjdns_secret = get_cjdns_password(mapping)
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
     cjdroute_config['authorizedPasswords'] = [{
@@ -119,7 +119,7 @@ def configure_consul_conf():
                              "export PYTHONPATH=.; " \
                              "./bin/raptiformica_hook.py cluster_change " \
                              "--verbose\"".format(RAPTIFORMICA_DIR)
-    shared_secret = get_consul_password(get_config())
+    shared_secret = get_consul_password(get_config_mapping())
     consul_config = {
         'bootstrap_expect': 3,
         'data_dir': '/opt/consul',
@@ -149,7 +149,7 @@ def count_neighbours():
     Count the amount of peers in the distributed network
     :return:
     """
-    mapping = get_config()
+    mapping = get_config_mapping()
     cjdroute_config = load_json(CJDROUTE_CONF_PATH)
     local_public_key = cjdroute_config['publicKey']
     return len([pk for pk in list_neighbours(mapping) if pk != local_public_key])
@@ -322,7 +322,7 @@ def join_meshnet():
     :return None:
     """
     log.info("Joining the meshnet")
-    mapping = get_config()
+    mapping = get_config_mapping()
     neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
     public_keys = list_neighbours(mapping)
     ipv6_addresses = list()

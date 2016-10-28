@@ -1,7 +1,7 @@
 from os.path import join
 
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config
+from raptiformica.settings.load import get_config_mapping
 from raptiformica.utils import startswith
 
 
@@ -11,7 +11,7 @@ def host_and_port_pairs_from_mutable_config():
     config mapping
     :return iterable[tuple, ..] host_and_port_pairs: A list of tuples containing host and ports
     """
-    mapped = get_config()
+    mapped = get_config_mapping()
     neighbour_kv_path = '{}/meshnet/neighbours/'.format(
         KEY_VALUE_PATH
     )

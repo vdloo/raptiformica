@@ -6,7 +6,7 @@ class TestRetrieveStartInstanceConfig(TestCase):
     def setUp(self):
         self.types_log = self.set_up_patch('raptiformica.settings.types.log')
         self.spawn_log = self.set_up_patch('raptiformica.actions.spawn.log')
-        self.get_config = self.set_up_patch('raptiformica.actions.spawn.get_config')
+        self.get_config_mapping = self.set_up_patch('raptiformica.actions.spawn.get_config_mapping')
         self.mapping = {
             "raptiformica/compute/docker/headless/available": "docker -v",
             "raptiformica/compute/docker/headless/clean_up_instance_command": "bash -c 'cd ubuntu64 && [ -f container_id ] && cat container_id | xargs sudo docker rm -f || /bin/true'",
@@ -26,7 +26,7 @@ class TestRetrieveStartInstanceConfig(TestCase):
             "raptiformica/server/headless/name": "puppetfiles",
             "raptiformica/server/headless/source": "https://github.com/vdloo/puppetfiles.git"
         }
-        self.get_config.return_value = self.mapping
+        self.get_config_mapping.return_value = self.mapping
 
     def test_retrieve_start_instance_config_logs_retrieving_instance_config_message(self):
         retrieve_start_instance_config(server_type='headless', compute_type='vagrant')

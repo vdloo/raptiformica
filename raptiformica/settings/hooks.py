@@ -1,6 +1,6 @@
 from os.path import join
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config
+from raptiformica.settings.load import get_config_mapping
 from raptiformica.settings.types import get_first_platform_type
 from raptiformica.utils import startswith
 
@@ -13,7 +13,7 @@ def collect_hooks(hook_name, platform_type=None):
     :return iterable[dict, ..]: list of hooks
     """
     platform_type = platform_type or get_first_platform_type()
-    mapped = get_config()
+    mapped = get_config_mapping()
     hook_path = '{}/platform/{}/hooks/{}/'.format(
         KEY_VALUE_PATH, platform_type, hook_name
     )
