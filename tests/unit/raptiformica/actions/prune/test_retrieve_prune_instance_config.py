@@ -22,8 +22,8 @@ class TestRetrievePruneInstanceConfig(TestCase):
             "raptiformica/compute/vagrant/headless/source": "https://github.com/vdloo/vagrantfiles.git",
             "raptiformica/compute/vagrant/headless/start_instance": "cd headless && vagrant up",
         }
-        self.get_config = self.set_up_patch('raptiformica.settings.types.get_config')
-        self.get_config.return_value = self.mapping
+        self.get_config_mapping = self.set_up_patch('raptiformica.settings.load.get_config_mapping')
+        self.get_config_mapping.return_value = self.mapping
 
     def test_retrieve_prune_instance_config_logs_retrieving_instance_config_message(self):
         retrieve_prune_instance_config(server_type='headless', compute_type='docker')
@@ -36,7 +36,7 @@ class TestRetrievePruneInstanceConfig(TestCase):
 
     def test_retrieve_prune_instance_config_returns_prune_instance_config_for_server_type(self):
         detect_stale_instance_command, clean_up_instance_command = retrieve_prune_instance_config(
-                server_type='headless', compute_type='docker'
+            server_type='headless', compute_type='docker'
         )
 
         self.assertEqual(

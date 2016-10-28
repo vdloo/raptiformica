@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestCountNeighbours(TestCase):
     def setUp(self):
         self.get_config = self.set_up_patch(
-            'raptiformica.actions.mesh.get_config'
+            'raptiformica.actions.mesh.get_config_mapping'
         )
         self.load_json = self.set_up_patch(
             'raptiformica.actions.mesh.load_json'

@@ -19,7 +19,7 @@ class TestRefreshKeys(TestCase):
             return_value=self.new_mapping
         )
         self.try_update_config = self.set_up_patch(
-            'raptiformica.actions.modules.try_update_config'
+            'raptiformica.actions.modules.try_update_config_mapping'
         )
 
     def test_refresh_keys_gets_on_disk_mapping(self):

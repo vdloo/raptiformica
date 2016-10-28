@@ -4,7 +4,7 @@ from logging import getLogger
 from shutil import rmtree
 
 from raptiformica.settings import USER_MODULES_DIR
-from raptiformica.settings.load import on_disk_mapping, try_delete_config, try_update_config
+from raptiformica.settings.load import on_disk_mapping, try_delete_config, try_update_config_mapping
 from raptiformica.shell.git import clone_source
 
 log = getLogger(__name__)
@@ -52,7 +52,7 @@ def load_configs(module_name):
     module_directory = join(USER_MODULES_DIR, directory)
     mapping = on_disk_mapping(module_dirs=(module_directory,))
     log.debug("Loading keys for {} into the config".format(module_name))
-    try_update_config(mapping)
+    try_update_config_mapping(mapping)
 
 
 def remove_keys(mapping, module_directory):
@@ -89,7 +89,7 @@ def refresh_keys(mapping):
         updated_value = new_mapping.get(key)
         if updated_value:
             mapping_to_update[key] = updated_value
-    try_update_config(mapping_to_update)
+    try_update_config_mapping(mapping_to_update)
 
 
 def unload_module(module_name):

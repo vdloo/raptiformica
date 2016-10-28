@@ -8,16 +8,16 @@ from tests.testcase import TestCase
 class TestSyncSharedConfigMapping(TestCase):
     def setUp(self):
         self.download_config = self.set_up_patch(
-            'raptiformica.settings.load.download_config'
+            'raptiformica.settings.load.download_config_mapping'
         )
         self.get_local_config = self.set_up_patch(
-            'raptiformica.settings.load.get_local_config'
+            'raptiformica.settings.load.get_local_config_mapping'
         )
         self.update_config = self.set_up_patch(
-            'raptiformica.settings.load.update_config'
+            'raptiformica.settings.load.update_config_mapping'
         )
         self.cache_config = self.set_up_patch(
-            'raptiformica.settings.load.cache_config'
+            'raptiformica.settings.load.cache_config_mapping'
         )
 
     def test_sync_shared_config_mapping_downloads_config(self):

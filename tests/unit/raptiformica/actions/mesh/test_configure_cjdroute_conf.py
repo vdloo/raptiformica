@@ -30,7 +30,7 @@ class TestConfigureCjdrouteConf(TestCase):
             },
             'publicKey': 'yet_another_public_key.k'
         }
-        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config')
+        self.get_config = self.set_up_patch('raptiformica.actions.mesh.get_config_mapping')
         self.get_config.return_value = self.mapping
         self.write_json = self.set_up_patch('raptiformica.actions.mesh.write_json')
 

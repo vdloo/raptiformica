@@ -1,4 +1,4 @@
-from raptiformica.settings.load import write_config
+from raptiformica.settings.load import write_config_mapping
 from tests.testcase import TestCase
 
 
@@ -10,7 +10,7 @@ class TestWriteConfig(TestCase):
         }
 
     def test_write_config_writes_json(self):
-        write_config(self.data, 'a_config_file.json')
+        write_config_mapping(self.data, 'a_config_file.json')
 
         self.write_json.assert_called_once_with(
             self.data,

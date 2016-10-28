@@ -21,7 +21,7 @@ class TestLoadConfigs(TestCase):
             'raptiformica.actions.modules.log'
         )
         self.try_update_config = self.set_up_patch(
-            'raptiformica.actions.modules.try_update_config'
+            'raptiformica.actions.modules.try_update_config_mapping'
         )
 
     def test_load_configs_determines_clone_data_from_module_name(self):

@@ -3,7 +3,7 @@ from os.path import join
 from logging import getLogger
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, KEY_VALUE_PATH
-from raptiformica.settings.load import get_config, try_update_config
+from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
 
 log = getLogger(__name__)
@@ -16,13 +16,13 @@ def ensure_shared_secret(service):
     :param str service: name of the service to ensure a secret for
     :return dict mapping: the updated config mapping
     """
-    mapping = get_config()
+    mapping = get_config_mapping()
     shared_secret_path = "{}/meshnet/{}/password".format(
         KEY_VALUE_PATH, service
     )
     if not mapping.get(shared_secret_path):
         log.info("Generating new {} secret".format(service))
-        mapping = try_update_config({
+        mapping = try_update_config_mapping({
             shared_secret_path: uuid.uuid4().hex
         })
     return mapping
@@ -76,7 +76,7 @@ def update_neighbours_config(host, port=22, uuid=None):
     neighbour_mapping = {
         join(neighbour_path, k): v for k, v in neighbour_entry.items()
     }
-    return try_update_config(neighbour_mapping)
+    return try_update_config_mapping(neighbour_mapping)
 
 
 def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
@@ -109,4 +109,4 @@ def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
 #     neighbours = {k: v for k, v in config['meshnet']['neighbours'].items()
 #                   if v['uuid'] != uuid}
 #     config['meshnet']['neighbours'] = neighbours
-#     write_config(config, MUTABLE_CONFIG)
+#     write_config_mapping(config, MUTABLE_CONFIG)

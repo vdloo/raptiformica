@@ -4,7 +4,7 @@ from os.path import join, isdir
 from shutil import rmtree
 
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH
-from raptiformica.settings.load import get_config, try_delete_config
+from raptiformica.settings.load import get_config_mapping, try_delete_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types
 from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory, \
@@ -27,20 +27,11 @@ def retrieve_instance_config_items(items, default='/bin/true', server_type=None,
     log.debug("Retrieving prune instance config")
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
-    mapping = retrieve_compute_type_config_for_server_type(
+    config = retrieve_compute_type_config_for_server_type(
         server_type=server_type,
         compute_type=compute_type
     )
-    return tuple(map(
-        lambda s: s or default,
-        map(
-            lambda item: mapping[next(filter(
-                endswith('/{}'.format(item)),
-                mapping
-            ))],
-            items
-        ))
-    )
+    return tuple([v or default for v in map(lambda k: config[k], items)])
 
 
 def retrieve_prune_instance_config(server_type=None, compute_type=None):
@@ -180,7 +171,7 @@ def ensure_neighbour_removed_from_config(uuid):
     :param str uuid: uuid of the neighbour to remove from the config
     :return None:
     """
-    mapping = get_config()
+    mapping = get_config_mapping()
     # get the matching key for the roots of all
     # neighbours with the specified uuid
     neighbour_keys = map(
