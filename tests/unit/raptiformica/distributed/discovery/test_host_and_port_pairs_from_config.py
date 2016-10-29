@@ -4,8 +4,11 @@ from tests.testcase import TestCase
 
 class TestHostAndPortPairsFromConfig(TestCase):
     def setUp(self):
-        self.get_config = self.set_up_patch(
+        self.get_config_mapping = self.set_up_patch(
             'raptiformica.settings.load.get_config_mapping'
+        )
+        self.get_local_config_mapping = self.set_up_patch(
+            'raptiformica.settings.load.get_local_config_mapping'
         )
         self.mapping = {
             "raptiformica/meshnet/neighbours/public_key_1.k/cjdns_ipv6_address": "1:2:3:4",
@@ -27,7 +30,8 @@ class TestHostAndPortPairsFromConfig(TestCase):
             "raptiformica/meshnet/neighbours/public_key_3.k/ssh_port": "22",
             "raptiformica/meshnet/neighbours/public_key_3.k/uuid": "3",
         }
-        self.get_config.return_value = self.mapping
+        self.get_config_mapping.return_value = self.mapping
+        self.get_local_config_mapping.return_value = self.mapping
 
     def test_host_and_port_pairs_from_config_gets_pairs(self):
         ret = host_and_port_pairs_from_config()
@@ -43,7 +47,7 @@ class TestHostAndPortPairsFromConfig(TestCase):
         self.mapping = {
             "raptiformica/meshnet/": None,
         }
-        self.get_config.return_value = self.mapping
+        self.get_config_mapping.return_value = self.mapping
 
         ret = host_and_port_pairs_from_config()
 
@@ -51,8 +55,20 @@ class TestHostAndPortPairsFromConfig(TestCase):
 
     def test_host_and_port_pairs_from_config_returns_empty_list_if_no_meshnet_config(self):
         self.mapping = {'raptiformica/': None}
-        self.get_config.return_value = self.mapping
+        self.get_config_mapping.return_value = self.mapping
 
         ret = host_and_port_pairs_from_config()
 
         self.assertCountEqual(ret, tuple())
+
+    def test_host_and_port_pairs_from_config_gets_config_mapping(self):
+        host_and_port_pairs_from_config()
+
+        self.get_config_mapping.assert_called_once_with()
+        self.assertFalse(self.get_local_config_mapping.called)
+
+    def test_host_and_port_pairs_from_config_does_not_try_getting_remote_config_if_cached_specified(self):
+        host_and_port_pairs_from_config(cached=True)
+
+        self.get_local_config_mapping.assert_called_once_with()
+        self.assertFalse(self.get_config_mapping.called)

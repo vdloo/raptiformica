@@ -3,7 +3,7 @@ from logging import getLogger
 from os import system
 
 from raptiformica.distributed.discovery import host_and_port_pairs_from_config
-from raptiformica.shell.ssh import get_ssh_connection
+from raptiformica.shell.ssh import get_ssh_connection, ssh_login_command
 
 log = getLogger(__name__)
 
@@ -17,11 +17,5 @@ def ssh_connect(info_only=False):
     host_and_port_pairs = host_and_port_pairs_from_config()
     host, port = get_ssh_connection(host_and_port_pairs)
     if host and port:
-        ssh_command = "ssh root@{} -p {} " \
-                      "-oStrictHostKeyChecking=no " \
-                      "-oUserKnownHostsFile=/dev/null " \
-                      "-oPasswordAuthentication=no".format(host, port)
-        if info_only:
-            print(ssh_command)
-        else:
-            system(ssh_command)
+        ssh_command = ssh_login_command(host, port=port)
+        print(ssh_command) if info_only else system(ssh_command)
