@@ -1,13 +1,18 @@
+from contextlib import suppress
 from functools import reduce
 from itertools import chain
 from os.path import join
+from os import remove
 from urllib.error import URLError, HTTPError
 from logging import getLogger
+
+from shutil import rmtree
+
 from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
-    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG
+    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR
 from raptiformica.utils import load_json, write_json, \
     list_all_files_with_extension_in_directory, ensure_directory
 
@@ -213,6 +218,32 @@ def get_local_config_mapping():
     except FileNotFoundError:
         log.debug(failed_cached_config)
         return on_disk_mapping()
+
+
+def purge_local_config_mapping():
+    """
+    Remove the local config mapping if it exists
+    :return None:
+    """
+    log.info("Puring locally cached config")
+    with suppress(FileNotFoundError):
+        remove(MUTABLE_CONFIG)
+
+
+def purge_config(purge_artifacts=False, purge_modules=False):
+    """
+    Remove local artifacts
+    :param bool purge_artifacts: Remove all stored artifacts
+    :param bool purge_modules: Remove all installed modules
+    :return None:
+    """
+    purge_local_config_mapping()
+    if purge_artifacts:
+        log.info("Purging cached artifacts")
+        rmtree(USER_ARTIFACTS_DIR, ignore_errors=True)
+    if purge_modules:
+        log.info("Purging user modules")
+        rmtree(USER_MODULES_DIR, ignore_errors=True)
 
 
 def get_config_mapping():

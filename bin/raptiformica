@@ -3,6 +3,7 @@ export PYTHONPATH=../
 
 SPAWN_ENTRYPOINT="raptiformica_spawn.py"
 PRUNE_ENTRYPOINT="raptiformica_prune.py"
+DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 MESH_ENTRYPOINT="raptiformica_mesh.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
@@ -33,6 +34,8 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   prune                      Clean up inactive instances
 
+  destroy                    Destroy cluster, clean up cache.
+
   modprobe                   Load or unload a module into
                              the system
 
@@ -53,6 +56,10 @@ case $1 in
     ;;
     prune)
     RAPTIFORMICA_CMD=$PRUNE_ENTRYPOINT
+    shift
+    ;;
+    destroy)
+    RAPTIFORMICA_CMD=$DESTROY_ENTRYPOINT
     shift
     ;;
     ssh)

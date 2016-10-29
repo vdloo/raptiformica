@@ -6,6 +6,7 @@ from raptiformica.actions.mesh import mesh_machine
 from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
+from raptiformica.actions.destroy import destroy_cluster
 from raptiformica.actions.spawn import spawn_machine
 from raptiformica.actions.ssh_connect import ssh_connect
 from raptiformica.actions.update import update_machine
@@ -257,6 +258,37 @@ def prune():
     """
     parse_prune_arguments()
     prune_local_machines()
+
+
+def parse_destroy_arguments():
+    """
+    Parse the commandline options for destroying the cluster. Will shutdown and prune all machines. Removes config.
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica destroy",
+        description="Clean up the cluster"
+    )
+    parser.add_argument(
+        '--purge-artifacts', action='store_true',
+        help='Remove all stored artifacts'
+    )
+    parser.add_argument(
+        '--purge-modules', action='store_true',
+        help='Remove all loaded modules'
+    )
+    return parse_arguments(parser)
+
+
+def destroy():
+    """
+    Clean up the cluster
+    :return None:
+    """
+    args = parse_destroy_arguments()
+    destroy_cluster(
+        purge_artifacts=args.purge_artifacts, purge_modules=args.purge_modules
+    )
 
 
 def parse_modprobe_arguments():

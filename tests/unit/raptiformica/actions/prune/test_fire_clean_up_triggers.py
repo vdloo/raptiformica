@@ -69,6 +69,23 @@ class TestFireCleanUpTriggers(TestCase):
             expected_calls
         )
 
+    def test_fire_clean_up_cleans_up_all_checkouts_if_force_specified(self):
+        # pretend the first and second instance are stale. The third is alive.
+        self.check_if_instance_is_stale.side_effect = [True, True, False]
+
+        fire_clean_up_triggers(self.clean_up_triggers, force=True)
+
+        expected_calls = [
+            call('directory1/some_uuid_1', ignore_errors=True),
+            call('directory2/some_uuid_2', ignore_errors=True),
+            # cleaning up the third as well even though it is still alive
+            call('directory3/some_uuid_3', ignore_errors=True),
+        ]
+        self.assertCountEqual(
+            self.rmtree.mock_calls,
+            expected_calls
+        )
+
     def test_fire_clean_up_triggers_ensures_cleaned_machine_is_not_in_the_mutable_config_anymore(self):
         # pretend the secoond and third instance are stale
         self.check_if_instance_is_stale.side_effect = [False, True, True]

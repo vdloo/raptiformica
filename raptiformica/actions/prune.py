@@ -172,7 +172,7 @@ def get_neighbours_by_uuid(uuid):
     Should only be one, but in case there are more those should also be dealt with.
     """
     config = get_config()
-    neighbours = config[KEY_VALUE_PATH]['meshnet']['neighbours']
+    neighbours = config[KEY_VALUE_PATH]['meshnet'].get('neighbours', {})
     return [
         '{}/meshnet/neighbours/{}/'.format(KEY_VALUE_PATH, k)
         for k, v in neighbours.items() if v['uuid'] == uuid
@@ -193,28 +193,30 @@ def ensure_neighbour_removed_from_config(uuid):
         )
 
 
-def fire_clean_up_triggers(clean_up_triggers):
+def fire_clean_up_triggers(clean_up_triggers, force=False):
     """
     Fire the clean up triggers. Look for stale instances and then run the clean up instance command in
     the checkout directory for each inactive instance.
     :param list(tuple(directory, detect_stale_instance_command, clean_up_instance_command) clean_up_triggers: List
     of tuples containing the compute checkout directory and the matching detect stale instance and clean up
     instance commands
+    :param bool force: Don't check if stale, always clean up
     :return None:
     """
     for directory, detect_stale_instance_command, clean_up_stale_instance_command in clean_up_triggers:
-        if check_if_instance_is_stale(directory, detect_stale_instance_command):
+        if force or check_if_instance_is_stale(directory, detect_stale_instance_command):
             clean_up_stale_instance(directory, clean_up_stale_instance_command)
             rmtree(directory, ignore_errors=True)
             uuid = directory.split('/')[-1]
             ensure_neighbour_removed_from_config(uuid)
 
 
-def prune_local_machines():
+def prune_local_machines(force=False):
     """
     Remove local machines (from var/machines) that are not bound to a live instance
+    :param bool force: Don't check if stale, always clean up
     :return None:
     """
     compute_checkouts = list_compute_checkouts_by_server_type_and_compute_type()
     clean_up_triggers = register_clean_up_triggers(compute_checkouts)
-    fire_clean_up_triggers(clean_up_triggers)
+    fire_clean_up_triggers(clean_up_triggers, force=force)

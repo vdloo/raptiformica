@@ -12,7 +12,7 @@ class TestPrune(TestCase):
 
         self.parse_prune_arguments.assert_called_once_with()
 
-    def test_prune_shows_prune(self):
+    def test_prune_prunes_local_machines(self):
         prune()
 
         self.prune_local_machines.assert_called_once_with()
