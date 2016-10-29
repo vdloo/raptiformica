@@ -9,7 +9,7 @@
         "get_hostname": "bash -c \"sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat ubuntu64/container_id)\" | tail -n 1",
         "get_port": "echo 22",
         "detect_stale_instance": "bash -c 'cd ubuntu64 && [ -f container_id ] && sudo docker ps --no-trunc | grep -f container_id'",
-        "clean_up_instance_command": "bash -c 'cd ubuntu64; [ -f container_id ] && (cat container_id | xargs sudo docker kill -9 || /bin/true; cat container_id | xargs sudo docker rm -f || /bin/true')"
+        "clean_up_instance_command": "bash -c 'cd ubuntu64; [ -f container_id ] && (cat container_id | xargs sudo docker kill -9 || /bin/true; cat container_id | xargs sudo docker rm -f || /bin/true)'"
       }
     }
   }

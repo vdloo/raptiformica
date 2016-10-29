@@ -10,11 +10,11 @@ from shutil import rmtree
 
 from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
+from raptiformica.distributed.proxy import forward_any_port
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
     KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR
-from raptiformica.utils import load_json, write_json, \
-    list_all_files_with_extension_in_directory, ensure_directory
+from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
 
 log = getLogger(__name__)
 
@@ -69,6 +69,25 @@ def load_module_configs(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     )
 
 
+def try_config_request(func):
+    """
+    Try the config request on the local Consul instance's API port,
+    if that fails attempt the same request on the API port of one of
+    the locally known neighbours.
+    :param func func: Function to attempt
+    :return dict mapping: The function result
+    """
+    try:
+        log.debug("Attempting API call on local Consul instance")
+        return func()
+    except (HTTPError, URLError, ConnectionRefusedError, ConnectionResetError):
+        log.debug("Attempting API call on remote Consul instance")
+        with suppress(RuntimeError):
+            with forward_any_port(source_port=8500, predicate=['consul', 'members']):
+                return func()
+        raise
+
+
 def upload_config_mapping(mapped):
     """
     Upload a mapped config to the distributed key value store
@@ -76,7 +95,7 @@ def upload_config_mapping(mapped):
     :return None:
     """
     log.debug("Uploading local configs to distributed key value store")
-    consul_conn.put_mapping(mapped)
+    try_config_request(lambda: consul_conn.put_mapping(mapped))
 
 
 def download_config_mapping():
@@ -88,7 +107,7 @@ def download_config_mapping():
         "Attempting to retrieve the shared config "
         "from the distributed key value store"
     )
-    return consul_conn.get_mapping(KEY_VALUE_PATH)
+    return try_config_request(lambda: consul_conn.get_mapping(KEY_VALUE_PATH))
 
 
 def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
@@ -115,7 +134,7 @@ def try_update_config_mapping(mapping):
     """
     try:
         mapping = update_config_mapping(mapping)
-    except (HTTPError, URLError, ConnectionRefusedError):
+    except (HTTPError, URLError, ConnectionRefusedError, ConnectionResetError):
         cached_mapping = get_config_mapping()
         cached_mapping.update(mapping)
         cache_config_mapping(cached_mapping)
@@ -266,10 +285,13 @@ def get_config_mapping():
         return get_local_config_mapping()
 
 
-def get_config():
+def get_config(cached=False):
     """
     Get the config mapping and return it as a dict
+    :param bool cached: Force using the cached config instead
+    of retrieving it from the distributed key value store if
+    we can.
     :return dict config: The retrieved config as a dict
     """
-    mapping = get_config_mapping()
+    mapping = get_local_config_mapping() if cached else get_config_mapping()
     return dictionary_map(mapping)

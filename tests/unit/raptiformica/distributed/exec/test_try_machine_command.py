@@ -12,7 +12,8 @@ class TestTryMachineCommand(TestCase):
         self.host_and_port_pairs = [
             ('1.2.3.4', '2222'),
             ('5.6.7.8', '22'),
-            ('9.9.9.9', '1222')
+            ('9.9.9.9', '1222'),
+            ('9.9.9.8', '1223')
         ]
         self.execute_process = self.set_up_patch(
             'raptiformica.shell.execute.execute_process'
@@ -28,10 +29,11 @@ class TestTryMachineCommand(TestCase):
             "trying command on 1.2.3.4:2222",
             "trying command on 5.6.7.8:22",
             "trying command on 9.9.9.9:1222",
+            "Ran out of hosts to try!",
         ])
         self.assertCountEqual(self.log.debug.mock_calls, expected_calls)
 
-    def test_try_machine_command_runs_remote_command_on_each_host_until_one_returns_zero(self):
+    def test_try_machine_command_runs_remote_command_on_three_hosts_until_one_returns_zero(self):
         self.execute_process.side_effect = [
             self.process_output,
             self.process_output,
@@ -66,6 +68,33 @@ class TestTryMachineCommand(TestCase):
         expected_calls = map(partial(call, buffered=True, shell=False), expected_command_list)
         self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
 
+    def test_try_machine_command_runs_remote_command_on_the_amount_of_specified_hosts_until_one_returns_zero(self):
+        self.execute_process.side_effect = [
+            self.process_output,
+            (0, 'standard out output', 'standard error output')
+        ]
+
+        try_machine_command(self.host_and_port_pairs, self.command, attempt_limit=2)
+
+        expected_command_as_list1 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'StrictHostKeyChecking=no',
+                                     '-o', 'UserKnownHostsFile=/dev/null',
+                                     '-o', 'PasswordAuthentication=no',
+                                     'root@1.2.3.4',
+                                     '-p', '2222', '/bin/true']
+        expected_command_as_list2 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'StrictHostKeyChecking=no',
+                                     '-o', 'UserKnownHostsFile=/dev/null',
+                                     '-o', 'PasswordAuthentication=no',
+                                     'root@5.6.7.8',
+                                     '-p', '22', '/bin/true']
+        expected_command_list = [
+            expected_command_as_list1,
+            expected_command_as_list2,
+        ]
+        expected_calls = map(partial(call, buffered=True, shell=False), expected_command_list)
+        self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
+
     def test_try_machine_command_returns_remote_command_output(self):
         self.execute_process.side_effect = [
             self.process_output,
@@ -81,8 +110,3 @@ class TestTryMachineCommand(TestCase):
         ret = try_machine_command(self.host_and_port_pairs, self.command)
 
         self.assertEqual(ret, (None, None, None))
-
-    def test_try_machine_command_warns_failed_when_no_remote_host_succeeded_running_the_command(self):
-        try_machine_command(self.host_and_port_pairs, self.command)
-
-        self.log.warning.assert_called_once_with('Ran out of hosts to try!')
