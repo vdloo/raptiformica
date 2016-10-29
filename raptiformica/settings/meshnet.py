@@ -95,18 +95,3 @@ def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
     update_neighbours_config(
         host, port=port, uuid=compute_checkout_uuid
     )
-
-# todo: implement remove neighbour with consul k v API
-# def ensure_neighbour_removed_from_config(uuid):
-#     """
-#     Remove a neighbour from the local mutable_config.json by compute checkout uuid
-#     :param str uuid: identifier for a local compute checkout
-#     :return:
-#     """
-#     log.debug("Ensuring neighbour with instance checkout uuid {} is "
-#               "removed from the mutable_config".format(uuid))
-#     config = load_config(MUTABLE_CONFIG)
-#     neighbours = {k: v for k, v in config['meshnet']['neighbours'].items()
-#                   if v['uuid'] != uuid}
-#     config['meshnet']['neighbours'] = neighbours
-#     write_config_mapping(config, MUTABLE_CONFIG)
