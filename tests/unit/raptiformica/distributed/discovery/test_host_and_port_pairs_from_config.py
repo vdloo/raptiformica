@@ -2,7 +2,7 @@ from raptiformica.distributed.discovery import host_and_port_pairs_from_config
 from tests.testcase import TestCase
 
 
-class TestHostAndPortPairsFromMutableConfig(TestCase):
+class TestHostAndPortPairsFromConfig(TestCase):
     def setUp(self):
         self.get_config = self.set_up_patch(
             'raptiformica.settings.load.get_config_mapping'
