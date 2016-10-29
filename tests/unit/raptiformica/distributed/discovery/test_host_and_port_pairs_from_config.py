@@ -1,4 +1,4 @@
-from raptiformica.distributed.discovery import host_and_port_pairs_from_mutable_config
+from raptiformica.distributed.discovery import host_and_port_pairs_from_config
 from tests.testcase import TestCase
 
 
@@ -30,7 +30,7 @@ class TestHostAndPortPairsFromMutableConfig(TestCase):
         self.get_config.return_value = self.mapping
 
     def test_host_and_port_pairs_from_mutable_config_gets_pairs(self):
-        ret = host_and_port_pairs_from_mutable_config()
+        ret = host_and_port_pairs_from_config()
 
         expected_pairs = [
             ('172.17.0.8', '22'),

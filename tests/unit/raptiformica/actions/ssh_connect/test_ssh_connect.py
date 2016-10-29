@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestSSHConnect(TestCase):
     def setUp(self):
         self.host_and_port_pairs_from_mutable_config = self.set_up_patch(
-            'raptiformica.actions.ssh_connect.host_and_port_pairs_from_mutable_config'
+            'raptiformica.actions.ssh_connect.host_and_port_pairs_from_config'
         )
         self.get_ssh_connection = self.set_up_patch(
             'raptiformica.actions.ssh_connect.get_ssh_connection'
