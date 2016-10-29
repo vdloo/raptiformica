@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestShowMembers(TestCase):
     def setUp(self):
         self.host_and_port_pairs_from_mutable_config = self.set_up_patch(
-            'raptiformica.actions.members.host_and_port_pairs_from_mutable_config'
+            'raptiformica.actions.members.host_and_port_pairs_from_config'
         )
         self.try_get_members_list = self.set_up_patch('raptiformica.actions.members.try_get_members_list')
         self.try_get_members_list.return_value = 'Node                                     ' \

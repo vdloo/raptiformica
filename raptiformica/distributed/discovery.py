@@ -2,7 +2,7 @@ from raptiformica.settings import KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
 
 
-def host_and_port_pairs_from_mutable_config():
+def host_and_port_pairs_from_config():
     """
     Return an iterable of the host and port pairs of the neighbours found in the distributed
     config mapping

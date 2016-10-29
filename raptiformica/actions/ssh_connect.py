@@ -2,7 +2,7 @@ from logging import getLogger
 
 from os import system
 
-from raptiformica.distributed.discovery import host_and_port_pairs_from_mutable_config
+from raptiformica.distributed.discovery import host_and_port_pairs_from_config
 from raptiformica.shell.ssh import get_ssh_connection
 
 log = getLogger(__name__)
@@ -14,7 +14,7 @@ def ssh_connect(info_only=False):
     :param bool info_only: Only print connection info, don't get a shell
     :return None:
     """
-    host_and_port_pairs = host_and_port_pairs_from_mutable_config()
+    host_and_port_pairs = host_and_port_pairs_from_config()
     host, port = get_ssh_connection(host_and_port_pairs)
     if host and port:
         ssh_command = "ssh root@{} -p {} " \
