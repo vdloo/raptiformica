@@ -4,12 +4,11 @@ from os.path import join, isdir
 from shutil import rmtree
 
 from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH
-from raptiformica.settings.load import get_config_mapping, try_delete_config
+from raptiformica.settings.load import try_delete_config, get_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types
 from raptiformica.shell.execute import run_command_print_ready_in_directory_factory, log_failure_factory, \
     run_command_in_directory_factory
-from raptiformica.utils import endswith, startswith
 
 log = getLogger(__name__)
 
@@ -165,32 +164,28 @@ def clean_up_stale_instance(compute_checkout_directory, clean_up_stale_instance_
     )
 
 
+def get_neighbours_by_uuid(uuid):
+    """
+    Get neighbours by uuid
+    :param str uuid: uuid of the neighbour to get the root keys for
+    :return list [str, ..]: List of keys of the neighbours with that uuid.
+    Should only be one, but in case there are more those should also be dealt with.
+    """
+    config = get_config()
+    neighbours = config[KEY_VALUE_PATH]['meshnet']['neighbours']
+    return [
+        '{}/meshnet/neighbours/{}/'.format(KEY_VALUE_PATH, k)
+        for k, v in neighbours.items() if v['uuid'] == uuid
+    ]
+
+
 def ensure_neighbour_removed_from_config(uuid):
     """
     Remove a neighbour from the distributed k v mapping by uuid
     :param str uuid: uuid of the neighbour to remove from the config
     :return None:
     """
-    mapping = get_config_mapping()
-    # get the matching key for the roots of all
-    # neighbours with the specified uuid
-    neighbour_keys = map(
-        lambda path: join('/'.join(path.split('/')[:-1]), ''),
-        filter(
-            lambda path: mapping[path] == uuid,
-            filter(
-                endswith('/uuid'),
-                filter(
-                    startswith(
-                        '{}/meshnet/neighbours/'.format(
-                            KEY_VALUE_PATH
-                        )
-                    ),
-                    mapping
-                )
-            )
-        )
-    )
+    neighbour_keys = get_neighbours_by_uuid(uuid)
     for neighbour_key in neighbour_keys:
         try_delete_config(
             neighbour_key,
