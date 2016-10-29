@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config_mapping
+from raptiformica.settings.load import get_config_mapping, get_config
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
@@ -22,38 +22,11 @@ def retrieve_provisioning_configs(server_type=None):
     """
     log.debug("Retrieving provisioning config")
     server_type = server_type or get_first_server_type()
-    mapped = get_config_mapping()
-
-    server_path = '{}/server/{}'.format(
-        KEY_VALUE_PATH, server_type,
-    )
-    server_path_keys = list(filter(
-        startswith(server_path),
-        mapped
-    ))
-
-    names = set(map(
-        lambda x: x.split('/')[3],
-        server_path_keys
-    ))
-
-    def get_item_for_name(name, item):
-        return mapped[next(
-            filter(
-                endswith("{}/{}/{}".format(
-                    server_path, name, item
-                )),
-                mapped
-            )
-        )]
-
-    return {
-        name: {
-            item: get_item_for_name(name, item) for item in (
-                'source', 'bootstrap'
-            )
-        } for name in names
-    }
+    config = get_config()
+    server_types = config[KEY_VALUE_PATH]['server']
+    server_type = server_types.get(server_type, {})
+    return {k: {'source': v['source'], 'bootstrap': v['bootstrap']}
+            for k, v in server_type.items()}
 
 
 def provision_machine(host=None, port=22, server_type=None):
