@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestHostAndPortPairsFromMutableConfig(TestCase):
     def setUp(self):
         self.get_config = self.set_up_patch(
-            'raptiformica.distributed.discovery.get_config_mapping'
+            'raptiformica.settings.load.get_config_mapping'
         )
         self.mapping = {
             "raptiformica/meshnet/neighbours/public_key_1.k/cjdns_ipv6_address": "1:2:3:4",

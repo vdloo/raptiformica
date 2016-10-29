@@ -1,8 +1,5 @@
-from os.path import join
-
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config_mapping
-from raptiformica.utils import startswith
+from raptiformica.settings.load import get_config
 
 
 def host_and_port_pairs_from_mutable_config():
@@ -11,28 +8,6 @@ def host_and_port_pairs_from_mutable_config():
     config mapping
     :return iterable[tuple, ..] host_and_port_pairs: A list of tuples containing host and ports
     """
-    mapped = get_config_mapping()
-    neighbour_kv_path = '{}/meshnet/neighbours/'.format(
-        KEY_VALUE_PATH
-    )
-    neighbours = set(
-        map(
-            lambda x: x.split('/')[3],
-            filter(
-                startswith(neighbour_kv_path),
-                mapped
-            )
-        )
-    )
-
-    neighbour_paths = map(
-        lambda neighbour: join(neighbour_kv_path, neighbour),
-        neighbours
-    )
-
-    return map(
-        lambda np: (
-            mapped[join(np, 'host')], mapped[join(np, 'ssh_port')]
-        ),
-        neighbour_paths
-    )
+    config = get_config()
+    neighbours = config[KEY_VALUE_PATH]['meshnet']['neighbours']
+    return [(n['host'], n['ssh_port']) for n in neighbours.values()]
