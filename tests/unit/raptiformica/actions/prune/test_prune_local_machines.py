@@ -30,5 +30,14 @@ class TestPruneLocalMachines(TestCase):
         prune_local_machines()
 
         self.fire_clean_up_triggers.assert_called_once_with(
-            self.register_clean_up_triggers.return_value
+            self.register_clean_up_triggers.return_value,
+            force=False
+        )
+
+    def test_prune_local_machine_forces_clean_up_if_specified(self):
+        prune_local_machines(force=True)
+
+        self.fire_clean_up_triggers.assert_called_once_with(
+            self.register_clean_up_triggers.return_value,
+            force=True
         )

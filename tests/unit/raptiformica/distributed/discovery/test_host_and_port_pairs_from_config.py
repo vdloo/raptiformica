@@ -29,7 +29,7 @@ class TestHostAndPortPairsFromConfig(TestCase):
         }
         self.get_config.return_value = self.mapping
 
-    def test_host_and_port_pairs_from_mutable_config_gets_pairs(self):
+    def test_host_and_port_pairs_from_config_gets_pairs(self):
         ret = host_and_port_pairs_from_config()
 
         expected_pairs = [
@@ -38,3 +38,21 @@ class TestHostAndPortPairsFromConfig(TestCase):
             ('172.17.0.6', '22')
         ]
         self.assertCountEqual(ret, expected_pairs)
+
+    def test_host_and_port_pairs_from_config_returns_empty_list_if_no_neighbours(self):
+        self.mapping = {
+            "raptiformica/meshnet/": None,
+        }
+        self.get_config.return_value = self.mapping
+
+        ret = host_and_port_pairs_from_config()
+
+        self.assertCountEqual(ret, tuple())
+
+    def test_host_and_port_pairs_from_config_returns_empty_list_if_no_meshnet_config(self):
+        self.mapping = {'raptiformica/': None}
+        self.get_config.return_value = self.mapping
+
+        ret = host_and_port_pairs_from_config()
+
+        self.assertCountEqual(ret, tuple())

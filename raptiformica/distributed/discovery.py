@@ -9,5 +9,6 @@ def host_and_port_pairs_from_config():
     :return iterable[tuple, ..] host_and_port_pairs: A list of tuples containing host and ports
     """
     config = get_config()
-    neighbours = config[KEY_VALUE_PATH]['meshnet']['neighbours']
+    meshnet_config = config[KEY_VALUE_PATH].get('meshnet', {})
+    neighbours = meshnet_config.get('neighbours', {})
     return [(n['host'], n['ssh_port']) for n in neighbours.values()]
