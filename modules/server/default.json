@@ -4,7 +4,7 @@
     "headless": {
       "raptiformica_default_provisioner": {
         "source": "file:///usr/etc/raptiformica",
-        "bootstrap": "export PYTHONPATH=/usr/etc/raptiformica_default_provisioner; ./modules/server/deploy.py"
+        "bootstrap": "cd $HOME; export PYTHONPATH=/usr/etc/raptiformica_default_provisioner; /usr/etc/raptiformica_default_provisioner/modules/server/deploy.py"
       }
     }
   }
