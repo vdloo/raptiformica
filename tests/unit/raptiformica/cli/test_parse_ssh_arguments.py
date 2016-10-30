@@ -21,7 +21,7 @@ class TestParseSSHArguments(TestCase):
 
         expected_calls = [
             call(
-                '--info-only',
+                '--info-only', '--only-info',
                 action='store_true',
                 help="Don't get a shell. Only print the command to connect."
             ),

@@ -195,7 +195,7 @@ def parse_ssh_arguments():
         description="SSH into one of the machines"
     )
     parser.add_argument(
-        '--info-only', action='store_true',
+        '--info-only', '--only-info', action='store_true',
         help="Don't get a shell. Only print the command to connect."
     )
     return parse_arguments(parser)
