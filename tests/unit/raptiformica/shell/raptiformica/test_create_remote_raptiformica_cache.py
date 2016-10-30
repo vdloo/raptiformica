@@ -21,6 +21,7 @@ class TestCreateRemoteRaptiformicaCache(TestCase):
 
         expected_upload_command = [
             '/usr/bin/env', 'ssh',
+            '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',

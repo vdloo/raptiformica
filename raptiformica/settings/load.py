@@ -1,5 +1,6 @@
 from contextlib import suppress
 from functools import reduce
+from http.client import HTTPException
 from itertools import chain
 from os.path import join
 from os import remove
@@ -80,7 +81,7 @@ def try_config_request(func):
     try:
         log.debug("Attempting API call on local Consul instance")
         return func()
-    except (HTTPError, URLError, ConnectionRefusedError, ConnectionResetError):
+    except (HTTPError, HTTPException, URLError, ConnectionRefusedError, ConnectionResetError):
         log.debug("Attempting API call on remote Consul instance")
         with suppress(RuntimeError):
             with forward_any_port(source_port=8500, predicate=['consul', 'members']):
@@ -134,7 +135,7 @@ def try_update_config_mapping(mapping):
     """
     try:
         mapping = update_config_mapping(mapping)
-    except (HTTPError, URLError, ConnectionRefusedError, ConnectionResetError):
+    except (HTTPError, HTTPException, URLError, ConnectionRefusedError, ConnectionResetError):
         cached_mapping = get_config_mapping()
         cached_mapping.update(mapping)
         cache_config_mapping(cached_mapping)

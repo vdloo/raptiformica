@@ -6,7 +6,7 @@ from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
 from raptiformica.shell.execute import raise_failure_factory, \
     run_critical_unbuffered_command_print_ready, run_command_print_ready, \
     run_multiple_labeled_commands
-from raptiformica.shell.git import ensure_latest_source
+from raptiformica.shell.git import ensure_latest_source_from_artifacts
 
 CJDNS_REPOSITORY = "https://github.com/cjdelisle/cjdns.git"
 
@@ -123,6 +123,8 @@ def ensure_cjdns_installed(host=None, port=22):
     :return None:
     """
     log.info("Ensuring CJDNS is installed")
-    ensure_latest_source(CJDNS_REPOSITORY, "cjdns", host=host, port=port)
+    ensure_latest_source_from_artifacts(
+        CJDNS_REPOSITORY, "cjdns", host=host, port=port
+    )
     ensure_cjdns_dependencies(host=host, port=port)
     cjdns_setup(host=host, port=port)

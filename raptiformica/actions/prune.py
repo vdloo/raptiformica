@@ -172,7 +172,8 @@ def get_neighbours_by_uuid(uuid):
     Should only be one, but in case there are more those should also be dealt with.
     """
     config = get_config()
-    neighbours = config[KEY_VALUE_PATH]['meshnet'].get('neighbours', {})
+    meshnet_config = config[KEY_VALUE_PATH].get('meshnet', {})
+    neighbours = meshnet_config.get('neighbours', {})
     return [
         '{}/meshnet/neighbours/{}/'.format(KEY_VALUE_PATH, k)
         for k, v in neighbours.items() if v['uuid'] == uuid

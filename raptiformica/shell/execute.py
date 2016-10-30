@@ -134,6 +134,7 @@ def run_command_remotely(command, host, port=22,
     :return tuple process_output (exit code, standard out, standard error):
     """
     ssh_command_as_list = ['/usr/bin/env', 'ssh',
+                           '-o', 'ConnectTimeout=5',
                            '-o', 'StrictHostKeyChecking=no',
                            '-o', 'UserKnownHostsFile=/dev/null',
                            '-o', 'PasswordAuthentication=no',

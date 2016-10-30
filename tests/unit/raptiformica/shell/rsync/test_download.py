@@ -15,7 +15,7 @@ class TestDownload(TestCase):
         download(PROJECT_DIR, INSTALL_DIR, '1.2.3.4', port=22)
 
         expected_download_command = [
-            '/usr/bin/env', 'rsync', '-q', '-L', '-avz',
+            '/usr/bin/env', 'rsync', '-q', '-a', '-L', '-avz',
             'root@1.2.3.4:{}'.format(PROJECT_DIR),
             INSTALL_DIR, '--exclude=.venv',
             '--exclude=*.pyc', '-e', 'ssh -p 22 '

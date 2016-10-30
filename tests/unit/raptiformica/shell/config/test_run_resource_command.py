@@ -21,6 +21,7 @@ class TestRunResourceCommand(TestCase):
         run_resource_command(self.resource_command, 'puppetfiles', '1.2.3.4', port=2222)
 
         expected_remote_command = "/usr/bin/env ssh " \
+                                  "-o ConnectTimeout=5 " \
                                   "-o StrictHostKeyChecking=no " \
                                   "-o UserKnownHostsFile=/dev/null " \
                                   "-o PasswordAuthentication=no " \

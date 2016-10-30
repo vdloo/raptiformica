@@ -20,6 +20,7 @@ class TestResetHardOriginMaster(TestCase):
         reset_hard_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
         expected_command = "/usr/bin/env ssh " \
+                           "-o ConnectTimeout=5 " \
                            "-o StrictHostKeyChecking=no " \
                            "-o UserKnownHostsFile=/dev/null " \
                            "-o PasswordAuthentication=no " \

@@ -1,15 +1,14 @@
 from logging import getLogger
 
 from raptiformica.settings import KEY_VALUE_PATH
-from raptiformica.settings.load import get_config_mapping, get_config
+from raptiformica.settings.load import get_config
 from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
-from raptiformica.shell.git import ensure_latest_source
+from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.raptiformica import mesh
 from raptiformica.shell.rsync import upload_self, download_artifacts
-from raptiformica.utils import endswith, startswith
 
 log = getLogger(__name__)
 
@@ -45,7 +44,9 @@ def provision_machine(host=None, port=22, server_type=None):
     provisioning_configs = retrieve_provisioning_configs(server_type)
     for name, config in provisioning_configs.items():
         log.info("Provisioning for {}".format(name))
-        ensure_latest_source(config['source'], name, host=host, port=port)
+        ensure_latest_source_from_artifacts(
+            config['source'], name, host=host, port=port
+        )
         run_resource_command(config['bootstrap'], name, host=host, port=port)
 
 
