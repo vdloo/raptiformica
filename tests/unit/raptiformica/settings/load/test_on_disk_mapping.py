@@ -10,7 +10,7 @@ class TestOnDiskMapping(TestCase):
             'raptiformica.settings.load.load_module_configs'
         )
         self.load_module_configs.return_value = [
-            {'some': {'module': {'config': 'some_modue_value'}}},
+            {'some': {'module': {'config': 'some_module_value'}}},
             {'some': {'other': {'module': {'config': 'some_other_module_value'}}}},
             {'yet': {'another': {'module': {'config': "yet_another_module_value"}}}}
         ]
@@ -33,8 +33,15 @@ class TestOnDiskMapping(TestCase):
         ret = on_disk_mapping()
 
         expected_mapping = {
-            'raptiformica/some/module/config': 'some_modue_value',
+            'raptiformica/some/module/config': 'some_module_value',
             'raptiformica/some/other/module/config': 'some_other_module_value',
             'raptiformica/yet/another/module/config': 'yet_another_module_value'
         }
         self.assertEqual(ret, expected_mapping)
+
+    def test_on_disk_mapping_uses_initial_empty_config(self):
+        self.load_module_configs.return_value = tuple()
+
+        ret = on_disk_mapping()
+
+        self.assertEqual(ret, dict())
