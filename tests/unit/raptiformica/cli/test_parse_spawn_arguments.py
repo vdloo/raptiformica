@@ -53,6 +53,8 @@ class TestParseSpawnArguments(TestCase):
                  choices=self.get_compute_types.return_value,
                  help='Specify a compute type. Default is {}'.format(
                          self.get_first_compute_type.return_value)),
+            call('--check-available', action='store_true',
+                 help='Check if there is a configured server and compute type available on this host')
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,

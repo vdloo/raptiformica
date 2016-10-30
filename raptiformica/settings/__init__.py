@@ -15,6 +15,7 @@ MODULES_DIR = join(PROJECT_DIR, 'modules')
 USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
 USER_ARTIFACTS_DIR = join(ABS_CACHE_DIR, 'artifacts')
 KEY_VALUE_ENDPOINT = 'http://localhost:8500/v1/kv'
+KEY_VALUE_TIMEOUT = 3  # How long to wait for a config retrieval
 KEY_VALUE_PATH = 'raptiformica'
 
 CJDNS_DEFAULT_PORT = 4863
