@@ -37,9 +37,6 @@ class TestSpawnMachine(TestCase):
             compute_type=self.get_first_compute_type.return_value
         )
 
-    def test_spawn_machine_does_not_slave_or_assimilate_machine_by_default(self):
-        spawn_machine(provision=True)
-
     def test_spawn_machine_slaves_machine_as_default_server_type(self):
         spawn_machine(provision=True)
 
@@ -77,4 +74,11 @@ class TestSpawnMachine(TestCase):
             server_type='workstation',
             uuid='some_uuid_1234'
         )
+
+    def test_spawn_machine_does_not_actually_spawn_a_machine_if_check_available_specified(self):
+        spawn_machine(server_type='workstation', compute_type='docker', check_available=True)
+
+        self.assertFalse(self.start_compute_type.called)
+        self.assertFalse(self.slave_machine.called)
+        self.assertFalse(self.fire_hooks.called)
 

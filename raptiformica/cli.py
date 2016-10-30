@@ -115,6 +115,8 @@ def parse_spawn_arguments():
     parser.add_argument('--compute-type', type=str, default=get_first_compute_type(),
                         choices=get_compute_types(),
                         help='Specify a compute type. Default is {}'.format(get_first_compute_type()))
+    parser.add_argument('--check-available', action='store_true',
+                        help="Check if there is a configured server and compute type available on this host")
     return parse_arguments(parser)
 
 
@@ -129,6 +131,7 @@ def spawn():
         provision=not args.no_provision,
         server_type=args.server_type,
         compute_type=args.compute_type,
+        check_available=args.check_available
     )
 
 

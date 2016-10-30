@@ -14,16 +14,19 @@ from consul_kv.utils import dict_merge
 from raptiformica.distributed.proxy import forward_any_port
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
-    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR
+    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR, KEY_VALUE_TIMEOUT
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
 
 log = getLogger(__name__)
 
-consul_conn = Connection(endpoint=KEY_VALUE_ENDPOINT)
+consul_conn = Connection(
+    endpoint=KEY_VALUE_ENDPOINT,
+    timeout=KEY_VALUE_TIMEOUT
+)
 
 API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
                   ConnectionRefusedError, ConnectionResetError,
-                  BadStatusLine)
+                  BadStatusLine, OSError)
 
 
 def write_config_mapping(config, config_file):
@@ -285,7 +288,7 @@ def get_config_mapping():
                                 "to get the latest state from the cache now."
     try:
         return sync_shared_config_mapping()
-    except URLError:
+    except API_EXCEPTIONS:
         log.debug(failed_distributed_config)
         return get_local_config_mapping()
 
