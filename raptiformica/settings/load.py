@@ -127,7 +127,7 @@ def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
     configs = load_module_configs(module_dirs=module_dirs)
     return {
         join(KEY_VALUE_PATH, k): v for k, v in
-        reduce(dict_merge, map(map_dictionary, configs)).items()
+        reduce(dict_merge, map(map_dictionary, configs), dict()).items()
     }
 
 
