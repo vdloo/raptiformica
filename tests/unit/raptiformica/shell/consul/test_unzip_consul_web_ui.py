@@ -31,9 +31,9 @@ class TestUnzipConsulWebUI(TestCase):
             '-d', '/usr/etc/consul_web_ui'
         ]
         self.execute_process.assert_called_once_with(
-                expected_command,
-                buffered=False,
-                shell=False
+            expected_command,
+            buffered=False,
+            shell=False
         )
 
     def test_unzip_consul_web_ui_raises_error_when_ensuring_latest_web_ui_files_fails(self):
