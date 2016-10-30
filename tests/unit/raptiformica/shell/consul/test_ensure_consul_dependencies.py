@@ -18,6 +18,7 @@ class TestEnsureConsulDependencies(TestCase):
 
         expected_archlinux_call = call(
             '/usr/bin/env ssh '
+            '-o ConnectTimeout=5 '
             '-o StrictHostKeyChecking=no '
             '-o UserKnownHostsFile=/dev/null '
             '-o PasswordAuthentication=no '
@@ -30,6 +31,7 @@ class TestEnsureConsulDependencies(TestCase):
         )
         expected_debian_call = call(
             '/usr/bin/env ssh '
+            '-o ConnectTimeout=5 '
             '-o StrictHostKeyChecking=no '
             '-o UserKnownHostsFile=/dev/null '
             '-o PasswordAuthentication=no '

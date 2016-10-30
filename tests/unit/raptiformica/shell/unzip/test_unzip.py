@@ -19,6 +19,7 @@ class TestUnzip(TestCase):
 
         expected_command = [
             '/usr/bin/env', 'ssh',
+            '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',

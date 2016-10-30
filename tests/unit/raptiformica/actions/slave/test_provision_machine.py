@@ -20,8 +20,8 @@ class TestProvision(TestCase):
                 'bootstrap': './deploy.sh'
             },
         }
-        self.ensure_latest_source = self.set_up_patch(
-            'raptiformica.actions.slave.ensure_latest_source'
+        self.ensure_latest_source_from_artifacts = self.set_up_patch(
+            'raptiformica.actions.slave.ensure_latest_source_from_artifacts'
         )
         self.run_resource_command = self.set_up_patch(
             'raptiformica.actions.slave.run_resource_command'
@@ -72,7 +72,7 @@ class TestProvision(TestCase):
             ),
         )
         self.assertCountEqual(
-            self.ensure_latest_source.mock_calls, expected_calls
+            self.ensure_latest_source_from_artifacts.mock_calls, expected_calls
         )
 
     def test_provision_runs_configured_bootstrap_command_for_all_provisioning_configs_on_the_remote_machine(self):

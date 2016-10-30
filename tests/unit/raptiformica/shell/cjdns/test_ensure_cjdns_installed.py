@@ -5,7 +5,9 @@ from tests.testcase import TestCase
 class TestEnsureCjdnsInstalled(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.cjdns.log')
-        self.ensure_latest_source = self.set_up_patch('raptiformica.shell.cjdns.ensure_latest_source')
+        self.ensure_latest_source_from_artifacts = self.set_up_patch(
+            'raptiformica.shell.cjdns.ensure_latest_source_from_artifacts'
+        )
         self.ensure_cjdns_dependencies = self.set_up_patch('raptiformica.shell.cjdns.ensure_cjdns_dependencies')
         self.cjdns_setup = self.set_up_patch('raptiformica.shell.cjdns.cjdns_setup')
 
@@ -17,7 +19,7 @@ class TestEnsureCjdnsInstalled(TestCase):
     def test_ensure_cjdns_installed_ensures_latest_source(self):
         ensure_cjdns_installed(host='1.2.3.4', port=2222)
 
-        self.ensure_latest_source.assert_called_once_with(
+        self.ensure_latest_source_from_artifacts.assert_called_once_with(
             CJDNS_REPOSITORY,
             "cjdns",
             host='1.2.3.4',

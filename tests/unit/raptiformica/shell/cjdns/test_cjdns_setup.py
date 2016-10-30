@@ -20,6 +20,7 @@ class TestCjdnsSetup(TestCase):
         cjdns_setup('1.2.3.4', port=2222)
 
         expected_command = "/usr/bin/env ssh " \
+                           "-o ConnectTimeout=5 " \
                            "-o StrictHostKeyChecking=no " \
                            "-o UserKnownHostsFile=/dev/null " \
                            "-o PasswordAuthentication=no " \

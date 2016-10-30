@@ -43,18 +43,21 @@ class TestTryMachineCommand(TestCase):
         try_machine_command(self.host_and_port_pairs, self.command)
 
         expected_command_as_list1 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'ConnectTimeout=5',
                                      '-o', 'StrictHostKeyChecking=no',
                                      '-o', 'UserKnownHostsFile=/dev/null',
                                      '-o', 'PasswordAuthentication=no',
                                      'root@1.2.3.4',
                                      '-p', '2222', '/bin/true']
         expected_command_as_list2 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'ConnectTimeout=5',
                                      '-o', 'StrictHostKeyChecking=no',
                                      '-o', 'UserKnownHostsFile=/dev/null',
                                      '-o', 'PasswordAuthentication=no',
                                      'root@5.6.7.8',
                                      '-p', '22', '/bin/true']
         expected_command_as_list3 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'ConnectTimeout=5',
                                      '-o', 'StrictHostKeyChecking=no',
                                      '-o', 'UserKnownHostsFile=/dev/null',
                                      '-o', 'PasswordAuthentication=no',
@@ -77,12 +80,14 @@ class TestTryMachineCommand(TestCase):
         try_machine_command(self.host_and_port_pairs, self.command, attempt_limit=2)
 
         expected_command_as_list1 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'ConnectTimeout=5',
                                      '-o', 'StrictHostKeyChecking=no',
                                      '-o', 'UserKnownHostsFile=/dev/null',
                                      '-o', 'PasswordAuthentication=no',
                                      'root@1.2.3.4',
                                      '-p', '2222', '/bin/true']
         expected_command_as_list2 = ['/usr/bin/env', 'ssh',
+                                     '-o', 'ConnectTimeout=5',
                                      '-o', 'StrictHostKeyChecking=no',
                                      '-o', 'UserKnownHostsFile=/dev/null',
                                      '-o', 'PasswordAuthentication=no',

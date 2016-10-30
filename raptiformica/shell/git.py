@@ -1,11 +1,14 @@
 from functools import partial
-from os import path
 from logging import getLogger
 from shlex import quote
 
-from raptiformica.settings import INSTALL_DIR
+from functools import reduce
+from os.path import join
+
+from raptiformica.settings import INSTALL_DIR, CACHE_DIR
 from raptiformica.shell.execute import run_command_print_ready, \
     log_failure_factory, run_command
+from raptiformica.utils import ensure_directory
 
 log = getLogger(__name__)
 
@@ -19,7 +22,9 @@ def execute_clone_source_command(url, directory, run_command_function):
     :return int exit_code: exit code of the clone source command
     """
     log.info("Cloning {} to {}".format(url, directory))
-    clone_command = ['/usr/bin/env', 'git', 'clone', url, directory]
+    clone_command = [
+        '/usr/bin/env', 'git', 'clone', '--recursive', url, directory
+    ]
     exit_code, _, _ = run_command_function(
         clone_command,
         failure_callback=log_failure_factory("Failed to clone source"),
@@ -134,12 +139,13 @@ def ensure_latest_source_success_factory(provisioning_directory, host=None, port
     return ensure_latest_source_success
 
 
-def ensure_latest_source(source, name, host=None, port=22):
+def ensure_latest_source(source, name, destination=INSTALL_DIR, host=None, port=22):
     """
     Ensure a repository is checked out and the latest version in the name directory
     in the INSTALL DIR on the specified machine
     :param source: location of the the source (url)
     :param name: name of the source
+    :param str destination: Where to clone to
     :param str host: hostname or ip of the remote machine, None for the local machine
     :param int port: port to use to connect to the remote machine over ssh
     :return int checkout_exists: exit code of the test -d command for the directory
@@ -147,7 +153,7 @@ def ensure_latest_source(source, name, host=None, port=22):
     1 when there already was a checkout
     """
     log.info("Ensuring latest source for {} from {}".format(name, source))
-    provisioning_directory = path.join(INSTALL_DIR, name)
+    provisioning_directory = join(destination, name)
     test_directory_exists_command = ['test', '-d', provisioning_directory]
 
     exit_code, _, _ = run_command(
@@ -160,3 +166,31 @@ def ensure_latest_source(source, name, host=None, port=22):
         )
     )
     return exit_code
+
+
+def ensure_latest_source_from_artifacts(source, name, destination=INSTALL_DIR, host=None, port=22):
+    """
+    Ensure a repository is checked out and the latest version in the name directory
+    in the INSTALL DIR on the specified machine. Caches the repository in artifacts
+    and uses that if it exists.
+    :param source: location of the the source (url)
+    :param name: name of the source
+    :param str destination: Where to clone to
+    :param str host: hostname or ip of the remote machine, None for the local machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int checkout_exists: exit code of the test -d command for the directory
+    0 if the repository was freshly cloned,
+    1 when there already was a checkout
+    """
+    repositories_directory = reduce(
+        join, (CACHE_DIR, 'artifacts', 'repositories')
+    )
+    ensure_directory(repositories_directory)
+    source_dir = join(repositories_directory, name)
+    cached_repo = 'file:///root/{}'.format(source_dir)
+    ensure_latest_source(
+        source, name, destination=repositories_directory, host=host, port=port
+    )
+    return ensure_latest_source(
+        cached_repo, name, destination=destination, host=host, port=port
+    )
