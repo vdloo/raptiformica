@@ -66,6 +66,21 @@ class TestConfigureConsulConf(TestCase):
             'advertise_addr': 'the_ipv6_address',
             'encrypt': 'a_different_secret',
             'disable_remote_exec': False,
+            'performance': {
+                # High performance settings. Machines leave
+                # and join the cluster fast and often.
+                'raft_multiplier': 1
+            },
+            'dns_config': {
+                'allow_stale': True,
+                "recursor_timeout": '1s'
+            },
+            "leave_on_terminate": True,
+            "skip_leave_on_interrupt": False,
+            "reconnect_timeout": "8h",  # The value must be >= 8 hours.
+            "reconnect_timeout_wan": "8h",
+            "translate_wan_addrs": False,
+            "rejoin_after_leave": True,
             'watches': [
                 {
                     'type': 'service',
