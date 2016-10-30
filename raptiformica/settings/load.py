@@ -1,6 +1,6 @@
 from contextlib import suppress
 from functools import reduce
-from http.client import HTTPException
+from http.client import HTTPException, BadStatusLine
 from itertools import chain
 from os.path import join
 from os import remove
@@ -20,6 +20,10 @@ from raptiformica.utils import load_json, write_json, list_all_files_with_extens
 log = getLogger(__name__)
 
 consul_conn = Connection(endpoint=KEY_VALUE_ENDPOINT)
+
+API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
+                  ConnectionRefusedError, ConnectionResetError,
+                  BadStatusLine)
 
 
 def write_config_mapping(config, config_file):
@@ -81,7 +85,7 @@ def try_config_request(func):
     try:
         log.debug("Attempting API call on local Consul instance")
         return func()
-    except (HTTPError, HTTPException, URLError, ConnectionRefusedError, ConnectionResetError):
+    except API_EXCEPTIONS:
         log.debug("Attempting API call on remote Consul instance")
         with suppress(RuntimeError):
             with forward_any_port(source_port=8500, predicate=['consul', 'members']):
@@ -135,7 +139,7 @@ def try_update_config_mapping(mapping):
     """
     try:
         mapping = update_config_mapping(mapping)
-    except (HTTPError, HTTPException, URLError, ConnectionRefusedError, ConnectionResetError):
+    except API_EXCEPTIONS:
         cached_mapping = get_config_mapping()
         cached_mapping.update(mapping)
         cache_config_mapping(cached_mapping)
