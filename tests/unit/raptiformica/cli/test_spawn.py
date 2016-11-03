@@ -25,7 +25,7 @@ class TestSpawn(TestCase):
         self.spawn_machine.assert_called_once_with(
             provision=True, assimilate=True,
             server_type='headless', compute_type='vagrant',
-            check_available=False
+            only_check_available=False
         )
 
     def test_spawn_does_not_assimilate_machine_when_no_assimilate_is_passed(self):
@@ -40,7 +40,7 @@ class TestSpawn(TestCase):
         self.spawn_machine.assert_called_once_with(
             provision=True, assimilate=False,
             server_type='headless', compute_type='vagrant',
-            check_available=False
+            only_check_available=False
         )
 
     def test_spawn_dose_not_provision_machine_when_no_provision_is_passed(self):
@@ -55,7 +55,7 @@ class TestSpawn(TestCase):
         self.spawn_machine.assert_called_once_with(
             provision=False, assimilate=True,
             server_type='headless', compute_type='vagrant',
-            check_available=False
+            only_check_available=False
         )
 
     def test_spawn_only_checks_available_if_specified(self):
@@ -70,5 +70,5 @@ class TestSpawn(TestCase):
         self.spawn_machine.assert_called_once_with(
             provision=True, assimilate=True,
             server_type='headless', compute_type='vagrant',
-            check_available=True
+            only_check_available=True
         )

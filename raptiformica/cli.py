@@ -131,7 +131,7 @@ def spawn():
         provision=not args.no_provision,
         server_type=args.server_type,
         compute_type=args.compute_type,
-        check_available=args.check_available
+        only_check_available=args.check_available
     )
 
 
