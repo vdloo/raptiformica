@@ -65,20 +65,20 @@ def start_compute_type(server_type=None, compute_type=None):
     )
 
 
-def spawn_machine(provision=False, assimilate=False, server_type=None, compute_type=None, check_available=False):
+def spawn_machine(provision=False, assimilate=False, server_type=None, compute_type=None, only_check_available=False):
     """
     Start a new instance, provision it and join it into the distributed network
     :param bool provision: whether or not we should assimilate the remote machine
     :param bool assimilate: whether or not we should assimilate the remote machine
     :param str server_type: name of the server type to provision the machine as
     :param str compute_type: name of the compute type to start an instance on
-    :param bool check_available: Don't really spawn a machine, just check if this host could
+    :param bool only_check_available: Don't really spawn a machine, just check if this host could
     :return None:
     """
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
     # If we are just checking for availability we are done here
-    if not check_available:
+    if not only_check_available:
         log.info(
             "Spawning machine of server type {} with compute "
             "type {}".format(server_type, compute_type)
