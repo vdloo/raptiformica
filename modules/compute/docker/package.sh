@@ -16,6 +16,8 @@ else
     cd ..
 fi
 
+LOG_FILE="/tmp/$(uuidgen)"
+
 # Provision the box
 PYTHONPATH=raptiformica raptiformica/bin/raptiformica_spawn.py --compute-type docker --no-assimilate | tee $LOG_FILE
 
