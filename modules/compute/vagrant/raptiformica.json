@@ -9,7 +9,8 @@
         "get_hostname": "cd modules/compute/vagrant && vagrant ssh -c 'ip addr show' 2>&1 | grep 'inet ' | tail -n 1 | awk '{print$2}' | cut -d '/' -f1",
         "get_port": "echo 22",
         "detect_stale_instance": "cd modules/compute/vagrant && vagrant status | grep running",
-        "clean_up_instance_command": "cd modules/compute/vagrant && vagrant destroy -f"
+        "clean_up_instance_command": "cd modules/compute/vagrant && vagrant destroy -f",
+        "package": "cd modules/compute/vagrant && ./package.sh"
       }
     }
   }

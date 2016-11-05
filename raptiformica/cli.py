@@ -4,6 +4,7 @@ from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.members import rejoin_members, show_members
 from raptiformica.actions.mesh import mesh_machine
 from raptiformica.actions.modules import load_module, unload_module
+from raptiformica.actions.package import package_machine
 from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.destroy import destroy_cluster
@@ -129,6 +130,42 @@ def spawn():
     spawn_machine(
         assimilate=not args.no_assimilate,
         provision=not args.no_provision,
+        server_type=args.server_type,
+        compute_type=args.compute_type,
+        only_check_available=args.check_available
+    )
+
+
+def parse_package_arguments():
+    """
+    Parse the commandline options for packaging a compute type
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica package",
+        description='Package a compute type into a reusable image to speed up '
+                    'booting instances'
+    )
+    parser.add_argument('--server-type', type=str, default=get_first_server_type(),
+                        choices=get_server_types(),
+                        help='Specify a server type. Default is {}'.format(get_first_server_type()))
+    parser.add_argument('--compute-type', type=str, default=get_first_compute_type(),
+                        choices=get_compute_types(),
+                        help='Specify a compute type. Default is {}'.format(get_first_compute_type()))
+    parser.add_argument('--check-available', action='store_true',
+                        help="Check if there is a configured server and compute type available on this host")
+    return parse_arguments(parser)
+
+
+def package():
+    """
+    Package a machine into a reusable image
+    :return None:
+    """
+    args = parse_package_arguments()
+    # todo: perform the booting and destroying in
+    # raptiformica, not the compute module
+    package_machine(
         server_type=args.server_type,
         compute_type=args.compute_type,
         only_check_available=args.check_available

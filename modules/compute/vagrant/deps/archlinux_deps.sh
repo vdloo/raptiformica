@@ -3,8 +3,8 @@
 echo -e 'Server = http://mirror.nl.leaseweb.net/archlinux/$repo/os/$arch\nServer = http://ftp.snt.utwente.nl/pub/os/linux/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 pacman -Sy --noconfirm
-pacman -S ruby git puppet --noconfirm
-pacman -S acl --noconfirm
+pacman -S ruby git puppet --noconfirm --needed
+pacman -S acl --noconfirm --needed
 
 # Make sure the kernel is not upgraded on 'pacman -Syu' because otherwise we'd need to reboot
 # yet again before docker will work inside the virtualized guest due to the right veth kernel module 

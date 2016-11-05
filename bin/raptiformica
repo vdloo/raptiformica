@@ -2,6 +2,7 @@
 export PYTHONPATH=../
 
 SPAWN_ENTRYPOINT="raptiformica_spawn.py"
+PACKAGE_ENTRYPOINT="raptiformica_package.py"
 PRUNE_ENTRYPOINT="raptiformica_prune.py"
 DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
@@ -21,6 +22,9 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   slave                      Provision and join a machine 
                              into the network
+
+  package                    Package a machine into a
+                             reusable image
 
   update                     Update the local machine by
                              running the configured commands
@@ -88,6 +92,10 @@ case $1 in
     ;;
     hook)
     RAPTIFORMICA_CMD=$HOOK_ENTRYPOINT
+    shift
+    ;;
+    package)
+    RAPTIFORMICA_CMD=$PACKAGE_ENTRYPOINT
     shift
     ;;
     *)
