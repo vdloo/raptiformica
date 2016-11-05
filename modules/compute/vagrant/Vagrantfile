@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# if vagrant-tun is not installed, install it and abort
+if !Vagrant.has_plugin?("vagrant-tun")
+  abort "Please first install the vagrant-tun plugin. Run 'vagrant plugin install vagrant-tun'"
+end
+
+# remove external virtualbox-guest-dkms in Archlinux boxes before running vagrant-vbguest
+require_relative 'inline/remove-guest-dkms.rb'
+
+Vagrant.configure('2') do |config|
+    config.tun.enabled = true
+    config.ssh.forward_agent = true
+    VAGRANT_SCRIPT_DIR = File.dirname(__FILE__) << '/'
+
+    config.vm.box = 'archlinux_x86_64'
+    config.vm.box_url = 'http://cloud.terry.im/vagrant/archlinux-x86_64.box'
+    config.vm.provision "shell" do |s|
+        s.path  = VAGRANT_SCRIPT_DIR + 'deps/archlinux_deps.sh'
+    end
+    config.vm.provision "shell" do |s|
+        s.path  = VAGRANT_SCRIPT_DIR + 'provision.sh'
+    end
+    config.vm.network "private_network", type: "dhcp"
+end
+
