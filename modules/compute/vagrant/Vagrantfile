@@ -16,10 +16,16 @@ PACKAGED_CATALOG = File.join(PACKAGED_DIR, 'images/catalog.json')
 BASE_BOX_URL = 'http://cloud.terry.im/vagrant/archlinux-x86_64.box'
 BOX_URL = File.exists?(PACKAGED_CATALOG) ? PACKAGED_CATALOG : BASE_BOX_URL
 
-# remove external virtualbox-guest-dkms in Archlinux boxes before running vagrant-vbguest
-require_relative 'inline/remove-guest-dkms.rb'
+if ! File.exists?(PACKAGED_CATALOG)
+    # remove external virtualbox-guest-dkms in Archlinux boxes before running vagrant-vbguest
+    require_relative 'inline/remove-guest-dkms.rb'
+end
 
 Vagrant.configure('2') do |config|
+    if File.exists?(PACKAGED_CATALOG)
+        config.vbguest.auto_update = false
+	config.vm.synced_folder '.', '/vagrant', disabled: true
+    end
     config.tun.enabled = true
     config.ssh.forward_agent = true
     VAGRANT_SCRIPT_DIR = File.dirname(__FILE__) << '/'
