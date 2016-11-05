@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+# Don't use the default mirrors for the initial upgrade
+echo -e 'Server = http://mirror.nl.leaseweb.net/archlinux/$repo/os/$arch\nServer = http://ftp.snt.utwente.nl/pub/os/linux/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+
 pacman -Sy --noconfirm
 pacman -S ruby git puppet --noconfirm
 pacman -S acl --noconfirm
