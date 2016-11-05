@@ -1,3 +1,5 @@
+from mock import ANY
+
 from raptiformica.actions.package import package_machine
 from tests.testcase import TestCase
 
@@ -16,7 +18,7 @@ class TestPackageMachine(TestCase):
             'raptiformica.actions.package.retrieve_package_machine_config'
         )
         self.run_command = self.set_up_patch(
-            'raptiformica.actions.package.run_command'
+            'raptiformica.shell.execute.run_command'
         )
 
     def test_package_machine_gets_first_server_type_if_no_server_type_specified(self):
@@ -61,7 +63,6 @@ class TestPackageMachine(TestCase):
         package_machine()
 
         self.run_command.assert_called_once_with(
-            self.retrieve_package_machine_config.return_value,
+            ANY,
             buffered=False,
-            shell=True
         )
