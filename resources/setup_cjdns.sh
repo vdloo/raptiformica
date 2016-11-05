@@ -28,7 +28,7 @@ if cat /dev/net/tun | grep -q "File descriptor in bad state" ; then
     exit 1
 else
     echo "ensuring cjdroute.conf"
-    [ ! -f cjdroute.conf ] && (umask 077 && ./cjdroute --genconf | ./cjdroute --cleanconf > cjdroute.conf)
+    umask 077 && ./cjdroute --genconf | ./cjdroute --cleanconf > cjdroute.conf
 fi
 
 echo "ensuring binary and config to /usr/bin"
