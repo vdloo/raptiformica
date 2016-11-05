@@ -57,8 +57,9 @@ cd "$PACKAGED_DIR"
 
 # Change back to the checkout to upgrade the box locally
 cd $HOME/.raptiformica.d/var/machines/vagrant/headless/$MACHINE_UUID/modules/compute/vagrant/
-vagrant box update
+vagrant box update || /bin/true
 
 # Clean up
+cd "$PACKAGED_DIR"
 PYTHONPATH=raptiformica raptiformica/bin/raptiformica_prune.py
 
