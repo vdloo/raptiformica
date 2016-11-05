@@ -13,8 +13,6 @@ else
     git clean -xfd
     git reset --hard origin/master
     git pull origin master
-    git fetch
-    git checkout package-vagrant
     cd ..
 fi
 
