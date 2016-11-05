@@ -10,7 +10,7 @@
         "get_port": "echo 22",
         "detect_stale_instance": "cd modules/compute/vagrant && vagrant status | grep running",
         "clean_up_instance_command": "cd modules/compute/vagrant && vagrant destroy -f",
-        "package": "cd modules/compute/vagrant && ./package.sh"
+        "package": "cd modules/compute/vagrant && sh package.sh"
       }
     }
   }

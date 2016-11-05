@@ -1,9 +1,9 @@
 from logging import getLogger
 
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import KEY_VALUE_PATH, PROJECT_DIR
 from raptiformica.settings.load import get_config
 from raptiformica.settings.types import get_first_server_type, get_first_compute_type
-from raptiformica.shell.execute import run_command
+from raptiformica.shell.execute import run_command_in_directory_factory
 
 log = getLogger(__name__)
 
@@ -20,7 +20,7 @@ def retrieve_package_machine_config(server_type=None, compute_type=None):
     config = get_config()
     server_config = config[KEY_VALUE_PATH][
         'compute'
-    ][compute_type].get(server_type, {})
+    ].get(compute_type, {}).get(server_type, {})
     if 'package' not in server_config:
         raise RuntimeError("No packaging command specified for "
                            "server type {} of compute type {}"
@@ -47,4 +47,7 @@ def package_machine(server_type=None, compute_type=None, only_check_available=Fa
         package_command = retrieve_package_machine_config(
             server_type=server_type, compute_type=compute_type
         )
-        run_command(package_command, buffered=False, shell=True)
+        run_package_command = run_command_in_directory_factory(
+            PROJECT_DIR, package_command
+        )
+        run_package_command(buffered=False)
