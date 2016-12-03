@@ -14,6 +14,7 @@ log = getLogger(__name__)
 CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
 CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
+CONSUL_CONF_HASH = '/var/run/consul_config_hash'
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
 WAIT_FOR_CONSUL_TIMEOUT = 10
 
@@ -310,7 +311,7 @@ def block_until_consul_becomes_available():
 
 def cjdroute_config_hash_outdated():
     """
-    Check the current config hash against the config hash written
+    Check the current cjdroute config hash against the config hash written
     to /var/run when the last cjdroute instance was started.
     If it is outdated it means we are allowing all neighbours to connect
     and that we still allow stale IP addresses of previous neighbours to connect.
@@ -412,6 +413,56 @@ def reload_consul_agent():
     )
 
 
+def consul_config_hash_outdated():
+    """
+    Check the current consul config hash against the config hash written
+    to /var/run when the last consul agent was started.
+    :return None:
+    """
+    log.info(
+        "Checking if the latest reported running "
+        "consul config is used by the agent"
+    )
+    config_hash_file_exists = isfile(CONSUL_CONF_HASH)
+    if config_hash_file_exists:
+        with open(CONSUL_CONF_HASH, 'rb') as config_hash_file:
+            binary_stored_hash = config_hash_file.read()
+            stored_hash = binary_stored_hash.decode('utf-8')
+        return stored_hash != calculate_checksum(CONSUL_CONF_PATH)
+    else:
+        # There is no config hash yet so it is not up to
+        # date because it does not exist
+        return True
+
+
+def write_consul_config_hash():
+    """
+    Write a hash of the current consul config to /var/run
+    so we can later check if the running consul agent is still up to date.
+    If that is the case then we don't have to reload the consul agent.
+    :return None:
+    """
+    log.info(
+        "Writing hash of current consul config so "
+        "we can only reload when we have to"
+    )
+    with open(CONSUL_CONF_HASH, 'wb') as config_hash_file:
+        config_hash = calculate_checksum(CONSUL_CONF_PATH)
+        binary_config_hash = config_hash.encode('utf-8')
+        config_hash_file.write(binary_config_hash)
+
+
+def reload_consul_agent_if_necessary():
+    """
+    Reload consul if the agent is running but the config file has changed
+    since it was last (re)started or reloaded
+    :return None:
+    """
+    if consul_config_hash_outdated():
+        reload_consul_agent()
+        write_consul_config_hash()
+
+
 def ensure_consul_agent():
     """
     Ensure the consul agent is running with the latest configuration
@@ -422,10 +473,11 @@ def ensure_consul_agent():
     log.info("Ensuring consul agent is running with an up to date configuration")
     consul_running = check_if_consul_is_available()
     if consul_running:
-        reload_consul_agent()
+        reload_consul_agent_if_necessary()
     else:
         clean_up_old_consul()
         start_detached_consul_agent()
+        write_consul_config_hash()
     block_until_consul_becomes_available()
 
 
