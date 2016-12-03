@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, isfile
 from logging import getLogger
 from shutil import rmtree
 
@@ -6,11 +6,13 @@ from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALU
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, run_command, check_nonzero_exit
 from raptiformica.shell.hooks import fire_hooks
-from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements
+from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements, \
+    calculate_checksum
 
 log = getLogger(__name__)
 
 CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
+CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
 WAIT_FOR_CONSUL_TIMEOUT = 10
@@ -306,6 +308,47 @@ def block_until_consul_becomes_available():
     )
 
 
+def cjdroute_config_hash_outdated():
+    """
+    Check the current config hash against the config hash written
+    to /var/run when the last cjdroute instance was started.
+    If it is outdated it means we are allowing all neighbours to connect
+    and that we still allow stale IP addresses of previous neighbours to connect.
+    :return None:
+    """
+    log.info(
+        "Checking if the latest reported running "
+        "cjdroute config is still up to date"
+    )
+    config_hash_file_exists = isfile(CJDROUTE_CONF_HASH)
+    if config_hash_file_exists:
+        with open(CJDROUTE_CONF_HASH, 'rb') as config_hash_file:
+            binary_stored_hash = config_hash_file.read()
+            stored_hash = binary_stored_hash.decode('utf-8')
+        return stored_hash != calculate_checksum(CJDROUTE_CONF_PATH)
+    else:
+        # There is no config hash yet so it is not up to
+        # date because it does not exist
+        return True
+
+
+def write_cjdroute_config_hash():
+    """
+    Write a hash of the current cjdroute config to /var/run
+    so we can later check if the running cjdroute is still up to date.
+    If that is the case then we don't have to restart cjdns.
+    :return None:
+    """
+    log.info(
+        "Writing hash of current cjdroute config so "
+        "we can only reload when we have to"
+    )
+    with open(CJDROUTE_CONF_HASH, 'wb') as config_hash_file:
+        config_hash = calculate_checksum(CJDROUTE_CONF_PATH)
+        binary_config_hash = config_hash.encode('utf-8')
+        config_hash_file.write(binary_config_hash)
+
+
 def ensure_cjdns_routing():
     """
     Start a new cjdroute instance, wait until the distributed
@@ -313,10 +356,12 @@ def ensure_cjdns_routing():
     :return:
     """
     log.info("Ensuring cjdns routing")
-    stop_detached_cjdroute()
-    start_detached_cjdroute()
-    block_until_tun0_becomes_available()
-    ensure_ipv6_routing()
+    if cjdroute_config_hash_outdated() or not check_if_tun0_is_available():
+        stop_detached_cjdroute()
+        start_detached_cjdroute()
+        write_cjdroute_config_hash()
+        block_until_tun0_becomes_available()
+        ensure_ipv6_routing()
 
 
 def ensure_no_consul_running():

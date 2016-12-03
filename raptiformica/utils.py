@@ -1,3 +1,4 @@
+import hashlib
 import json
 from itertools import chain
 from os import path, makedirs, walk
@@ -122,3 +123,18 @@ def group_n_elements(elements, n=1):
     if left:
         groups.append(elements[-left:])
     return groups
+
+
+def calculate_checksum(filename):
+    """
+    Calculate the sha1 checksum of a file (in chunks)
+    :param str filename: The file to calculate the checksum of
+    :return str checksum: The calculated checksum
+    """
+    file_hash = hashlib.sha1()
+    with open(filename, 'rb') as f:
+        buf = f.read()
+        while len(buf) > 0:
+            file_hash.update(buf)
+            buf = f.read(128)
+        return file_hash.hexdigest()
