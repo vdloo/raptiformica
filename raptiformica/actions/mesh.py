@@ -4,7 +4,8 @@ from shutil import rmtree
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config_mapping
-from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, run_command, check_nonzero_exit
+from raptiformica.shell.execute import run_command_print_ready, run_command, check_nonzero_exit, \
+    log_failure_factory, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements, \
     calculate_checksum
@@ -533,8 +534,9 @@ def run_consul_join(ipv6_addresses):
     log.info("running: {}".format(consul_join_command))
     run_command_print_ready(
         consul_join_command,
-        failure_callback=raise_failure_factory(
-            "Failed to join the configured neighbours"
+        failure_callback=log_failure_factory(
+            "Failed to join the configured "
+            "neighbours {}".format(ipv6_addresses)
         ),
         shell=True,
         buffered=False
