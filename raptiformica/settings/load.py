@@ -26,7 +26,7 @@ consul_conn = Connection(
 
 API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
                   ConnectionRefusedError, ConnectionResetError,
-                  BadStatusLine, OSError)
+                  BadStatusLine, OSError, ValueError)
 
 
 def write_config_mapping(config, config_file):
@@ -115,7 +115,15 @@ def download_config_mapping():
         "Attempting to retrieve the shared config "
         "from the distributed key value store"
     )
-    return try_config_request(lambda: consul_conn.get_mapping(KEY_VALUE_PATH))
+    mapping = try_config_request(
+        lambda: consul_conn.get_mapping(KEY_VALUE_PATH)
+    )
+    if not mapping:
+        raise ValueError(
+            "Retrieved empty data from distributed key "
+            "value store. Not accepting."
+        )
+    return mapping
 
 
 def on_disk_mapping(module_dirs=(MODULES_DIR, USER_MODULES_DIR)):
