@@ -35,3 +35,9 @@ class TestDownloadConfigMapping(TestCase):
         download_config_mapping()
 
         try_config_request.assert_called_once_with(ANY)
+
+    def test_download_config_mapping_raises_value_error_if_returned_mapping_is_falsey(self):
+        self.get_mapping.return_value = None
+
+        with self.assertRaises(ValueError):
+            download_config_mapping()
