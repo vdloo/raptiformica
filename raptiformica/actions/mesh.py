@@ -1,11 +1,12 @@
 from os.path import join
 from logging import getLogger
+from shutil import rmtree
 
 from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, run_command, check_nonzero_exit
 from raptiformica.shell.hooks import fire_hooks
-from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait
+from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements
 
 log = getLogger(__name__)
 
@@ -195,7 +196,7 @@ def stop_detached_cjdroute():
     :return:
     """
     log.info("Stopping cjdroute in the background")
-    kill_running = "pkill -f 'cjdroute --nobg'"
+    kill_running = "pkill -f '[c]jdroute --nobg'"
     run_command_print_ready(
         kill_running,
         shell=True,
@@ -307,14 +308,90 @@ def block_until_consul_becomes_available():
 
 def ensure_cjdns_routing():
     """
-    Start a new cjdroute instanc, wait until the distributed
+    Start a new cjdroute instance, wait until the distributed
     network is available and ensure the routes
     :return:
     """
+    log.info("Ensuring cjdns routing")
     stop_detached_cjdroute()
     start_detached_cjdroute()
     block_until_tun0_becomes_available()
     ensure_ipv6_routing()
+
+
+def ensure_no_consul_running():
+    """
+    Kill any consul processes
+    :return None:
+    """
+    log.info("Stopping any running consul processes")
+    kill_running = "pkill -f '[c]onsul'"
+    run_command_print_ready(
+        kill_running,
+        shell=True,
+        buffered=False
+    )
+
+
+def clean_up_old_consul_data():
+    """
+    Clean up old peer state (raft db and serf data)
+    :return None:
+    """
+    log.info("Ensuring /opt/consul is nonexistent")
+    rmtree('/opt/consul', ignore_errors=True)
+
+
+def clean_up_old_consul():
+    """
+    Clean up any lingering consul processes and data
+    :return None:
+    """
+    log.info("Cleaning up any old consul processes and data")
+    ensure_no_consul_running()
+    clean_up_old_consul_data()
+
+
+def reload_consul_agent():
+    """
+    Reload the consul configuration.
+    This is the same as sending a SIGHUP to the consul process
+    :return None:
+    """
+    log.info("Reloading the consul agent")
+    reload_agent = "consul reload"
+    run_command_print_ready(
+        reload_agent,
+        shell=True,
+        buffered=False
+    )
+
+
+def ensure_consul_agent():
+    """
+    Ensure the consul agent is running with the latest configuration
+    SIGHUP (reload) if already running. If not already running, start
+    the agent. Blocks until the agent becomes available.
+    :return None:
+    """
+    log.info("Ensuring consul agent is running with an up to date configuration")
+    consul_running = check_if_consul_is_available()
+    if consul_running:
+        reload_consul_agent()
+    else:
+        clean_up_old_consul()
+        start_detached_consul_agent()
+    block_until_consul_becomes_available()
+
+
+def configure_meshing_services():
+    """
+    Configures the meshnet services.
+    :return None:
+    """
+    log.info("Configuring the meshnet services")
+    configure_cjdroute_conf()
+    configure_consul_conf()
 
 
 def start_meshing_services():
@@ -325,19 +402,15 @@ def start_meshing_services():
     """
     log.info("Starting meshing services")
     ensure_cjdns_routing()
-    start_detached_consul_agent()
-    block_until_consul_becomes_available()
+    ensure_consul_agent()
 
 
-def join_meshnet():
+def get_neighbour_hosts(mapping):
     """
-    Bootstrap or join the distributed network by
-    joining consul agents running on the neighbours
-    specified in the mutable config
-    :return None:
+    Return a list of all known neighbour hosts
+    :param dict mapping: Key value mapping with the config data
+    :return list ipv6_addresses: All known neighbour hosts
     """
-    log.info("Joining the meshnet")
-    mapping = get_config_mapping()
     neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
     public_keys = list_neighbours(mapping)
     ipv6_addresses = list()
@@ -346,7 +419,15 @@ def join_meshnet():
         ipv6_addresses.append(
             mapping[join(neighbour_path, 'cjdns_ipv6_address')]
         )
+    return ipv6_addresses
 
+
+def run_consul_join(ipv6_addresses):
+    """
+    Consul join all specified ipv6 addresses.
+    :param list ipv6_addresses: Known neighbour hosts
+    :return None:
+    """
     consul_join_command = 'consul join '
     for ipv6_address in sorted(ipv6_addresses):
         consul_join_command += '[{}]:8301 '.format(
@@ -363,6 +444,28 @@ def join_meshnet():
     )
 
 
+def join_consul_neighbours(mapping):
+    """
+    Consul join all known neighbours. Will join up to 5 peers at once.
+    :param dict mapping: Key value mapping with the config data
+    :return None:
+    """
+    ipv6_addresses = get_neighbour_hosts(mapping)
+    for five_ipv6_addresses in group_n_elements(ipv6_addresses, 5):
+        run_consul_join(five_ipv6_addresses)
+
+
+def join_meshnet():
+    """
+    Bootstrap or join the distributed network by contacting the neighbours
+    specified in the mutable config
+    :return None:
+    """
+    log.info("Joining the meshnet")
+    mapping = get_config_mapping()
+    join_consul_neighbours(mapping)
+
+
 def attempt_join_meshnet():
     """
     Configure the mesh services according to the inherited
@@ -372,8 +475,7 @@ def attempt_join_meshnet():
     :return None:
     """
     log.info("Joining the machine into the distributed network")
-    configure_cjdroute_conf()
-    configure_consul_conf()
+    configure_meshing_services()
     start_meshing_services()
     # todo: in the future, if there are not enough neighbours to bootstrap
     # the network the running machine should 'boot' faux instances with their

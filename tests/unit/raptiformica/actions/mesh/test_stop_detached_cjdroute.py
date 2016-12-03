@@ -19,7 +19,7 @@ class TestStopDetachedCjdroute(TestCase):
     def test_stop_detached_cjdroute_stops_detached_cjdroute(self):
         stop_detached_cjdroute()
 
-        expected_command = "pkill -f 'cjdroute --nobg'"
+        expected_command = "pkill -f '[c]jdroute --nobg'"
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
