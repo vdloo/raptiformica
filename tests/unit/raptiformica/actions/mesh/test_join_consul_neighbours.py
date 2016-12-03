@@ -1,3 +1,4 @@
+from mock import call
 from itertools import chain
 
 from raptiformica.actions.mesh import join_consul_neighbours, get_neighbour_hosts
@@ -25,6 +26,10 @@ class TestJoinConsulNeighbours(TestCase):
         self.get_neighbour_hosts = self.set_up_patch(
             'raptiformica.actions.mesh.get_neighbour_hosts'
         )
+        self.not_already_known_consul_neighbour = self.set_up_patch(
+            'raptiformica.actions.mesh.not_already_known_consul_neighbour'
+        )
+        self.not_already_known_consul_neighbour.return_value = True
         self.get_neighbour_hosts.side_effect = get_neighbour_hosts
         self.run_consul_join = self.set_up_patch(
             'raptiformica.actions.mesh.run_consul_join'
@@ -34,6 +39,17 @@ class TestJoinConsulNeighbours(TestCase):
         join_consul_neighbours(self.mapping)
 
         self.get_neighbour_hosts.assert_called_once_with(self.mapping)
+
+    def test_join_consul_neighbours_checks_each_neighbour_for_already_known(self):
+        join_consul_neighbours(self.mapping)
+
+        expected_calls = (
+            call('some_ipv6_address'),
+            call('some_other_ipv6_address')
+        )
+        self.assertCountEqual(
+            self.not_already_known_consul_neighbour.mock_calls, expected_calls
+        )
 
     def test_join_consul_neighbours_runs_consul_join_using_the_known_neighbours_ipv6_addresses(self):
         join_consul_neighbours(self.mapping)
@@ -46,6 +62,17 @@ class TestJoinConsulNeighbours(TestCase):
         join_consul_neighbours(dict())
 
         self.assertFalse(self.run_consul_join.called)
+
+    def test_join_consul_neighbours_does_not_join_neighbours_that_are_already_known(self):
+        def pretend_some_ipv6_address_is_already_known(ipv6):
+            return ipv6 != 'some_ipv6_address'
+
+        self.not_already_known_consul_neighbour.side_effect = pretend_some_ipv6_address_is_already_known
+        join_consul_neighbours(self.mapping)
+
+        run_consul_join_argument = self.run_consul_join.call_args[0][0]
+        self.assertNotIn('some_ipv6_address', run_consul_join_argument)
+        self.assertIn('some_other_ipv6_address', run_consul_join_argument)
 
     def test_join_consul_neighbours_joins_neighbours_in_batches_of_five(self):
         for address_number in range(9):

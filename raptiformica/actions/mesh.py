@@ -489,6 +489,21 @@ def run_consul_join(ipv6_addresses):
     )
 
 
+def not_already_known_consul_neighbour(ipv6_address):
+    """
+    Check if the ipv6 address is not already in the members list
+    for the running agent
+    :param str ipv6_address: The ipv6 address to check
+    :return bool not_yet_already_known: True if not yet known,
+    False if already in the list
+    """
+    log.info(
+        "Checking if the consul agent already knows {}".format(ipv6_address)
+    )
+    check_already_known = "consul members | grep {}".format(ipv6_address)
+    return not check_nonzero_exit(check_already_known)
+
+
 def join_consul_neighbours(mapping):
     """
     Consul join all known neighbours. Will join up to 5 peers at once.
@@ -496,7 +511,10 @@ def join_consul_neighbours(mapping):
     :return None:
     """
     ipv6_addresses = get_neighbour_hosts(mapping)
-    for five_ipv6_addresses in group_n_elements(ipv6_addresses, 5):
+    new_ipv6_addresses = list(
+        filter(not_already_known_consul_neighbour, ipv6_addresses)
+    )
+    for five_ipv6_addresses in group_n_elements(new_ipv6_addresses, 5):
         run_consul_join(five_ipv6_addresses)
 
 
