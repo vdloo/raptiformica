@@ -108,3 +108,17 @@ def wait(predicate, timeout=5):
         else:
             waited += 1
             sleep(1)
+
+
+def group_n_elements(elements, n=1):
+    """
+    Return a list of sublists containing n elements of parameter iterator elements
+    :param iterator elements: Iterator of elements to make groups of
+    :param int n: How many items per group
+    :return list groups: The grouped sublists in a list
+    """
+    groups = list(map(list, zip(*[iter(elements)] * n)))
+    left = len(elements) % n if n else False
+    if left:
+        groups.append(elements[-left:])
+    return groups

@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 
 from raptiformica.actions.hook import trigger_handlers
-from raptiformica.actions.members import rejoin_members, show_members
-from raptiformica.actions.mesh import mesh_machine
+from raptiformica.actions.members import show_members
+from raptiformica.actions.mesh import mesh_machine, attempt_join_meshnet
 from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.package import package_machine
 from raptiformica.actions.prune import prune_local_machines
@@ -273,7 +273,7 @@ def members():
     """
     args = parse_members_arguments()
     if args.rejoin:
-        rejoin_members()
+        attempt_join_meshnet()
     else:
         show_members()
 

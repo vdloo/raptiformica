@@ -1,14 +1,16 @@
 from raptiformica.actions.mesh import attempt_join_meshnet
-from raptiformica.settings import MUTABLE_CONFIG
 from tests.testcase import TestCase
 
 
 class TestAttemptJoinMeshnet(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
-        self.configure_cjdroute_conf = self.set_up_patch('raptiformica.actions.mesh.configure_cjdroute_conf')
-        self.configure_consul_conf = self.set_up_patch('raptiformica.actions.mesh.configure_consul_conf')
-        self.start_meshing_services = self.set_up_patch('raptiformica.actions.mesh.start_meshing_services')
+        self.configure_meshing_services = self.set_up_patch(
+            'raptiformica.actions.mesh.configure_meshing_services'
+        )
+        self.start_meshing_services = self.set_up_patch(
+            'raptiformica.actions.mesh.start_meshing_services'
+        )
         self.enough_neighbours = self.set_up_patch('raptiformica.actions.mesh.enough_neighbours')
         self.join_meshnet = self.set_up_patch('raptiformica.actions.mesh.join_meshnet')
 
@@ -17,15 +19,10 @@ class TestAttemptJoinMeshnet(TestCase):
 
         self.assertTrue(self.log.info.called)
 
-    def test_attempt_join_meshnet_configures_cjdroute_config(self):
+    def test_attempt_join_meshnet_configures_meshing_services(self):
         attempt_join_meshnet()
 
-        self.configure_cjdroute_conf.assert_called_once_with()
-
-    def test_attempt_join_meshnet_configures_consul_config(self):
-        attempt_join_meshnet()
-
-        self.configure_consul_conf.assert_called_once_with()
+        self.configure_meshing_services.assert_called_once_with()
 
     def test_attempt_join_meshnet_starts_meshing_services(self):
         attempt_join_meshnet()
