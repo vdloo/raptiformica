@@ -9,7 +9,7 @@ class TestTryConfigRequest(TestCase):
     def setUp(self):
         self.callback = Mock()
         self.forward_any_port = self.set_up_patch(
-            'raptiformica.settings.load.forward_any_port'
+            'raptiformica.distributed.proxy.forward_any_port'
         )
         self.forward_any_port.return_value.__exit__ = lambda a, b, c, d: None
         self.forward_any_port.return_value.__enter__ = lambda a: None

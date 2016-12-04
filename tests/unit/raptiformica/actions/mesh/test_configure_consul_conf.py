@@ -91,7 +91,17 @@ class TestConfigureConsulConf(TestCase):
                                "./bin/raptiformica_hook.py cluster_change "
                                "--verbose"
                                "\""
-                }
+                },
+                {
+                    'type': 'event',
+                    'name': 'notify_cluster_change',
+                    'handler': "bash -c \""
+                               "cd '/usr/etc/raptiformica'; "
+                               "export PYTHONPATH=.; "
+                               "./bin/raptiformica_hook.py cluster_change "
+                               "--verbose"
+                               "\""
+                },
             ]
         }
         self.write_json.assert_called_once_with(

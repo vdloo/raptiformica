@@ -156,7 +156,12 @@ def configure_consul_conf():
                 'type': 'service',
                 'service': 'consul',
                 'handler': cluster_change_handler
-            }
+            },
+            {
+                'type': 'event',
+                'name': 'notify_cluster_change',
+                'handler': cluster_change_handler
+            },
         ]
     }
     for directory in ('/etc/consul.d', '/etc/opt/consul'):
