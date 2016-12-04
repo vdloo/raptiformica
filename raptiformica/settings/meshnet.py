@@ -2,6 +2,7 @@ import uuid
 from os.path import join
 from logging import getLogger
 
+from raptiformica.distributed.events import send_reload_meshnet
 from raptiformica.settings import CJDNS_DEFAULT_PORT, KEY_VALUE_PATH
 from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
@@ -81,7 +82,7 @@ def update_neighbours_config(host, port=22, uuid=None):
 
 def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
     """
-    Add a host to the local mutable config
+    Add a host to the distributed key value config mapping
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str compute_checkout_uuid: identifier for a local compute checkout
@@ -95,3 +96,4 @@ def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
     update_neighbours_config(
         host, port=port, uuid=compute_checkout_uuid
     )
+    send_reload_meshnet()

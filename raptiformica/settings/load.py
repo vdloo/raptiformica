@@ -7,16 +7,14 @@ from os.path import join
 from os import remove
 from urllib.error import URLError, HTTPError
 from logging import getLogger
-
 from shutil import rmtree
-
 from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
-from raptiformica.distributed.proxy import forward_any_port
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
     KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR, KEY_VALUE_TIMEOUT, CONFIG_CACHE_LOCK
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
+import raptiformica.distributed.proxy
 
 log = getLogger(__name__)
 
@@ -117,7 +115,11 @@ def try_config_request(func):
     except API_EXCEPTIONS:
         log.debug("Attempting API call on remote Consul instance")
         with suppress(RuntimeError):
-            with forward_any_port(source_port=8500, predicate=['consul', 'members']):
+            # Absolute import because the distributed proxy
+            # imports from settings as well
+            with raptiformica.distributed.proxy.forward_any_port(
+                source_port=8500, predicate=['consul', 'members']
+            ):
                 return func()
         raise
 

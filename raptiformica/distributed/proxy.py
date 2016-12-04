@@ -1,8 +1,7 @@
 from contextlib import contextmanager
 
-from raptiformica.distributed.discovery import host_and_port_pairs_from_config
+import raptiformica.distributed.discovery
 from raptiformica.distributed.exec import try_machine_command
-
 from raptiformica.shell.ssh import forward_remote_port
 
 
@@ -19,7 +18,8 @@ def forward_any_port(source_port, destination_port=None, predicate=None):
     :return None:
     """
     predicate = predicate or ['/bin/true']
-    host_and_port_pairs = host_and_port_pairs_from_config(cached=True)
+    host_and_port_pairs = raptiformica.distributed.discovery.\
+        host_and_port_pairs_from_config(cached=True)
     _, host, ssh_port = try_machine_command(
         host_and_port_pairs, predicate, attempt_limit=1
     )
