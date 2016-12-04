@@ -261,10 +261,13 @@ def cache_config_mapping(mapping):
 def cached_config_mapping():
     """
     Retrieve the cached config of the last successful config download
-    from distributed key value store
+    from distributed key value store. Waits with reading the cached
+    config until the exclusive lock can be acquired to prevent reading
+    truncated json because another process could be updating the cache.
     :return dict mapping: the k v config mapping
     """
-    return load_json(MUTABLE_CONFIG)
+    with config_cache_lock():
+        return load_json(MUTABLE_CONFIG)
 
 
 def get_local_config_mapping():
