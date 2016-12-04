@@ -11,11 +11,11 @@ SCRIPTS_DIR = join(PROJECT_DIR, 'scripts')
 MACHINES_DIR = join(EPHEMERAL_DIR, 'machines')
 BASE_CONFIG = join(PROJECT_DIR, '.base_config.json')
 MUTABLE_CONFIG = join(ABS_CACHE_DIR, 'mutable_config.json')
+CONFIG_CACHE_LOCK = '/tmp/raptiformica_config_cache.lock'
 MODULES_DIR = join(PROJECT_DIR, 'modules')
 USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
 USER_ARTIFACTS_DIR = join(ABS_CACHE_DIR, 'artifacts')
 KEY_VALUE_ENDPOINT = 'http://localhost:8500/v1/kv'
 KEY_VALUE_TIMEOUT = 1  # How long to wait for a config retrieval
 KEY_VALUE_PATH = 'raptiformica'
-
 CJDNS_DEFAULT_PORT = 4863
