@@ -1,4 +1,5 @@
-from contextlib import suppress
+from contextlib import suppress, contextmanager
+from fcntl import LOCK_EX, flock, LOCK_UN
 from functools import reduce
 from http.client import HTTPException, BadStatusLine
 from itertools import chain
@@ -14,7 +15,7 @@ from consul_kv.utils import dict_merge
 from raptiformica.distributed.proxy import forward_any_port
 
 from raptiformica.settings import MODULES_DIR, ABS_CACHE_DIR, KEY_VALUE_ENDPOINT, \
-    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR, KEY_VALUE_TIMEOUT
+    KEY_VALUE_PATH, USER_MODULES_DIR, MUTABLE_CONFIG, USER_ARTIFACTS_DIR, KEY_VALUE_TIMEOUT, CONFIG_CACHE_LOCK
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
 
 log = getLogger(__name__)
@@ -29,6 +30,28 @@ API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
                   BadStatusLine, OSError, ValueError)
 
 
+@contextmanager
+def config_cache_lock():
+    """
+    Obtain the config cache lock, perform the code
+    in the context and then let the lock go.
+    :yield None
+    :return None:
+    """
+    with open(CONFIG_CACHE_LOCK, 'w+') as lock:
+        try:
+            log.debug(
+                "Getting config cache lock. "
+                "If this blocks forever, try deleting file "
+                "{} and restart the process.".format(CONFIG_CACHE_LOCK)
+            )
+            flock(lock, LOCK_EX)  # Blocks until lock becomes available
+            yield
+        finally:
+            log.debug("Releasing the config cache lock")
+            flock(lock, LOCK_UN)
+
+
 def write_config_mapping(config, config_file):
     """
     Write the config to a config file
@@ -37,7 +60,10 @@ def write_config_mapping(config, config_file):
     :return None:
     """
     ensure_directory(ABS_CACHE_DIR)
-    write_json(config, config_file)
+    # Lock the config cache file so two processes can't
+    # write to the file at the same time and corrupt the json
+    with config_cache_lock():
+        write_json(config, config_file)
 
 
 def load_module_config(modules_dir=MODULES_DIR):
