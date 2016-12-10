@@ -1,7 +1,8 @@
+from collections import defaultdict
 from os import path
 from logging import getLogger
 
-from raptiformica.settings import RAPTIFORMICA_DIR, CONSUL_WEB_UI_DIR
+from raptiformica.settings import RAPTIFORMICA_DIR, CONSUL_WEB_UI_DIR, MACHINE_ARCH
 from raptiformica.shell.execute import run_critical_unbuffered_command_print_ready, \
     run_multiple_labeled_commands
 from raptiformica.shell.unzip import unzip
@@ -9,7 +10,13 @@ from raptiformica.shell.wget import wget
 
 log = getLogger(__name__)
 
-CONSUL_RELEASE = 'https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip'
+CONSUL_ARCHES = defaultdict(
+    lambda: 'https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip',
+    i686='https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_386.zip',
+    x86_64='https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip',
+    armv71='https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_arm.zip'
+)
+CONSUL_RELEASE = CONSUL_ARCHES[MACHINE_ARCH]
 CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_web_ui.zip'
 
 
