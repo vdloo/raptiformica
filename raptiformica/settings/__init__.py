@@ -1,4 +1,5 @@
 from os.path import dirname, realpath, join, expanduser
+from platform import uname
 
 PROJECT_DIR = join(dirname(dirname(dirname(realpath(__file__)))))
 INSTALL_DIR = '/usr/etc/'
@@ -19,3 +20,4 @@ KEY_VALUE_ENDPOINT = 'http://localhost:8500/v1/kv'
 KEY_VALUE_TIMEOUT = 1  # How long to wait for a config retrieval
 KEY_VALUE_PATH = 'raptiformica'
 CJDNS_DEFAULT_PORT = 4863
+MACHINE_ARCH = uname()[4]
