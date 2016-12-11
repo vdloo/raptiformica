@@ -70,6 +70,7 @@ class IntegrationTestCase(TestCase):
         self.kill_all_dockers()
         self.clean_all_docker_images()
         self.clean_up_cache_dir()
+        print("Cleaned up any lingering state\n\n")
 
     def check_consul_consensus_was_established(self, expected_peers=None):
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
@@ -85,6 +86,27 @@ class IntegrationTestCase(TestCase):
             buffered=True
         )
         return consul_members_output.split()
+
+    def get_docker_ip(self, instance_id):
+        get_docker_ip_command = "sudo docker exec {} ip addr show eth0 | " \
+                                "grep \"inet\\b\" | " \
+                                "awk '{{print $2}}' | " \
+                                "cut -d/ -f1"
+        _, standard_out, standard_error = run_command_print_ready(
+            get_docker_ip_command.format(instance_id),
+            buffered=True, shell=True
+        )
+        return standard_out.strip()
+
+    def list_docker_instances(self):
+        list_docker_instances_command = "sudo docker ps | " \
+                                        "grep raptiformica | " \
+                                        "awk '{print$1}'"
+        _, standard_out, standard_error = run_command_print_ready(
+            list_docker_instances_command,
+            buffered=True, shell=True
+        )
+        return standard_out.split()
 
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
         registered_peers = self.list_registered_peers()
@@ -108,6 +130,7 @@ class IntegrationTestCase(TestCase):
         self.assertIn(expected_value, ret)
 
     def tearDown(self):
-        self.kill_all_dockers()
-        self.clean_all_docker_images()
-        self.clean_up_cache_dir()
+        print("Finished running this test case, cleaning up the resources\n\n")
+        # self.kill_all_dockers()
+        # self.clean_all_docker_images()
+        # self.clean_up_cache_dir()
