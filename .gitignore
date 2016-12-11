@@ -12,8 +12,11 @@ scripts/var
 *.swo
 *.swp
 
-#virtualenv
+# virtualenv
 .venv
 
 # generated and updated config
 mutable_config.json
+
+# agent instance public key 
+modules/compute/docker/instance_key.pub
