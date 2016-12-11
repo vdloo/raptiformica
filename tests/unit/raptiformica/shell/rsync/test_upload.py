@@ -15,7 +15,7 @@ class TestUpload(TestCase):
         upload(PROJECT_DIR, INSTALL_DIR, '1.2.3.4', port=22)
 
         expected_upload_command = [
-            '/usr/bin/env', 'rsync', '-q', '-a', '-L', '-avz', PROJECT_DIR,
+            '/usr/bin/env', 'rsync', '-q', '--force', '-avz', PROJECT_DIR,
             'root@1.2.3.4:{}'.format(INSTALL_DIR), '--exclude=.venv',
             '--exclude=*.pyc', '--exclude=var', '-e',
             'ssh -p 22 '

@@ -145,10 +145,10 @@ class TestTreeCluster(IntegrationTestCase):
         # Make the first instance DNAT 1.2.3.4 to 172.17.0.4 etc
         NATted_ips = list(self.pretend_behind_firewall(docker_instances[0], docker_ips))
 
-        # Upload raptiformica to the remote host without configuring a cluster
+        # Assimilate one of the instances from the client (which is not in the cluster)
+        # so we can later run raptiformica members without having to log in explicitly.
         self.run_raptiformica_command(
-            "slave {} --server-type headless "
-            "--no-assimilate --no-provision".format(docker_ips[0])
+            "slave {} --server-type headless".format(docker_ips[0])
         )
 
         # Install the uploaded raptiformica systemwide so we can run 'raptiformica'
@@ -160,9 +160,8 @@ class TestTreeCluster(IntegrationTestCase):
         self.slave_from_firewalled_environment(docker_ips[0], NATted_ips)
 
     def test_simple_cluster_establishes_mesh_correctly(self):
-        raise RuntimeError('jaja')
-        # self.check_consul_consensus_was_established(
-        #     expected_peers=self.amount_of_instances
-        # )
-        # self.check_all_registered_peers_can_be_pinged_from_any_instance()
-        # self.check_data_can_be_stored_in_the_distributed_kv_store()
+        self.check_consul_consensus_was_established(
+            expected_peers=self.amount_of_instances
+        )
+        self.check_all_registered_peers_can_be_pinged_from_any_instance()
+        self.check_data_can_be_stored_in_the_distributed_kv_store()

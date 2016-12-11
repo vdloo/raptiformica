@@ -131,6 +131,6 @@ class IntegrationTestCase(TestCase):
 
     def tearDown(self):
         print("Finished running this test case, cleaning up the resources\n\n")
-        # self.kill_all_dockers()
-        # self.clean_all_docker_images()
-        # self.clean_up_cache_dir()
+        self.kill_all_dockers()
+        self.clean_all_docker_images()
+        self.clean_up_cache_dir()
