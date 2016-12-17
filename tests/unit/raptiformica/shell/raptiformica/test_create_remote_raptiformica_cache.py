@@ -20,7 +20,7 @@ class TestCreateRemoteRaptiformicaCache(TestCase):
         create_remote_raptiformica_cache('1.2.3.4', port=1234)
 
         expected_upload_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',

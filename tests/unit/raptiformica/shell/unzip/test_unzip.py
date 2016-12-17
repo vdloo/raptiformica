@@ -18,7 +18,7 @@ class TestUnzip(TestCase):
         )
 
         expected_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
@@ -41,7 +41,7 @@ class TestUnzip(TestCase):
 
         with self.assertRaises(RuntimeError):
             unzip(
-                    '/tmp/a_zip_file.zip', '/tmp/the_unpack_dir',
-                    '1.2.3.4', port=22,
-                    failure_message='The unpacking failed'
+                '/tmp/a_zip_file.zip', '/tmp/the_unpack_dir',
+                '1.2.3.4', port=22,
+                failure_message='The unpacking failed'
             )

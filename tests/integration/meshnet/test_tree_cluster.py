@@ -29,25 +29,14 @@ class TestTreeCluster(IntegrationTestCase):
     def spawn_docker_instances(self):
         self.run_raptiformica_command("spawn --no-assimilate --server-type headless --compute-type docker")
 
-    def ensure_iptables_installed(self, docker_instance):
-        install_iptables_command = "sudo docker exec {} apt-get install " \
-                                   "iptables -yy".format(docker_instance)
+    def ensure_package_installed(self, docker_instance, package):
+        install_package_command = "sudo docker exec {} apt-get install " \
+                                  "{} -yy".format(docker_instance, package)
         run_command_print_ready(
-            install_iptables_command, buffered=False, shell=True,
+            install_package_command, buffered=False, shell=True,
             failure_callback=raise_failure_factory(
-                "Failed to install iptables on the testhost. Could not set up "
-                "the scenario for TestTreeCluster :("
-            )
-        )
-
-    def ensure_make_installed(self, docker_instance):
-        install_make_command = "sudo docker exec {} apt-get install " \
-                               "make -yy".format(docker_instance)
-        run_command_print_ready(
-            install_make_command, buffered=False, shell=True,
-            failure_callback=raise_failure_factory(
-                "Failed to install make on the testhost. Could not set up "
-                "the scenario for TestTreeCluster :("
+                "Failed to install {} on the testhost. Could not set up "
+                "the scenario for TestTreeCluster :(".format(package)
             )
         )
 
@@ -95,8 +84,36 @@ class TestTreeCluster(IntegrationTestCase):
         :param list docker_ips: List of IPs to re-route
         :return iter NATted_ips: The re-routed IPs
         """
-        self.ensure_iptables_installed(docker_instance)
+        self.ensure_package_installed(docker_instance, 'iptables')
         return map(partial(self.preroute_docker_ip, docker_instance), docker_ips)
+
+    def ensure_raptiformica_requirements(self, docker_instances):
+        """
+        Install the requirements for raptiformica
+        :param list [str instance, ..] docker_instances: List of docker instances
+        :return None:
+        """
+        for docker_instance in docker_instances:
+            for package in ('make', 'sudo', 'iputils-ping'):
+                self.ensure_package_installed(docker_instance, package)
+
+    def clear_mutable_config(self, docker_instance):
+        """
+        Remove the mutable config in a docker
+        :param str docker_instance: ID of the Docker instance to clear the
+        mutable config on
+        :return None:
+        """
+        clear_mutable_config = "sudo docker exec {} " \
+                               "rm -f /root/.raptiformica.d/mutable_config.json" \
+                               "".format(docker_instance)
+        run_command_print_ready(
+            clear_mutable_config, buffered=False, shell=True,
+            failure_callback=raise_failure_factory(
+                "Failed to clear the cached config on the testhost. "
+                "Could not set up the scenario for TestTreeCluster :("
+            )
+        )
 
     def install_raptiformica_in_docker(self, docker_instance):
         """
@@ -105,7 +122,6 @@ class TestTreeCluster(IntegrationTestCase):
         raptiformica system wide in
         :return None:
         """
-        self.ensure_make_installed(docker_instance)
         self.ensure_raptiformica_installed(docker_instance)
 
     def slave_from_firewalled_environment(self, docker_ip, NATted_ips):
@@ -142,26 +158,30 @@ class TestTreeCluster(IntegrationTestCase):
         docker_instances = self.list_docker_instances()
         docker_ips = list(map(self.get_docker_ip, docker_instances))
 
+        # Ensure the requirements are installed
+        self.ensure_raptiformica_requirements(docker_instances)
+
         # Make the first instance DNAT 1.2.3.4 to 172.17.0.4 etc
         NATted_ips = list(self.pretend_behind_firewall(docker_instances[0], docker_ips))
 
         # Assimilate one of the instances from the client (which is not in the cluster)
         # so we can later run raptiformica members without having to log in explicitly.
         self.run_raptiformica_command(
-            "slave {} --server-type headless".format(docker_ips[0])
+            "slave {} --server-type headless --verbose".format(docker_ips[0])
         )
 
         # Install the uploaded raptiformica systemwide so we can run 'raptiformica'
         # without having to specify the PYTHONPATH and project path.
         self.install_raptiformica_in_docker(docker_instances[0])
 
+        # Make sure the instance has no lingering data
+        self.clear_mutable_config(docker_instances[0])
+
         # Perform the raptiformica commands on the first instance
         # A will assimilate A, then A will assimilate B and then C.
-        self.slave_from_firewalled_environment(docker_ips[0], NATted_ips)
+        self.slave_from_firewalled_environment(docker_ips[0], docker_ips[:1])
+        self.slave_from_firewalled_environment(docker_ips[0], NATted_ips[1:])
 
     def test_simple_cluster_establishes_mesh_correctly(self):
-        self.check_consul_consensus_was_established(
-            expected_peers=self.amount_of_instances
-        )
+        self.check_consul_consensus_was_established(expected_peers=self.amount_of_instances)
         self.check_all_registered_peers_can_be_pinged_from_any_instance()
-        self.check_data_can_be_stored_in_the_distributed_kv_store()

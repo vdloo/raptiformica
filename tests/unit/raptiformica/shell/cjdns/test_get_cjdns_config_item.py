@@ -14,7 +14,7 @@ class TestGetCjdnsConfigItem(TestCase):
         get_cjdns_config_item('publicKey', '1.2.3.4', port=2222)
 
         expected_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
@@ -35,7 +35,7 @@ class TestGetCjdnsConfigItem(TestCase):
         get_cjdns_config_item('ipv6', '1.2.3.4', port=2223)
 
         expected_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',

@@ -133,7 +133,7 @@ def run_command_remotely(command, host, port=22,
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
     :return tuple process_output (exit code, standard out, standard error):
     """
-    ssh_command_as_list = ['/usr/bin/env', 'ssh',
+    ssh_command_as_list = ['/usr/bin/env', 'ssh', '-A',
                            '-o', 'ConnectTimeout=5',
                            '-o', 'StrictHostKeyChecking=no',
                            '-o', 'UserKnownHostsFile=/dev/null',

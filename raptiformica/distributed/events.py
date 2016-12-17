@@ -50,6 +50,10 @@ def send_reload_meshnet():
     out to it and as soon as it comes online it will be able to contact
     the bound nodes through the reverse tunnel transparently. By reloading
     the meshnet configs this is achieved.
+    Note: If no consensus has been established yet this approach won't
+    work since the neighbour details will not be available to the peers.
+    In that case the system will try to establish a connnection to the peer
+    synchronously.
     :return None:
     """
     log.info(

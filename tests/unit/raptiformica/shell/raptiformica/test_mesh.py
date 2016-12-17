@@ -22,7 +22,7 @@ class TestMesh(TestCase):
             '1.2.3.4', port=2222
         )
 
-    def tst_mesh_returns_raptiformica_command_exit_code(self):
+    def test_mesh_returns_raptiformica_command_exit_code(self):
         ret = mesh('1.2.3.4', port=2222)
 
         self.assertEqual(ret, self.run_raptiformica_command.return_value)

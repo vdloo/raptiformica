@@ -19,7 +19,7 @@ class TestPullOriginMaster(TestCase):
     def test_that_pull_origin_master_pulls_origin_master_on_remote_host(self):
         pull_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
-        expected_command = "/usr/bin/env ssh " \
+        expected_command = "/usr/bin/env ssh -A " \
                            "-o ConnectTimeout=5 " \
                            "-o StrictHostKeyChecking=no " \
                            "-o UserKnownHostsFile=/dev/null " \

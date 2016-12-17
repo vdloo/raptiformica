@@ -19,7 +19,7 @@ class TestCjdnsSetup(TestCase):
     def test_cjdns_setup_runs_cjdns_setup_script(self):
         cjdns_setup('1.2.3.4', port=2222)
 
-        expected_command = "/usr/bin/env ssh " \
+        expected_command = "/usr/bin/env ssh -A " \
                            "-o ConnectTimeout=5 " \
                            "-o StrictHostKeyChecking=no " \
                            "-o UserKnownHostsFile=/dev/null " \

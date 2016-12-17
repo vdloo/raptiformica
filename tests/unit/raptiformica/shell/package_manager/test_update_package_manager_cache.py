@@ -17,7 +17,7 @@ class TestUpdatePackageManagerCache(TestCase):
         update_package_manager_cache('1.2.3.4', port=2222)
 
         expected_archlinux_call = call(
-            '/usr/bin/env ssh '
+            '/usr/bin/env ssh -A '
             '-o ConnectTimeout=5 '
             '-o StrictHostKeyChecking=no '
             '-o UserKnownHostsFile=/dev/null '
@@ -30,7 +30,7 @@ class TestUpdatePackageManagerCache(TestCase):
             buffered=False, shell=True
         )
         expected_debian_call = call(
-            '/usr/bin/env ssh '
+            '/usr/bin/env ssh -A '
             '-o ConnectTimeout=5 '
             '-o StrictHostKeyChecking=no '
             '-o UserKnownHostsFile=/dev/null '

@@ -18,7 +18,7 @@ class TestWget(TestCase):
         )
 
         expected_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',

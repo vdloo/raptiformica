@@ -19,7 +19,7 @@ class TestResetHardOriginMaster(TestCase):
     def test_that_reset_hard_origin_master_runs_reset_hard_origin_master_command(self):
         reset_hard_origin_master('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
-        expected_command = "/usr/bin/env ssh " \
+        expected_command = "/usr/bin/env ssh -A " \
                            "-o ConnectTimeout=5 " \
                            "-o StrictHostKeyChecking=no " \
                            "-o UserKnownHostsFile=/dev/null " \

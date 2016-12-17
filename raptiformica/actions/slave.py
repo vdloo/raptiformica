@@ -2,7 +2,7 @@ from logging import getLogger
 
 from raptiformica.settings import KEY_VALUE_PATH
 from raptiformica.settings.load import get_config
-from raptiformica.settings.meshnet import update_meshnet_config
+from raptiformica.settings.meshnet import ensure_route_to_new_neighbour
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
@@ -60,7 +60,7 @@ def assimilate_machine(host, port=22, uuid=None):
     """
     log.info("Preparing to machine to be joined into the distributed network")
     download_artifacts(host, port=port)
-    update_meshnet_config(host, port=port, compute_checkout_uuid=uuid)
+    ensure_route_to_new_neighbour(host, port=port, compute_checkout_uuid=uuid)
 
 
 def deploy_meshnet(host, port=22):

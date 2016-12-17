@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.members import show_members
-from raptiformica.actions.mesh import mesh_machine, attempt_join_meshnet
+from raptiformica.actions.mesh import mesh_machine, attempt_join_meshnet, ensure_no_consul_running
 from raptiformica.actions.modules import load_module, unload_module
 from raptiformica.actions.package import package_machine
 from raptiformica.actions.prune import prune_local_machines
@@ -12,6 +12,7 @@ from raptiformica.actions.spawn import spawn_machine
 from raptiformica.actions.ssh_connect import ssh_connect
 from raptiformica.actions.update import update_machine
 from raptiformica.settings import MUTABLE_CONFIG
+from raptiformica.settings.meshnet import update_meshnet_config
 from raptiformica.settings.types import get_server_types, get_first_server_type, get_first_compute_type, \
     get_compute_types
 from raptiformica.log import setup_logging
@@ -276,6 +277,33 @@ def members():
         attempt_join_meshnet()
     else:
         show_members()
+
+
+def parse_inject_arguments():
+    """
+    Parse the commandline options for injecting a host into the local
+    meshnet config
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica inject",
+        description="Add a host to the local meshnet config"
+    )
+    parser.add_argument('host', type=str, help='The host to add')
+    parser.add_argument('--port', '-p', type=int, default=22,
+                        help='Port to use to connect to the remote machine with over SSH')
+    return parse_arguments(parser)
+
+
+def inject():
+    """
+    Add a host to the local meshnet config
+    :return None:
+    """
+    args = parse_inject_arguments()
+    ensure_no_consul_running()
+    update_meshnet_config(args.host, port=args.port)
+    attempt_join_meshnet()
 
 
 def parse_prune_arguments():
