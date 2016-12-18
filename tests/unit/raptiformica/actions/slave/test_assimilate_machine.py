@@ -6,7 +6,9 @@ class TestAssimilateMachine(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.slave.log')
         self.download_artifacts = self.set_up_patch('raptiformica.actions.slave.download_artifacts')
-        self.update_meshnet_config = self.set_up_patch('raptiformica.actions.slave.update_meshnet_config')
+        self.ensure_route_to_new_neighbour = self.set_up_patch(
+            'raptiformica.actions.slave.ensure_route_to_new_neighbour'
+        )
 
     def test_assimilate_machine_logs_assimilating_machine_message(self):
         assimilate_machine('1.2.3.4', port=2222)
@@ -18,18 +20,18 @@ class TestAssimilateMachine(TestCase):
 
         self.download_artifacts.assert_called_once_with('1.2.3.4', port=2222)
 
-    def test_assimilate_machine_updates_meshnet_config(self):
+    def test_assimilate_machine_ensures_route_to_new_neighbour(self):
         assimilate_machine('1.2.3.4', port=2222)
 
-        self.update_meshnet_config.assert_called_once_with(
+        self.ensure_route_to_new_neighbour.assert_called_once_with(
             '1.2.3.4', port=2222,
             compute_checkout_uuid=None
         )
 
-    def test_assimilate_machine_updates_meshnet_config_with_optional_uuid(self):
+    def test_assimilate_machine_update_ensures_route_to_new_neighbour_with_optional_uuid(self):
         assimilate_machine('1.2.3.4', port=2222, uuid='some_uuid_1234')
 
-        self.update_meshnet_config.assert_called_once_with(
+        self.ensure_route_to_new_neighbour.assert_called_once_with(
             '1.2.3.4', port=2222,
             compute_checkout_uuid='some_uuid_1234'
         )

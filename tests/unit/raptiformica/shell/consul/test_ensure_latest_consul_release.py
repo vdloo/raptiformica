@@ -22,7 +22,7 @@ class TestEnsureLatestConsulRelease(TestCase):
         ensure_latest_consul_release('1.2.3.4', port=2222)
 
         expected_binary_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
@@ -32,7 +32,7 @@ class TestEnsureLatestConsulRelease(TestCase):
             'https://releases.hashicorp.com/consul/0.7.1/consul_0.7.1_linux_amd64.zip'
         ]
         expected_web_ui_command = [
-            '/usr/bin/env', 'ssh',
+            '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',

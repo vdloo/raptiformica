@@ -1,4 +1,5 @@
 from logging import getLogger
+from shlex import quote
 
 from raptiformica.settings import RAPTIFORMICA_DIR, CACHE_DIR
 from raptiformica.shell.execute import raise_failure_factory, run_command_remotely, run_command_print_ready
@@ -60,5 +61,25 @@ def mesh(host, port=22):
     # as the current process
     return run_raptiformica_command(
         "export PYTHONPATH=.; ./bin/raptiformica_mesh.py --verbose",
+        host, port=port
+    )
+
+
+def inject(host_to_inject, host_to_inject_port, host, port=22):
+    """
+    Inject a host into the meshnet config on a remote machine
+    :param str host_to_inject: hostname of the host to inject
+    :param int host_to_inject_port: ssh port of the host to inject
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int exit_code: Exit code from the ./bin/raptiformica_inject.py command
+    """
+    log.info("Injecting the specified host on the remote host")
+    return run_raptiformica_command(
+        "export PYTHONPATH=.; ./bin/raptiformica_inject.py "
+        "--verbose {} --port {}".format(
+            quote(host_to_inject),
+            quote(str(host_to_inject_port))
+        ),
         host, port=port
     )

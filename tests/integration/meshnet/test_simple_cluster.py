@@ -2,6 +2,19 @@ from tests.testcase import IntegrationTestCase
 
 
 class TestSimpleCluster(IntegrationTestCase):
+    """
+    Test a simple cluster of three Docker instances in the same subnet.
+    All instances can reach each other directly over an IPv4 interface.
+
+    All instances can reach all instances
+
+    .===.   .===.   .===.
+    | A |<->| B |<->| C |
+    '=|='   '==='   '-|-'
+      '======<=>======'
+
+    This simulates a subnet in a data-center for example.
+    """
     def spawn_docker_instance(self):
         self.run_raptiformica_command("spawn --server-type headless --compute-type docker")
 

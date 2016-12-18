@@ -20,7 +20,7 @@ def download(source, destination, host, port=22):
     :return bool status: success or failure
     """
     download_command = [
-        '/usr/bin/env', 'rsync', '-q', '-a', '-L', '-avz',
+        '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
         '-ignore-missing-args',  # Don't warn when downloading from self
         'root@{}:{}'.format(host, source), destination,
         '--exclude=.venv', '--exclude=*.pyc',
@@ -51,7 +51,7 @@ def upload(source, destination, host, port=22):
     :return bool status: success or failure
     """
     upload_command = [
-        '/usr/bin/env', 'rsync', '-q', '-a', '-L', '-avz',
+        '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
         source, 'root@{}:{}'.format(host, destination),
         '--exclude=.venv', '--exclude=*.pyc',
         '--exclude=var',

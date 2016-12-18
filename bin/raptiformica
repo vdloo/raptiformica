@@ -12,6 +12,7 @@ UPDATE_ENTRYPOINT="raptiformica_update.py"
 HOOK_ENTRYPOINT="raptiformica_hook.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
+INJECT_ENTRYPOINT="raptiformica_inject.py"
 
 function print_help {
     cat <<'END'
@@ -45,6 +46,9 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   hook                       Run all handlers for a specific 
                              hook from the config
+
+  inject                     Add a host to the local meshnet 
+                             configuration.
 
   members                    Show the members of the 
                              distributed network.
@@ -92,6 +96,10 @@ case $1 in
     ;;
     hook)
     RAPTIFORMICA_CMD=$HOOK_ENTRYPOINT
+    shift
+    ;;
+    inject)
+    RAPTIFORMICA_CMD=$INJECT_ENTRYPOINT
     shift
     ;;
     package)

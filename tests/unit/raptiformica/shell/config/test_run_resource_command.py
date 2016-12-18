@@ -20,7 +20,7 @@ class TestRunResourceCommand(TestCase):
     def test_run_resource_command_runs_command_remotely_print_ready(self):
         run_resource_command(self.resource_command, 'puppetfiles', '1.2.3.4', port=2222)
 
-        expected_remote_command = "/usr/bin/env ssh " \
+        expected_remote_command = "/usr/bin/env ssh -A " \
                                   "-o ConnectTimeout=5 " \
                                   "-o StrictHostKeyChecking=no " \
                                   "-o UserKnownHostsFile=/dev/null " \
