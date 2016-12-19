@@ -10,7 +10,7 @@ class TestSimpleCluster(IntegrationTestCase):
 
     .===.   .===.   .===.
     | A |<->| B |<->| C |
-    '=|='   '==='   '-|-'
+    '=|='   '==='   '=|='
       '======<=>======'
 
     This simulates a subnet in a data-center for example.
