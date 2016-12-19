@@ -24,7 +24,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             '-o PasswordAuthentication=no '
             'root@1.2.3.4 -p 2222 \''
             'type pacman 1> /dev/null && '
-            'pacman -S --noconfirm nodejs base-devel --needed '
+            'pacman -S --noconfirm nodejs base-devel iputils --needed '
             '|| /bin/true'
             '\'',
             buffered=False, shell=True
@@ -38,7 +38,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             'root@1.2.3.4 -p 2222 \''
             'type apt-get 1> /dev/null && '
             'apt-get install -yy nodejs '
-            'build-essential git python '
+            'build-essential git python iputils-ping '
             '|| /bin/true'
             '\'',
             buffered=False, shell=True
@@ -51,14 +51,14 @@ class TestEnsureCjdnsDependencies(TestCase):
 
         expected_archlinux_call = call(
             'type pacman 1> /dev/null && '
-            'pacman -S --noconfirm nodejs base-devel --needed '
+            'pacman -S --noconfirm nodejs base-devel iputils --needed '
             '|| /bin/true',
             buffered=False, shell=True
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
             'apt-get install -yy nodejs '
-            'build-essential git python '
+            'build-essential git python iputils-ping '
             '|| /bin/true',
             buffered=False, shell=True
         )
