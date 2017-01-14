@@ -76,13 +76,17 @@ def deploy_meshnet(host, port=22):
     mesh(host, port=port)
 
 
-def slave_machine(host, port=22, provision=True, assimilate=True, server_type=None, uuid=None):
+def slave_machine(host, port=22, provision=True, assimilate=True,
+                  after_assimilate=True, server_type=None, uuid=None):
     """
-    Provision the remote machine and optionally (default yes) assimilate it into the network.
+    Provision the remote machine and optionally (default yes) assimilate it
+    into the network.
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param bool provision: whether or not we should assimilate the remote machine
     :param bool assimilate: whether or not we should assimilate the remote machine
+    :param bool after_assimilate: whether or not we should perform the after
+    assimilation hooks
     :param str server_type: name of the server type to provision the machine as
     :param str uuid: identifier for a local compute checkout
     :return None:
@@ -96,4 +100,5 @@ def slave_machine(host, port=22, provision=True, assimilate=True, server_type=No
     if assimilate:
         assimilate_machine(host, port=port, uuid=uuid)
         deploy_meshnet(host, port=port)
-        fire_hooks('after_assimilate')
+        if after_assimilate:
+            fire_hooks('after_assimilate')

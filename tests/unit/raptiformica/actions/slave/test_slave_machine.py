@@ -88,3 +88,18 @@ class TestSlaveMachine(TestCase):
         slave_machine('1.2.3.4', port=2222, assimilate=False)
 
         self.assertFalse(self.deploy_meshnet.called)
+
+    def test_slave_machine_does_not_perform_after_assimilate_hooks_if_assimilate_is_false(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=False)
+
+    def test_slave_machine_does_not_perform_after_assimilate_hooks_if_assimilate_is_false_and_perform_assimilate(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=False, after_assimilate=True)
+
+        expected_call = call('after_assimilate')
+        self.assertNotIn(expected_call, self.fire_hooks.mock_calls)
+
+    def test_slave_machine_performs_after_assimilate_hooks_if_assimilate_and_after_assimilate(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=True, after_assimilate=True)
+
+        expected_call = call('after_assimilate')
+        self.assertIn(expected_call, self.fire_hooks.mock_calls)

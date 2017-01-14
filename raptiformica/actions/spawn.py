@@ -65,11 +65,13 @@ def start_compute_type(server_type=None, compute_type=None):
     )
 
 
-def spawn_machine(provision=False, assimilate=False, server_type=None, compute_type=None, only_check_available=False):
+def spawn_machine(provision=False, assimilate=False, after_assimilate=False, server_type=None, compute_type=None, only_check_available=False):
     """
     Start a new instance, provision it and join it into the distributed network
     :param bool provision: whether or not we should assimilate the remote machine
     :param bool assimilate: whether or not we should assimilate the remote machine
+    :param bool after_assimilate: whether or not we should perform the after
+    assimilation hooks
     :param str server_type: name of the server type to provision the machine as
     :param str compute_type: name of the compute type to start an instance on
     :param bool only_check_available: Don't really spawn a machine, just check if this host could
@@ -91,6 +93,7 @@ def spawn_machine(provision=False, assimilate=False, server_type=None, compute_t
         slave_machine(
             host, port=port,
             assimilate=assimilate,
+            after_assimilate=after_assimilate,
             provision=provision,
             server_type=server_type,
             uuid=uuid

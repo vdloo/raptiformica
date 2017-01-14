@@ -45,6 +45,7 @@ class TestSpawnMachine(TestCase):
             port=2222,
             provision=True,
             assimilate=False,
+            after_assimilate=False,
             server_type=self.get_first_server_type.return_value,
             uuid='some_uuid_1234'
         )
@@ -64,13 +65,14 @@ class TestSpawnMachine(TestCase):
 
     def test_spawn_machine_slave_machine_with_provided_server_type(self):
         spawn_machine(server_type='workstation', compute_type='docker',
-                      provision=True, assimilate=True)
+                      provision=True, assimilate=True, after_assimilate=True)
 
         self.slave_machine.assert_called_once_with(
             '127.0.0.1',
             port=2222,
             provision=True,
             assimilate=True,
+            after_assimilate=True,
             server_type='workstation',
             uuid='some_uuid_1234'
         )
