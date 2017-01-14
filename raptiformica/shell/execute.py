@@ -1,8 +1,11 @@
 from functools import partial
+from os import environ
 from shlex import quote
 from subprocess import Popen, PIPE
 from logging import getLogger
 from sys import stdout
+
+from raptiformica.settings import CACHE_DIR
 
 log = getLogger(__name__)
 
@@ -66,11 +69,14 @@ def execute_process(command, buffered=True, shell=False):
     :return tuple (exit code, standard out, standard error):
     """
     log.debug("Running command: {}".format(command))
+    env = dict(**environ)
+    env['RAPTIFORMICA_CACHE_DIR'] = CACHE_DIR
     process = Popen(
         command, stdout=PIPE,
         universal_newlines=buffered,
         stderr=PIPE, shell=shell,
-        bufsize=-1 if buffered else 0
+        bufsize=-1 if buffered else 0,
+        env=env
     )
     if not buffered:
         for line in iter(process.stdout.readline, b''):
