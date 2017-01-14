@@ -4,9 +4,17 @@ from tests.testcase import TestCase
 
 class TestDestroy(TestCase):
     def setUp(self):
-        self.parse_destroy_arguments = self.set_up_patch('raptiformica.cli.parse_destroy_arguments')
+        self.parse_destroy_arguments = self.set_up_patch(
+            'raptiformica.cli.parse_destroy_arguments'
+        )
         self.args = self.parse_destroy_arguments.return_value
-        self.destroy_cluster = self.set_up_patch('raptiformica.cli.destroy_cluster')
+        # patching the original function instead of the function in the scope
+        # of cli.py because this is a conditional import and so that function
+        # won't be available to patch until the function that imports it is
+        # evaluated.
+        self.destroy_cluster = self.set_up_patch(
+            'raptiformica.actions.destroy.destroy_cluster'
+        )
 
     def test_destroy_parses_destroy_arguments(self):
         destroy()

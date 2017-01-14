@@ -7,11 +7,15 @@ class TestModprobe(TestCase):
         self.parse_modprobe_arguments = self.set_up_patch(
             'raptiformica.cli.parse_modprobe_arguments'
         )
+        # patching the original functions instead of the functions in the scope
+        # of cli.py because these are conditional imports and so the functions
+        # won't be available to patch until the function that imports it is
+        # evaluated.
         self.unload_module = self.set_up_patch(
-            'raptiformica.cli.unload_module'
+            'raptiformica.actions.modules.unload_module'
         )
         self.load_module = self.set_up_patch(
-            'raptiformica.cli.load_module'
+            'raptiformica.actions.modules.load_module'
         )
 
     def test_modprobe_parses_modprobe_arguments(self):

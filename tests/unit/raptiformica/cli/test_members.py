@@ -4,10 +4,20 @@ from tests.testcase import TestCase
 
 class TestMembers(TestCase):
     def setUp(self):
-        self.parse_members_arguments = self.set_up_patch('raptiformica.cli.parse_members_arguments')
+        self.parse_members_arguments = self.set_up_patch(
+            'raptiformica.cli.parse_members_arguments'
+        )
         self.parse_members_arguments.return_value.rejoin = False
-        self.show_members = self.set_up_patch('raptiformica.cli.show_members')
-        self.attempt_join_meshnet = self.set_up_patch('raptiformica.cli.attempt_join_meshnet')
+        # patching the original functions instead of the functions in the scope
+        # of cli.py because these are conditional imports and so the functions
+        # won't be available to patch until the function that imports it is
+        # evaluated.
+        self.attempt_join_meshnet = self.set_up_patch(
+            'raptiformica.actions.mesh.attempt_join_meshnet'
+        )
+        self.show_members = self.set_up_patch(
+            'raptiformica.actions.members.show_members'
+        )
 
     def test_members_parses_members_arguments(self):
         members()

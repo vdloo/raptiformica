@@ -6,13 +6,21 @@ from tests.testcase import TestCase
 
 class TestSpawn(TestCase):
     def setUp(self):
-        self.parse_spawn_arguments = self.set_up_patch('raptiformica.cli.parse_spawn_arguments')
+        self.parse_spawn_arguments = self.set_up_patch(
+            'raptiformica.cli.parse_spawn_arguments'
+        )
         self.parse_spawn_arguments.return_value = Mock(
             no_provision=False, no_assimilate=False,
             server_type='headless', compute_type='vagrant',
             check_available=False
         )
-        self.spawn_machine = self.set_up_patch('raptiformica.cli.spawn_machine')
+        # patching the original function instead of the function in the scope
+        # of cli.py because this is a conditional import and so that function
+        # won't be available to patch until the function that imports it is
+        # evaluated.
+        self.spawn_machine = self.set_up_patch(
+            'raptiformica.actions.spawn.spawn_machine'
+        )
 
     def test_spawn_parses_spawn_arguments(self):
         spawn()
