@@ -13,8 +13,9 @@ log = getLogger(__name__)
 def determine_clone_data(name):
     """
     Compose a triple of git repo and checkout name
-    :param name:
-    :return:
+    :param str name: name of the module to compose the clone data for
+    :return tuple[str, str]: Tuple of the url to clone and the relative
+    directory it should be cloned to
     """
     parts = name.split('/')
     if len(parts) == 2:
