@@ -1,4 +1,4 @@
-from raptiformica.settings import PROJECT_DIR, INSTALL_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.rsync import upload
 from tests.testcase import TestCase
 
@@ -12,14 +12,13 @@ class TestUpload(TestCase):
         self.execute_process.return_value = self.process_output
 
     def test_upload_runs_upload_command(self):
-        upload(PROJECT_DIR, INSTALL_DIR, '1.2.3.4', port=22)
+        upload(conf().PROJECT_DIR, conf().INSTALL_DIR, '1.2.3.4', port=22)
 
         expected_upload_command = [
-            '/usr/bin/env', 'rsync', '-q', '--force', '-avz', PROJECT_DIR,
-            'root@1.2.3.4:{}'.format(INSTALL_DIR), '--exclude=.venv',
-            '--exclude=*.pyc', '--exclude=var', '-e',
-            'ssh -p 22 '
-            '-oStrictHostKeyChecking=no '
+            '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
+            conf().PROJECT_DIR, 'root@1.2.3.4:{}'.format(conf().INSTALL_DIR),
+            '--exclude=.venv', '--exclude=*.pyc', '--exclude=var', '-e',
+            'ssh -p 22 -oStrictHostKeyChecking=no '
             '-oUserKnownHostsFile=/dev/null'
         ]
         self.execute_process.assert_called_once_with(
@@ -33,9 +32,13 @@ class TestUpload(TestCase):
         self.execute_process.return_value = self.process_output
 
         with self.assertRaises(RuntimeError):
-            upload(PROJECT_DIR, INSTALL_DIR, '1.2.3.4', port=22)
+            upload(
+                conf().PROJECT_DIR, conf().INSTALL_DIR, '1.2.3.4', port=22
+            )
 
     def test_upload_returns_command_exit_code(self):
-        ret = upload(PROJECT_DIR, INSTALL_DIR, '1.2.3.4', port=22)
+        ret = upload(
+            conf().PROJECT_DIR, conf().INSTALL_DIR, '1.2.3.4', port=22
+        )
 
         self.assertEqual(ret, 0)

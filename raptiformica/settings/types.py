@@ -1,7 +1,7 @@
 from functools import partial
 from logging import getLogger
 
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config
 from raptiformica.shell.types import check_type_available
 
@@ -15,7 +15,7 @@ def list_types_from_config(item):
     :return dict_keys types: list of all the types for the item like ['headless, 'workstation']
     """
     config = get_config()
-    return config[KEY_VALUE_PATH][item].keys()
+    return config[conf().KEY_VALUE_PATH][item].keys()
 
 
 def get_available_types_for_item(item):
@@ -99,7 +99,7 @@ def retrieve_compute_type_config_for_server_type(server_type=None, compute_type=
     compute_type = compute_type or get_first_compute_type()
     config = get_config()
     try:
-        return config[KEY_VALUE_PATH]['compute'][compute_type][server_type]
+        return config[conf().KEY_VALUE_PATH]['compute'][compute_type][server_type]
     except KeyError:
         raise RuntimeError(
             "This compute type has no implementation "

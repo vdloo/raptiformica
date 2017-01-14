@@ -1,7 +1,7 @@
 from os.path import join
 
 from raptiformica.actions.modules import load_configs
-from raptiformica.settings import USER_MODULES_DIR
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -35,7 +35,7 @@ class TestLoadConfigs(TestCase):
         load_configs('vdloo/puppetfiles')
 
         self.on_disk_mapping.assert_called_once_with(
-            module_dirs=(join(USER_MODULES_DIR, 'puppetfiles'),)
+            module_dirs=(join(conf().USER_MODULES_DIR, 'puppetfiles'),)
         )
 
     def test_load_configs_logs_debug_message(self):

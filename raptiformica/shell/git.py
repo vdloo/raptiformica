@@ -1,11 +1,10 @@
 from functools import partial
 from logging import getLogger
 from shlex import quote
-
 from functools import reduce
 from os.path import join
 
-from raptiformica.settings import INSTALL_DIR, CACHE_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.execute import run_command_print_ready, \
     log_failure_factory, run_command
 from raptiformica.utils import ensure_directory
@@ -139,7 +138,7 @@ def ensure_latest_source_success_factory(provisioning_directory, host=None, port
     return ensure_latest_source_success
 
 
-def ensure_latest_source(source, name, destination=INSTALL_DIR, host=None, port=22):
+def ensure_latest_source(source, name, destination=None, host=None, port=22):
     """
     Ensure a repository is checked out and the latest version in the name directory
     in the INSTALL DIR on the specified machine
@@ -153,6 +152,7 @@ def ensure_latest_source(source, name, destination=INSTALL_DIR, host=None, port=
     1 when there already was a checkout
     """
     log.info("Ensuring latest source for {} from {}".format(name, source))
+    destination = destination or conf().INSTALL_DIR
     provisioning_directory = join(destination, name)
     test_directory_exists_command = ['test', '-d', provisioning_directory]
 
@@ -168,7 +168,7 @@ def ensure_latest_source(source, name, destination=INSTALL_DIR, host=None, port=
     return exit_code
 
 
-def ensure_latest_source_from_artifacts(source, name, destination=INSTALL_DIR, host=None, port=22):
+def ensure_latest_source_from_artifacts(source, name, destination=None, host=None, port=22):
     """
     Ensure a repository is checked out and the latest version in the name directory
     in the INSTALL DIR on the specified machine. Caches the repository in artifacts
@@ -183,8 +183,9 @@ def ensure_latest_source_from_artifacts(source, name, destination=INSTALL_DIR, h
     1 when there already was a checkout
     """
     repositories_directory = reduce(
-        join, (CACHE_DIR, 'artifacts', 'repositories')
+        join, (conf().CACHE_DIR, 'artifacts', 'repositories')
     )
+    destination = destination or conf().INSTALL_DIR
     ensure_directory(repositories_directory)
     source_dir = join(repositories_directory, name)
     cached_repo = 'file:///root/{}'.format(source_dir)

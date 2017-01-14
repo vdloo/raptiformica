@@ -1,4 +1,4 @@
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready
@@ -44,7 +44,7 @@ def check_type_available(item, type_name):
         endswith('/available'),
         filter(
             startswith('{}/{}/{}/'.format(
-                KEY_VALUE_PATH, item, type_name
+                conf().KEY_VALUE_PATH, item, type_name
             )),
             mapped
         )

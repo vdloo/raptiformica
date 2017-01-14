@@ -2,7 +2,7 @@ from os.path import join, isfile
 from logging import getLogger
 from shutil import rmtree
 
-from raptiformica.settings import CJDNS_DEFAULT_PORT, RAPTIFORMICA_DIR, KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, run_command, check_nonzero_exit, \
     log_failure_factory, raise_failure_factory
@@ -26,7 +26,7 @@ def list_neighbours(mapping):
     :param dict mapping: the config mapping to parse the neighbours from
     :return iter[str, ..]: public keys of all neighbours in the config
     """
-    neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
+    neighbours_path = "{}/meshnet/neighbours/".format(conf().KEY_VALUE_PATH)
     public_keys = set(map(
         lambda p: p.replace(neighbours_path, '').split('/')[0],
         filter(
@@ -43,7 +43,7 @@ def get_cjdns_password(mapping):
     :param dict mapping: the config mapping to get the shared secret from
     :return str secret: the shared cjdns secret
     """
-    return mapping["{}/meshnet/cjdns/password".format(KEY_VALUE_PATH)]
+    return mapping["{}/meshnet/cjdns/password".format(conf().KEY_VALUE_PATH)]
 
 
 def get_consul_password(mapping):
@@ -52,7 +52,7 @@ def get_consul_password(mapping):
     :param dict mapping: the config mapping to get the shared secret from
     :return str secret: the shared consul secret
     """
-    return mapping["{}/meshnet/consul/password".format(KEY_VALUE_PATH)]
+    return mapping["{}/meshnet/consul/password".format(conf().KEY_VALUE_PATH)]
 
 
 def parse_cjdns_neighbours(mapping):
@@ -69,7 +69,7 @@ def parse_cjdns_neighbours(mapping):
     local_public_key = cjdroute_config['publicKey']
 
     neighbours_path = "{}/meshnet/neighbours/".format(
-        KEY_VALUE_PATH
+        conf().KEY_VALUE_PATH
     )
     public_keys = list_neighbours(mapping)
     for pk in public_keys:
@@ -105,7 +105,7 @@ def configure_cjdroute_conf():
     neighbours = parse_cjdns_neighbours(mapping)
     cjdroute_config['interfaces']['UDPInterface'] = [{
         'connectTo': neighbours,
-        'bind': '0.0.0.0:{}'.format(CJDNS_DEFAULT_PORT)
+        'bind': '0.0.0.0:{}'.format(conf().CJDNS_DEFAULT_PORT)
     }]
     write_json(cjdroute_config, CJDROUTE_CONF_PATH)
 
@@ -123,7 +123,7 @@ def configure_consul_conf():
                              "cd '{}'; " \
                              "export PYTHONPATH=.; " \
                              "./bin/raptiformica_hook.py cluster_change " \
-                             "--verbose\"".format(RAPTIFORMICA_DIR)
+                             "--verbose\"".format(conf().RAPTIFORMICA_DIR)
     shared_secret = get_consul_password(get_config_mapping())
     consul_config = {
         'bootstrap_expect': 3,
@@ -514,7 +514,7 @@ def get_neighbour_hosts(mapping):
     :param dict mapping: Key value mapping with the config data
     :return list ipv6_addresses: All known neighbour hosts
     """
-    neighbours_path = "{}/meshnet/neighbours/".format(KEY_VALUE_PATH)
+    neighbours_path = "{}/meshnet/neighbours/".format(conf().KEY_VALUE_PATH)
     public_keys = list_neighbours(mapping)
     ipv6_addresses = list()
     for pk in public_keys:

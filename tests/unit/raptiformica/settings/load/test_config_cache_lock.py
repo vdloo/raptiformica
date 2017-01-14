@@ -1,7 +1,7 @@
 from mock import Mock, call
 
 from fcntl import LOCK_EX, LOCK_UN
-from raptiformica.settings import CONFIG_CACHE_LOCK
+from raptiformica.settings import conf
 from raptiformica.settings.load import config_cache_lock
 from tests.testcase import TestCase
 
@@ -17,7 +17,7 @@ class TestConfigCacheLock(TestCase):
     def test_config_cache_lock_opens_cache_config_log_with_w_plus(self):
         with config_cache_lock():
             self.open.assert_called_once_with(
-                CONFIG_CACHE_LOCK, 'w+'
+                conf().CONFIG_CACHE_LOCK, 'w+'
             )
 
     def test_config_cache_lock_flock_locks_lock_file_before_context(self):

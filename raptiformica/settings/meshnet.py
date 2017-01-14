@@ -4,7 +4,7 @@ from logging import getLogger
 
 from raptiformica.distributed.events import send_reload_meshnet
 from raptiformica.distributed.ping import find_host_that_can_ping
-from raptiformica.settings import CJDNS_DEFAULT_PORT, KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
 from raptiformica.shell.raptiformica import inject
@@ -21,7 +21,7 @@ def ensure_shared_secret(service):
     """
     mapping = get_config_mapping()
     shared_secret_path = "{}/meshnet/{}/password".format(
-        KEY_VALUE_PATH, service
+        conf().KEY_VALUE_PATH, service
     )
     if not mapping.get(shared_secret_path):
         log.info("Generating new {} secret".format(service))
@@ -64,7 +64,7 @@ def update_neighbours_config(host, port=22, uuid=None):
 
     neighbour_entry = {
         'host': host,
-        'cjdns_port': CJDNS_DEFAULT_PORT,
+        'cjdns_port': conf().CJDNS_DEFAULT_PORT,
         'cjdns_public_key': cjdns_public_key,
         'cjdns_ipv6_address': cjdns_ipv6_address,
         # todo: get this port dynamically from the cjdroute.conf
@@ -74,7 +74,7 @@ def update_neighbours_config(host, port=22, uuid=None):
         neighbour_entry['uuid'] = uuid
 
     neighbour_path = "{}/meshnet/neighbours/{}/".format(
-        KEY_VALUE_PATH, cjdns_public_key
+        conf().KEY_VALUE_PATH, cjdns_public_key
     )
     neighbour_mapping = {
         join(neighbour_path, k): v for k, v in neighbour_entry.items()

@@ -1,4 +1,4 @@
-from raptiformica.settings import MUTABLE_CONFIG
+from raptiformica.settings import conf
 from raptiformica.settings.load import cache_config_mapping
 from tests.testcase import TestCase
 
@@ -22,6 +22,6 @@ class TestCacheConfig(TestCase):
 
         self.write_config.assert_called_once_with(
             self.mapping,
-            MUTABLE_CONFIG
+            conf().MUTABLE_CONFIG
         )
 

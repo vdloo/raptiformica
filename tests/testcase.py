@@ -5,7 +5,7 @@ from uuid import uuid4
 from mock import patch, Mock
 from shutil import rmtree
 
-from raptiformica.settings import ABS_CACHE_DIR, PROJECT_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import upload_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
 
@@ -20,7 +20,7 @@ class TestCase(unittest.TestCase):
 class IntegrationTestCase(TestCase):
     def run_raptiformica_command(self, parameters, buffered=False):
         raptiformica_command = "{}/bin/raptiformica {}".format(
-            PROJECT_DIR.rstrip('/'), parameters
+            conf().PROJECT_DIR.rstrip('/'), parameters
         )
         _, standard_out, standard_error = run_command_print_ready(
             raptiformica_command,
@@ -36,7 +36,7 @@ class IntegrationTestCase(TestCase):
         :return str output: The buffered output if buffered was True
         """
         raptiformica_command = "`{}/bin/raptiformica ssh --info-only` {}".format(
-            PROJECT_DIR.rstrip('/'), command_as_string
+            conf().PROJECT_DIR.rstrip('/'), command_as_string
         )
         _, standard_out, standard_error = run_command_print_ready(
             raptiformica_command,
@@ -65,7 +65,7 @@ class IntegrationTestCase(TestCase):
         )
 
     def clean_up_cache_dir(self):
-        rmtree(ABS_CACHE_DIR, ignore_errors=True)
+        rmtree(conf().ABS_CACHE_DIR, ignore_errors=True)
 
     def setUp(self):
         self.kill_all_dockers()

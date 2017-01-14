@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from raptiformica.settings import RAPTIFORMICA_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.hooks import collect_hooks
 from raptiformica.settings.types import get_first_platform_type
 from raptiformica.shell.execute import log_failure_factory, run_command_in_directory_factory
@@ -18,12 +18,12 @@ def fire_hook(hook):
     """
     log.debug("Firing hook..")
     run_predicate_print_ready = run_command_in_directory_factory(
-        RAPTIFORMICA_DIR, hook['predicate']
+        conf().RAPTIFORMICA_DIR, hook['predicate']
     )
     exit_code, _, _ = run_predicate_print_ready()
     if exit_code == 0:
         run_command_in_directory_partial = run_command_in_directory_factory(
-            RAPTIFORMICA_DIR, hook['command']
+            conf().RAPTIFORMICA_DIR, hook['command']
         )
         run_command_in_directory_partial(
             buffered=False,

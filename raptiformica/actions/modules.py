@@ -3,7 +3,7 @@ from logging import getLogger
 
 from shutil import rmtree
 
-from raptiformica.settings import USER_MODULES_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import on_disk_mapping, try_delete_config, try_update_config_mapping
 from raptiformica.shell.git import clone_source
 
@@ -39,7 +39,7 @@ def retrieve_module(module_name):
     log.debug("Cloning from {}".format(url))
     clone_source(
         url,
-        join(USER_MODULES_DIR, directory)
+        join(conf().USER_MODULES_DIR, directory)
     )
 
 
@@ -50,7 +50,7 @@ def load_configs(module_name):
     :return:
     """
     _, directory = determine_clone_data(module_name)
-    module_directory = join(USER_MODULES_DIR, directory)
+    module_directory = join(conf().USER_MODULES_DIR, directory)
     mapping = on_disk_mapping(module_dirs=(module_directory,))
     log.debug("Loading keys for {} into the config".format(module_name))
     try_update_config_mapping(mapping)
@@ -100,7 +100,7 @@ def unload_module(module_name):
     :return None:
     """
     _, directory = determine_clone_data(module_name)
-    module_directory = join(USER_MODULES_DIR, directory)
+    module_directory = join(conf().USER_MODULES_DIR, directory)
     mapping = on_disk_mapping(module_dirs=(module_directory,))
     remove_keys(mapping, module_directory)
     refresh_keys(mapping)

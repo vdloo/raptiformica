@@ -7,18 +7,14 @@ class TestInject(TestCase):
         self.parse_inject_arguments = self.set_up_patch(
             'raptiformica.cli.parse_inject_arguments'
         )
-        # patching the original functions instead of the functions in the scope
-        # of cli.py because these are conditional imports and so the functions
-        # won't be available to patch until the function that imports it is
-        # evaluated.
         self.ensure_no_consul_running = self.set_up_patch(
-            'raptiformica.actions.mesh.ensure_no_consul_running'
+            'raptiformica.cli.ensure_no_consul_running'
         )
         self.update_meshnet_config = self.set_up_patch(
-            'raptiformica.settings.meshnet.update_meshnet_config'
+            'raptiformica.cli.update_meshnet_config'
         )
         self.attempt_join_meshnet = self.set_up_patch(
-            'raptiformica.actions.mesh.attempt_join_meshnet'
+            'raptiformica.cli.attempt_join_meshnet'
         )
 
     def test_inject_parses_inject_arguments(self):

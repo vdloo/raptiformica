@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 from logging import getLogger
 from sys import stdout
 
-from raptiformica.settings import CACHE_DIR
+from raptiformica.settings import conf
 
 log = getLogger(__name__)
 
@@ -70,7 +70,7 @@ def execute_process(command, buffered=True, shell=False):
     """
     log.debug("Running command: {}".format(command))
     env = dict(**environ)
-    env['RAPTIFORMICA_CACHE_DIR'] = CACHE_DIR
+    env['RAPTIFORMICA_CACHE_DIR'] = conf().CACHE_DIR
     process = Popen(
         command, stdout=PIPE,
         universal_newlines=buffered,

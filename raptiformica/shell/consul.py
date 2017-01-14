@@ -2,7 +2,7 @@ from collections import defaultdict
 from os import path
 from logging import getLogger
 
-from raptiformica.settings import RAPTIFORMICA_DIR, CONSUL_WEB_UI_DIR, MACHINE_ARCH
+from raptiformica.settings import conf
 from raptiformica.shell.execute import run_critical_unbuffered_command_print_ready, \
     run_multiple_labeled_commands
 from raptiformica.shell.unzip import unzip
@@ -16,7 +16,7 @@ CONSUL_ARCHES = defaultdict(
     x86_64='https://releases.hashicorp.com/consul/0.7.1/consul_0.7.1_linux_amd64.zip',
     armv71='https://releases.hashicorp.com/consul/0.7.1/consul_0.7.1_linux_arm.zip'
 )
-CONSUL_RELEASE = CONSUL_ARCHES[MACHINE_ARCH]
+CONSUL_RELEASE = CONSUL_ARCHES[conf().MACHINE_ARCH]
 CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.1/consul_0.7.1_web_ui.zip'
 
 
@@ -82,10 +82,13 @@ def unzip_consul_web_ui(host=None, port=22):
     :param int port: port to use to connect to the remote machine over ssh
     :return None:
     """
-    log.info("Making sure the web_ui is placed in {}".format(CONSUL_WEB_UI_DIR))
+    log.info(
+        "Making sure the web_ui is placed in "
+        "{}".format(conf().CONSUL_WEB_UI_DIR)
+    )
     unzip(
         zip_file=CONSUL_WEB_UI_RELEASE.split('/')[-1],
-        unpack_dir=CONSUL_WEB_UI_DIR,
+        unpack_dir=conf().CONSUL_WEB_UI_DIR,
         host=host, port=port,
         failure_message="Failed to unpack the consul web ui"
     )
@@ -110,7 +113,9 @@ def consul_setup(host=None, port=22):
     :return int exit_code: exit code of the configured bootstrap command
     """
     log.info("Build, configure and install CJDNS")
-    setup_script = path.join(RAPTIFORMICA_DIR, 'resources/setup_consul.sh')
+    setup_script = path.join(
+        conf().RAPTIFORMICA_DIR, 'resources/setup_consul.sh'
+    )
     cjdns_setup_command = [setup_script]
     exit_code, _, _ = run_critical_unbuffered_command_print_ready(
         cjdns_setup_command, host=host, port=port,

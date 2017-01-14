@@ -3,7 +3,7 @@ from os import listdir
 from os.path import join, isdir
 from shutil import rmtree
 
-from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR, KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import try_delete_config, get_config
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type, \
     retrieve_compute_type_config_for_server_type, get_compute_types, get_server_types
@@ -63,7 +63,8 @@ def list_compute_checkouts_for_server_type_of_compute_type(server_type, compute_
     item the server type, the second item the compute checkout and the third item the directory of the checkout
     """
     compute_checkouts = list()
-    directories = EPHEMERAL_DIR, MACHINES_DIR, compute_type, server_type
+    directories = conf().EPHEMERAL_DIR, conf().MACHINES_DIR, compute_type, \
+        server_type
     server_type_of_compute_type_directory = join(*directories)
     if isdir(server_type_of_compute_type_directory):
         for compute_checkout in listdir(server_type_of_compute_type_directory):
@@ -172,10 +173,10 @@ def get_neighbours_by_uuid(uuid):
     Should only be one, but in case there are more those should also be dealt with.
     """
     config = get_config()
-    meshnet_config = config[KEY_VALUE_PATH].get('meshnet', {})
+    meshnet_config = config[conf().KEY_VALUE_PATH].get('meshnet', {})
     neighbours = meshnet_config.get('neighbours', {})
     return [
-        '{}/meshnet/neighbours/{}/'.format(KEY_VALUE_PATH, k)
+        '{}/meshnet/neighbours/{}/'.format(conf().KEY_VALUE_PATH, k)
         for k, v in neighbours.items() if v['uuid'] == uuid
     ]
 

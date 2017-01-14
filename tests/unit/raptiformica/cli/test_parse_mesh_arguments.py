@@ -1,5 +1,5 @@
 from raptiformica.cli import parse_mesh_arguments
-from raptiformica.settings import MUTABLE_CONFIG
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -15,7 +15,7 @@ class TestParseMeshArguments(TestCase):
             prog='raptiformica mesh',
             description='Deploy a mesh configuration based on the {} config '
                         'file on this machine and attempt to join '
-                        'the distributed network'.format(MUTABLE_CONFIG)
+                        'the distributed network'.format(conf().MUTABLE_CONFIG)
         )
 
     def test_parse_mesh_arguments_adds_arguments(self):

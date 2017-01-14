@@ -1,5 +1,5 @@
 from raptiformica.actions.prune import get_neighbours_by_uuid
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -9,7 +9,7 @@ class TestGetNeighboursByUuid(TestCase):
             'raptiformica.actions.prune.get_config'
         )
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {
+            conf().KEY_VALUE_PATH: {
                 'meshnet': {
                     'neighbours': {
                         'neighbour_1.k': {
@@ -61,7 +61,7 @@ class TestGetNeighboursByUuid(TestCase):
 
     def test_get_neighbours_by_uuid_returns_empty_iterable_if_no_neighbours(self):
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {
+            conf().KEY_VALUE_PATH: {
                 'meshnet': {}
             }
         }
@@ -72,7 +72,7 @@ class TestGetNeighboursByUuid(TestCase):
 
     def test_get_neighbours_by_uuid_returns_empty_iterable_if_no_meshnet_config(self):
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {}
+            conf().KEY_VALUE_PATH: {}
         }
 
         ret = get_neighbours_by_uuid('eb442c6170694b12b277c9e88d714cf2')

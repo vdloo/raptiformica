@@ -1,6 +1,6 @@
 from mock import ANY
 
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import download_config_mapping
 from tests.testcase import TestCase
 
@@ -19,7 +19,7 @@ class TestDownloadConfigMapping(TestCase):
         download_config_mapping()
 
         self.get_mapping.assert_called_once_with(
-            KEY_VALUE_PATH
+            conf().KEY_VALUE_PATH
         )
 
     def test_download_config_mapping_returns_mapping(self):

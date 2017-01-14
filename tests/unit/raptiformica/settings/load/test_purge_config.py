@@ -1,4 +1,4 @@
-from raptiformica.settings import USER_ARTIFACTS_DIR, USER_MODULES_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import purge_config
 from tests.testcase import TestCase
 
@@ -26,12 +26,12 @@ class TestPurgeConfig(TestCase):
         purge_config(purge_artifacts=True)
 
         self.rmtree.assert_called_once_with(
-            USER_ARTIFACTS_DIR, ignore_errors=True
+            conf().USER_ARTIFACTS_DIR, ignore_errors=True
         )
 
     def test_purge_config_purges_modules_dir_if_specified(self):
         purge_config(purge_modules=True)
 
         self.rmtree.assert_called_once_with(
-            USER_MODULES_DIR, ignore_errors=True
+            conf().USER_MODULES_DIR, ignore_errors=True
         )

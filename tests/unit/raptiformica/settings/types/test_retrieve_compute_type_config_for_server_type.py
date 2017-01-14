@@ -1,4 +1,4 @@
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.types import retrieve_compute_type_config_for_server_type
 from tests.testcase import TestCase
 
@@ -17,7 +17,7 @@ class TestRetrieveComputeTypeConfigForServerType(TestCase):
             'raptiformica.settings.types.get_config'
         )
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {
+            conf().KEY_VALUE_PATH: {
                 'compute': {
                     'vagrant': {
                         'workstation': {

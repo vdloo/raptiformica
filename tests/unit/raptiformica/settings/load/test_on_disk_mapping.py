@@ -1,5 +1,4 @@
-from raptiformica.settings import MODULES_DIR
-from raptiformica.settings import USER_MODULES_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import on_disk_mapping
 from tests.testcase import TestCase
 
@@ -19,7 +18,7 @@ class TestOnDiskMapping(TestCase):
         on_disk_mapping()
 
         self.load_module_configs.assert_called_once_with(
-            module_dirs=(MODULES_DIR, USER_MODULES_DIR)
+            module_dirs=(conf().MODULES_DIR, conf().USER_MODULES_DIR)
         )
 
     def test_on_disk_mapping_loads_specified_module_configs(self):

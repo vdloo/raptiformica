@@ -1,6 +1,6 @@
 from mock import call
 
-from raptiformica.settings import MODULES_DIR, USER_MODULES_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import load_module_configs
 from tests.testcase import TestCase
 
@@ -16,7 +16,7 @@ class TestLoadModuleConfigs(TestCase):
         list(load_module_configs())
 
         expected_calls = map(
-            call, (MODULES_DIR, USER_MODULES_DIR)
+            call, (conf().MODULES_DIR, conf().USER_MODULES_DIR)
         )
         self.assertCountEqual(
             self.load_module_config.mock_calls, expected_calls

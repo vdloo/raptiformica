@@ -1,6 +1,6 @@
 from os.path import join
 
-from raptiformica.settings import RAPTIFORMICA_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.consul import consul_setup
 from tests.testcase import TestCase
 
@@ -29,7 +29,7 @@ class TestConsulSetup(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
-            join(RAPTIFORMICA_DIR, 'resources/setup_consul.sh')
+            join(conf().RAPTIFORMICA_DIR, 'resources/setup_consul.sh')
         ]
         self.execute_process.assert_called_once_with(
             expected_command,

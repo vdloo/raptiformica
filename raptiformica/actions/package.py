@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from raptiformica.settings import KEY_VALUE_PATH, PROJECT_DIR
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config
 from raptiformica.settings.types import get_first_server_type, get_first_compute_type
 from raptiformica.shell.execute import run_command_in_directory_factory
@@ -18,7 +18,7 @@ def retrieve_package_machine_config(server_type=None, compute_type=None):
     server_type = server_type or get_first_server_type()
     compute_type = compute_type or get_first_compute_type()
     config = get_config()
-    server_config = config[KEY_VALUE_PATH][
+    server_config = config[conf().KEY_VALUE_PATH][
         'compute'
     ].get(compute_type, {}).get(server_type, {})
     if 'package' not in server_config:
@@ -48,6 +48,6 @@ def package_machine(server_type=None, compute_type=None, only_check_available=Fa
             server_type=server_type, compute_type=compute_type
         )
         run_package_command = run_command_in_directory_factory(
-            PROJECT_DIR, package_command
+            conf().PROJECT_DIR, package_command
         )
         run_package_command(buffered=False)
