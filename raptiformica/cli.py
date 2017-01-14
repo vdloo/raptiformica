@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from os import environ
 from os.path import expanduser
 
 from raptiformica.log import setup_logging
@@ -19,11 +20,12 @@ def parse_arguments(parser):
     :return obj args: parsed arguments
     """
     parser.add_argument('--verbose', '-v', action='store_true')
+    active_cache_dir = environ.get('RAPTIFORMICA_CACHE_DIR', CACHE_DIR)
     parser.add_argument('--cache-dir', '-c', type=str,
                         help="Use a specified settings dir instead of "
                              "{}. Path is relative to "
-                             "{}".format(CACHE_DIR, expanduser("~")),
-                        default=CACHE_DIR)
+                             "{}".format(active_cache_dir, expanduser("~")),
+                        default=active_cache_dir)
     args = parser.parse_args()
     setup_logging(debug=args.verbose)
     set_cache_dir(args.cache_dir)
