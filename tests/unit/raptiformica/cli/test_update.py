@@ -7,8 +7,12 @@ class TestUpdate(TestCase):
         self.parse_update_arguments = self.set_up_patch(
             'raptiformica.cli.parse_update_arguments'
         )
+        # patching the original function instead of the function in the scope
+        # of cli.py because this is a conditional import and so that function
+        # won't be available to patch until the function that imports it is
+        # evaluated.
         self.update_machine = self.set_up_patch(
-            'raptiformica.cli.update_machine'
+            'raptiformica.actions.update.update_machine'
         )
 
     def test_update_parses_update_arguments(self):

@@ -4,8 +4,16 @@ from tests.testcase import TestCase
 
 class TestHook(TestCase):
     def setUp(self):
-        self.parse_hook_arguments = self.set_up_patch('raptiformica.cli.parse_hook_arguments')
-        self.trigger_handlers = self.set_up_patch('raptiformica.cli.trigger_handlers')
+        self.parse_hook_arguments = self.set_up_patch(
+            'raptiformica.cli.parse_hook_arguments'
+        )
+        # patching the original function instead of the function in the scope
+        # of cli.py because this is a conditional import and so that function
+        # won't be available to patch until the function that imports it is
+        # evaluated.
+        self.trigger_handlers = self.set_up_patch(
+            'raptiformica.actions.hook.trigger_handlers'
+        )
 
     def test_hook_parses_hook_arguments(self):
         hook()

@@ -1,21 +1,15 @@
 from argparse import ArgumentParser
+from os.path import expanduser
 
-from raptiformica.actions.hook import trigger_handlers
-from raptiformica.actions.members import show_members
-from raptiformica.actions.mesh import mesh_machine, attempt_join_meshnet, ensure_no_consul_running
-from raptiformica.actions.modules import load_module, unload_module
-from raptiformica.actions.package import package_machine
-from raptiformica.actions.prune import prune_local_machines
-from raptiformica.actions.slave import slave_machine
-from raptiformica.actions.destroy import destroy_cluster
-from raptiformica.actions.spawn import spawn_machine
-from raptiformica.actions.ssh_connect import ssh_connect
-from raptiformica.actions.update import update_machine
-from raptiformica.settings import MUTABLE_CONFIG
-from raptiformica.settings.meshnet import update_meshnet_config
-from raptiformica.settings.types import get_server_types, get_first_server_type, get_first_compute_type, \
-    get_compute_types
 from raptiformica.log import setup_logging
+from raptiformica.settings import MUTABLE_CONFIG, set_cache_dir, CACHE_DIR
+from raptiformica.settings.types import get_server_types, \
+    get_first_server_type, get_first_compute_type, get_compute_types
+
+# Note: This file contains conditional imports because the parse_arguments
+# function can mutate the settings. If we import all the actions functions
+# here the old settings will be captured inside the function definitions
+# instead of the updated settings. See the set_cache_dir function.
 
 
 def parse_arguments(parser):
@@ -25,8 +19,14 @@ def parse_arguments(parser):
     :return obj args: parsed arguments
     """
     parser.add_argument('--verbose', '-v', action='store_true')
+    parser.add_argument('--cache-dir', '-c', type=str,
+                        help="Use a specified settings dir instead of "
+                             "{}. Path is relative to "
+                             "{}".format(CACHE_DIR, expanduser("~")),
+                        default=CACHE_DIR)
     args = parser.parse_args()
     setup_logging(debug=args.verbose)
+    set_cache_dir(args.cache_dir)
     return args
 
 
@@ -50,7 +50,8 @@ def parse_slave_arguments():
                         help='Do not join or set up the distributed network.')
     parser.add_argument('--server-type', type=str, default=get_first_server_type(),
                         choices=get_server_types(),
-                        help='Specify a server type. Default is {}'.format(get_first_server_type()))
+                        help='Specify a server type. Default is '
+                             '{}'.format(get_first_server_type()))
     return parse_arguments(parser)
 
 
@@ -60,6 +61,7 @@ def slave():
     :return None:
     """
     args = parse_slave_arguments()
+    from raptiformica.actions.slave import slave_machine
     slave_machine(
         args.host,
         port=args.port,
@@ -95,6 +97,7 @@ def update():
     :return None:
     """
     args = parse_update_arguments()
+    from raptiformica.actions.update import update_machine
     update_machine(server_type=args.server_type)
 
 
@@ -128,6 +131,7 @@ def spawn():
     :return None:
     """
     args = parse_spawn_arguments()
+    from raptiformica.actions.spawn import spawn_machine
     spawn_machine(
         assimilate=not args.no_assimilate,
         provision=not args.no_provision,
@@ -166,6 +170,7 @@ def package():
     args = parse_package_arguments()
     # todo: perform the booting and destroying in
     # raptiformica, not the compute module
+    from raptiformica.actions.package import package_machine
     package_machine(
         server_type=args.server_type,
         compute_type=args.compute_type,
@@ -194,6 +199,7 @@ def mesh():
     :return None:
     """
     parse_mesh_arguments()
+    from raptiformica.actions.mesh import mesh_machine
     mesh_machine()
 
 
@@ -223,6 +229,7 @@ def hook():
     # each handler so that the json provided on stdin by consul watches
     # that trigger this hook can be used to perform actions based on the
     # content of the event.
+    from raptiformica.actions.hook import trigger_handlers
     trigger_handlers(hook_name=args.name)
 
 
@@ -248,6 +255,7 @@ def ssh():
     :return None:
     """
     args = parse_ssh_arguments()
+    from raptiformica.actions.ssh_connect import ssh_connect
     ssh_connect(info_only=args.info_only)
 
 
@@ -274,8 +282,10 @@ def members():
     """
     args = parse_members_arguments()
     if args.rejoin:
+        from raptiformica.actions.mesh import attempt_join_meshnet
         attempt_join_meshnet()
     else:
+        from raptiformica.actions.members import show_members
         show_members()
 
 
@@ -301,6 +311,9 @@ def inject():
     :return None:
     """
     args = parse_inject_arguments()
+    from raptiformica.actions.mesh import ensure_no_consul_running
+    from raptiformica.settings.meshnet import update_meshnet_config
+    from raptiformica.actions.mesh import attempt_join_meshnet
     ensure_no_consul_running()
     update_meshnet_config(args.host, port=args.port)
     attempt_join_meshnet()
@@ -325,6 +338,7 @@ def prune():
     :return None:
     """
     parse_prune_arguments()
+    from raptiformica.actions.prune import prune_local_machines
     prune_local_machines()
 
 
@@ -354,6 +368,7 @@ def destroy():
     :return None:
     """
     args = parse_destroy_arguments()
+    from raptiformica.actions.destroy import destroy_cluster
     destroy_cluster(
         purge_artifacts=args.purge_artifacts, purge_modules=args.purge_modules
     )
@@ -387,6 +402,8 @@ def modprobe():
     """
     args = parse_modprobe_arguments()
     if args.remove:
+        from raptiformica.actions.modules import unload_module
         unload_module(args.name)
     else:
+        from raptiformica.actions.modules import load_module
         load_module(args.name)

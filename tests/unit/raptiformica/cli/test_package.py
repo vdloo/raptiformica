@@ -4,9 +4,17 @@ from tests.testcase import TestCase
 
 class TestPackage(TestCase):
     def setUp(self):
-        self.parse_package_arguments = self.set_up_patch('raptiformica.cli.parse_package_arguments')
+        self.parse_package_arguments = self.set_up_patch(
+            'raptiformica.cli.parse_package_arguments'
+        )
         self.args = self.parse_package_arguments.return_value
-        self.package_machine = self.set_up_patch('raptiformica.cli.package_machine')
+        # patching the original function instead of the function in the scope
+        # of cli.py because this is a conditional import and so that function
+        # won't be available to patch until the function that imports it is
+        # evaluated.
+        self.package_machine = self.set_up_patch(
+            'raptiformica.actions.package.package_machine'
+        )
 
     def test_package_parses_package_arguments(self):
         package()
