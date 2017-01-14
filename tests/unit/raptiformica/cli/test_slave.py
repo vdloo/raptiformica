@@ -10,7 +10,7 @@ class TestSlave(TestCase):
             'raptiformica.cli.parse_slave_arguments'
         )
         self.parse_slave_arguments.return_value = Mock(
-            no_provision=False, no_assimilate=False,
+            no_provision=False, no_assimilate=False, no_after_assimilate=False,
             host='1.2.3.4', port=22, server_type='headless'
         )
         self.slave_machine = self.set_up_patch(
@@ -27,31 +27,47 @@ class TestSlave(TestCase):
 
         self.slave_machine.assert_called_once_with(
             '1.2.3.4', port=22, provision=True,
-            assimilate=True, server_type='headless',
+            assimilate=True, after_assimilate=True,
+            server_type='headless',
         )
 
     def test_slave_does_not_assimilate_machine_when_no_assimilate_is_passed(self):
         self.parse_slave_arguments.return_value = Mock(
-                host='1.2.3.4', port=22, server_type='headless',
-                no_assimilate=True, no_provision=False
+            host='1.2.3.4', port=22, server_type='headless',
+            no_assimilate=True, no_after_assimilate=False, no_provision=False
         )
 
         slave()
 
         self.slave_machine.assert_called_once_with(
             '1.2.3.4', port=22, provision=True,
-            assimilate=False, server_type='headless'
+            assimilate=False, after_assimilate=True,
+            server_type='headless'
+        )
+
+    def test_slave_does_not_perform_after_assimilate_hooks_when_no_after_assimilate_is_passed(self):
+        self.parse_slave_arguments.return_value = Mock(
+            host='1.2.3.4', port=22, server_type='headless',
+            no_assimilate=False, no_after_assimilate=True, no_provision=False
+        )
+
+        slave()
+
+        self.slave_machine.assert_called_once_with(
+            '1.2.3.4', port=22, provision=True,
+            assimilate=True, after_assimilate=False,
+            server_type='headless'
         )
 
     def test_slave_does_not_provision_machine_when_no_provision_is_passed(self):
         self.parse_slave_arguments.return_value = Mock(
             host='1.2.3.4', port=22, server_type='headless',
-            no_assimilate=False, no_provision=True
+            no_assimilate=False, no_after_assimilate=False, no_provision=True
         )
 
         slave()
 
         self.slave_machine.assert_called_once_with(
             '1.2.3.4', port=22, provision=False,
-            assimilate=True, server_type='headless'
+            assimilate=True, after_assimilate=True, server_type='headless'
         )
