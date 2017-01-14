@@ -7,12 +7,8 @@ class TestSSH(TestCase):
         self.parse_ssh_arguments = self.set_up_patch(
             'raptiformica.cli.parse_ssh_arguments'
         )
-        # patching the original function instead of the function in the scope
-        # of cli.py because this is a conditional import and so that function
-        # won't be available to patch until the function that imports it is
-        # evaluated.
         self.ssh_connect = self.set_up_patch(
-            'raptiformica.actions.ssh_connect.ssh_connect'
+            'raptiformica.cli.ssh_connect'
         )
 
     def test_ssh_parses_ssh_arguments(self):

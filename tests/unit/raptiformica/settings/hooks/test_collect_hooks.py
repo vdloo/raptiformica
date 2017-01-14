@@ -1,4 +1,4 @@
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.hooks import collect_hooks
 from tests.testcase import TestCase
 
@@ -13,7 +13,7 @@ class TestCollectHooks(TestCase):
             'raptiformica.settings.hooks.get_config'
         )
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {
+            conf().KEY_VALUE_PATH: {
                 'platform': {
                     'default': {
                         'hooks': {

@@ -1,4 +1,4 @@
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.types import list_types_from_config
 from tests.testcase import TestCase
 
@@ -9,7 +9,7 @@ class TestListTypesFromConfig(TestCase):
             'raptiformica.settings.types.get_config'
         )
         self.get_config.return_value = {
-            KEY_VALUE_PATH: {
+            conf().KEY_VALUE_PATH: {
                 'server': {
                     'headless': {},
                     'workstation': {}

@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from raptiformica.actions.slave import slave_machine
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type
 from raptiformica.shell.compute import start_instance
@@ -25,7 +25,7 @@ def retrieve_start_instance_config(server_type=None, compute_type=None):
     mapped = get_config_mapping()
 
     start_instance_path = '{}/compute/{}/{}/'.format(
-        KEY_VALUE_PATH, compute_type, server_type
+        conf().KEY_VALUE_PATH, compute_type, server_type
     )
     start_instance_keys = list(filter(
         startswith(start_instance_path),

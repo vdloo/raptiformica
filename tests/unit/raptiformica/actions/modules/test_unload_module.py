@@ -1,6 +1,6 @@
 from os.path import join
 from raptiformica.actions.modules import unload_module
-from raptiformica.settings import USER_MODULES_DIR
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -31,7 +31,7 @@ class TestUnloadModule(TestCase):
         unload_module('vdloo/puppetfiles')
 
         self.on_disk_mapping.assert_called_once_with(
-            module_dirs=(join(USER_MODULES_DIR, 'puppetfiles'),)
+            module_dirs=(join(conf().USER_MODULES_DIR, 'puppetfiles'),)
         )
 
     def test_unload_module_removes_keys(self):
@@ -39,7 +39,7 @@ class TestUnloadModule(TestCase):
 
         self.remove_keys.assert_called_once_with(
             self.on_disk_mapping.return_value,
-            join(USER_MODULES_DIR, 'puppetfiles')
+            join(conf().USER_MODULES_DIR, 'puppetfiles')
         )
 
     def test_unload_module_refreshes_keys(self):

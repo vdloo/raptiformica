@@ -2,7 +2,7 @@ from logging import getLogger
 from os import path
 from uuid import uuid4
 
-from raptiformica.settings import EPHEMERAL_DIR, MACHINES_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.execute import log_success_factory, raise_failure_factory, \
     run_command_print_ready_in_directory_factory, run_command_in_directory_factory
 from raptiformica.shell.git import clone_source
@@ -18,9 +18,10 @@ def ensure_new_compute_checkout_directory_exists(server_type, compute_type):
     :param str compute_type: name of the compute type
     :return str server_type_directory: directory for the server type of the compute type
     """
-    compute_type_directory = path.join(MACHINES_DIR, compute_type)
+    compute_type_directory = path.join(conf().MACHINES_DIR, compute_type)
     server_type_directory = path.join(compute_type_directory, server_type)
-    directories = EPHEMERAL_DIR, MACHINES_DIR, compute_type_directory, server_type_directory
+    directories = conf().EPHEMERAL_DIR, conf().MACHINES_DIR, \
+        compute_type_directory, server_type_directory
     for directory in directories:
         ensure_directory(directory)
     return server_type_directory

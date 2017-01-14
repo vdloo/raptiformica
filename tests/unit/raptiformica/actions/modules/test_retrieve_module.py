@@ -1,7 +1,7 @@
 from os.path import join
 
 from raptiformica.actions.modules import retrieve_module
-from raptiformica.settings import USER_MODULES_DIR
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -43,5 +43,5 @@ class TestRetrieveModule(TestCase):
 
         self.clone_source.assert_called_once_with(
             'https://github.com/vdloo/puppetfiles',
-            join(USER_MODULES_DIR, 'puppetfiles')
+            join(conf().USER_MODULES_DIR, 'puppetfiles')
         )

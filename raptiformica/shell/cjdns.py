@@ -2,7 +2,7 @@ from os import path
 from logging import getLogger
 from shlex import quote
 
-from raptiformica.settings import INSTALL_DIR, RAPTIFORMICA_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.execute import raise_failure_factory, \
     run_critical_unbuffered_command_print_ready, run_command_print_ready, \
     run_multiple_labeled_commands
@@ -100,8 +100,10 @@ def cjdns_setup(host=None, port=22):
     :return int exit_code: exit code of the configured bootstrap command
     """
     log.info("Build, configure and install CJDNS")
-    cjdns_checkout_directory = path.join(INSTALL_DIR, 'cjdns')
-    setup_script = path.join(RAPTIFORMICA_DIR, 'resources/setup_cjdns.sh')
+    cjdns_checkout_directory = path.join(conf().INSTALL_DIR, 'cjdns')
+    setup_script = path.join(
+        conf().RAPTIFORMICA_DIR, 'resources/setup_cjdns.sh'
+    )
     cjdns_setup_command = 'cd {}; {}'.format(
         quote(cjdns_checkout_directory), setup_script,
     )

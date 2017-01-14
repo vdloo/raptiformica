@@ -7,12 +7,8 @@ class TestHook(TestCase):
         self.parse_hook_arguments = self.set_up_patch(
             'raptiformica.cli.parse_hook_arguments'
         )
-        # patching the original function instead of the function in the scope
-        # of cli.py because this is a conditional import and so that function
-        # won't be available to patch until the function that imports it is
-        # evaluated.
         self.trigger_handlers = self.set_up_patch(
-            'raptiformica.actions.hook.trigger_handlers'
+            'raptiformica.cli.trigger_handlers'
         )
 
     def test_hook_parses_hook_arguments(self):

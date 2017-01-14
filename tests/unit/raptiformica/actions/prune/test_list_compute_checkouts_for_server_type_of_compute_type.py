@@ -1,8 +1,7 @@
 from os.path import join
 
 from raptiformica.actions.prune import list_compute_checkouts_for_server_type_of_compute_type
-from raptiformica.settings import EPHEMERAL_DIR
-from raptiformica.settings import MACHINES_DIR
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -18,7 +17,8 @@ class TestListComputeCheckoutsForServerTypeOfComputeType(TestCase):
             'headless', 'docker'
         )
 
-        directories = EPHEMERAL_DIR, MACHINES_DIR, 'docker', 'headless'
+        directories = conf().EPHEMERAL_DIR, conf().MACHINES_DIR, 'docker', \
+            'headless'
         server_type_of_compute_type_directory = join(*directories)
         expected_compute_checkouts = [
             ('headless', 'docker',

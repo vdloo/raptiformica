@@ -10,7 +10,7 @@ from logging import getLogger
 from shutil import rmtree
 from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
-from raptiformica.settings import KEY_VALUE_ENDPOINT, KEY_VALUE_PATH, KEY_VALUE_TIMEOUT
+from raptiformica.settings import conf
 
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
 import raptiformica.distributed.proxy
@@ -18,8 +18,8 @@ import raptiformica.distributed.proxy
 log = getLogger(__name__)
 
 consul_conn = Connection(
-    endpoint=KEY_VALUE_ENDPOINT,
-    timeout=KEY_VALUE_TIMEOUT
+    endpoint=conf().KEY_VALUE_ENDPOINT,
+    timeout=conf().KEY_VALUE_TIMEOUT
 )
 
 API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
@@ -35,13 +35,12 @@ def config_cache_lock():
     :yield None
     :return None:
     """
-    from raptiformica.settings import CONFIG_CACHE_LOCK
-    with open(CONFIG_CACHE_LOCK, 'w+') as lock:
+    with open(conf().CONFIG_CACHE_LOCK, 'w+') as lock:
         try:
             log.debug(
                 "Getting config cache lock. "
                 "If this blocks forever, try deleting file "
-                "{} and restart the process.".format(CONFIG_CACHE_LOCK)
+                "{} and restart the process.".format(conf().CONFIG_CACHE_LOCK)
             )
             flock(lock, LOCK_EX)  # Blocks until lock becomes available
             yield
@@ -57,8 +56,7 @@ def write_config_mapping(config, config_file):
     :param str config_file: The mutable config file
     :return None:
     """
-    from raptiformica.settings import ABS_CACHE_DIR
-    ensure_directory(ABS_CACHE_DIR)
+    ensure_directory(conf().ABS_CACHE_DIR)
     # Lock the config cache file so two processes can't
     # write to the file at the same time and corrupt the json
     with config_cache_lock():
@@ -71,8 +69,7 @@ def load_module_config(modules_dir=None):
     :param str modules_dir: path to look for .json config files in
     :return list configs: list of parsed configs
     """
-    from raptiformica.settings import MODULES_DIR
-    modules_dir = modules_dir or MODULES_DIR
+    modules_dir = modules_dir or conf().MODULES_DIR
     file_names = list_all_files_with_extension_in_directory(
         modules_dir, 'json'
     )
@@ -99,8 +96,7 @@ def load_module_configs(module_dirs=None):
     :param iterable module_dirs: directories to look for module configs in
     :return list configs: list of parsed configs
     """
-    from raptiformica.settings import MODULES_DIR, USER_MODULES_DIR
-    module_dirs = module_dirs or (MODULES_DIR, USER_MODULES_DIR)
+    module_dirs = module_dirs or (conf().MODULES_DIR, conf().USER_MODULES_DIR)
     return chain.from_iterable(
         map(load_module_config, module_dirs)
     )
@@ -149,7 +145,7 @@ def download_config_mapping():
         "from the distributed key value store"
     )
     mapping = try_config_request(
-        lambda: consul_conn.get_mapping(KEY_VALUE_PATH)
+        lambda: consul_conn.get_mapping(conf().KEY_VALUE_PATH)
     )
     if not mapping:
         raise ValueError(
@@ -165,11 +161,10 @@ def on_disk_mapping(module_dirs=None):
     :param iterable module_dirs: directories to look for module configs in
     :return dict mapping: retrieved key value mapping with config data
     """
-    from raptiformica.settings import MODULES_DIR, USER_MODULES_DIR
-    module_dirs = module_dirs or (MODULES_DIR, USER_MODULES_DIR)
+    module_dirs = module_dirs or (conf().MODULES_DIR, conf().USER_MODULES_DIR)
     configs = load_module_configs(module_dirs=module_dirs)
     return {
-        join(KEY_VALUE_PATH, k): v for k, v in
+        join(conf().KEY_VALUE_PATH, k): v for k, v in
         reduce(dict_merge, map(map_dictionary, configs), dict()).items()
     }
 
@@ -206,7 +201,7 @@ def try_delete_config(key, recurse=False):
     # never be synced back to the distributed k v store but
     # should instead be fixed by some form of eventual consistency
     try:
-        path = join(KEY_VALUE_ENDPOINT, key)
+        path = join(conf().KEY_VALUE_ENDPOINT, key)
         consul_conn.delete(path, recurse=recurse)
         sync_shared_config_mapping()
     except URLError:
@@ -259,13 +254,12 @@ def cache_config_mapping(mapping):
     :param dict mapping: the cached k v mapping
     :return None:
     """
-    from raptiformica.settings import MUTABLE_CONFIG
     if not mapping:
         raise RuntimeError(
             "Passed key value mapping was null. "
             "Refusing to cache empty mapping!"
         )
-    write_config_mapping(mapping, MUTABLE_CONFIG)
+    write_config_mapping(mapping, conf().MUTABLE_CONFIG)
 
 
 def cached_config_mapping():
@@ -276,9 +270,8 @@ def cached_config_mapping():
     truncated json because another process could be updating the cache.
     :return dict mapping: the k v config mapping
     """
-    from raptiformica.settings import MUTABLE_CONFIG
     with config_cache_lock():
-        return load_json(MUTABLE_CONFIG)
+        return load_json(conf().MUTABLE_CONFIG)
 
 
 def get_local_config_mapping():
@@ -300,10 +293,9 @@ def purge_local_config_mapping():
     Remove the local config mapping if it exists
     :return None:
     """
-    from raptiformica.settings import MUTABLE_CONFIG
     log.info("Puring locally cached config")
     with suppress(FileNotFoundError):
-        remove(MUTABLE_CONFIG)
+        remove(conf().MUTABLE_CONFIG)
 
 
 def purge_config(purge_artifacts=False, purge_modules=False):
@@ -313,14 +305,13 @@ def purge_config(purge_artifacts=False, purge_modules=False):
     :param bool purge_modules: Remove all installed modules
     :return None:
     """
-    from raptiformica.settings import USER_ARTIFACTS_DIR, USER_MODULES_DIR
     purge_local_config_mapping()
     if purge_artifacts:
         log.info("Purging cached artifacts")
-        rmtree(USER_ARTIFACTS_DIR, ignore_errors=True)
+        rmtree(conf().USER_ARTIFACTS_DIR, ignore_errors=True)
     if purge_modules:
         log.info("Purging user modules")
-        rmtree(USER_MODULES_DIR, ignore_errors=True)
+        rmtree(conf().USER_MODULES_DIR, ignore_errors=True)
 
 
 def get_config_mapping():

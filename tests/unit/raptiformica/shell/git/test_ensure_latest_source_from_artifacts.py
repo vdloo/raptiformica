@@ -1,6 +1,6 @@
 from mock import call, Mock
 
-from raptiformica.settings import INSTALL_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from tests.testcase import TestCase
 
@@ -39,7 +39,7 @@ class TestEnsureLatestSourceFromArtifacts(TestCase):
             call(
                 "file:///root/.raptiformica.d/artifacts/repositories/puppetfiles",
                 "puppetfiles", host='1.2.3.4', port=22,
-                destination=INSTALL_DIR
+                destination=conf().INSTALL_DIR
             )
         )
         self.assertCountEqual(self.ensure_latest_source.mock_calls, expected_calls)

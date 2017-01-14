@@ -1,4 +1,4 @@
-from raptiformica.settings import ABS_CACHE_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.rsync import download_artifacts
 from tests.testcase import TestCase
 
@@ -19,7 +19,7 @@ class TestDownloadArtifacts(TestCase):
 
         self.download.assert_called_once_with(
             '.raptiformica.d/artifacts',
-            ABS_CACHE_DIR,
+            conf().ABS_CACHE_DIR,
             host='1.2.3.4',
             port=2222
         )

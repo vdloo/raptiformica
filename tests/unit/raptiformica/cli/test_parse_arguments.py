@@ -3,7 +3,7 @@ from os.path import expanduser
 from mock import Mock, call
 
 from raptiformica.cli import parse_arguments
-from raptiformica.settings import CACHE_DIR
+from raptiformica.settings import conf
 from tests.testcase import TestCase
 
 
@@ -11,15 +11,15 @@ class TestParseArguments(TestCase):
     def setUp(self):
         self.parser = Mock()
         self.setup_logging = self.set_up_patch('raptiformica.cli.setup_logging')
-        self.set_cache_dir = self.set_up_patch('raptiformica.cli.set_cache_dir')
+        self.conf = self.set_up_patch('raptiformica.cli.conf')
         self.set_up_patch(
-            'raptiformica.cli.environ.get', return_value=CACHE_DIR
+            'raptiformica.cli.environ.get', return_value=conf().CACHE_DIR
         )
 
     def test_parse_arguments_adds_arguments(self):
         parse_arguments(self.parser)
 
-        expected_cache_dir = CACHE_DIR
+        expected_cache_dir = conf().CACHE_DIR
         expected_calls = [
             call('--verbose', '-v', action='store_true'),
             call('--cache-dir', '-c', type=str,
@@ -67,7 +67,7 @@ class TestParseArguments(TestCase):
     def test_parse_arguments_sets_cache_dir(self):
         parse_arguments(self.parser)
 
-        self.set_cache_dir.assert_called_once_with(
+        self.conf.return_value.set_cache_dir.assert_called_once_with(
             self.parser.parse_args.return_value.cache_dir
         )
 

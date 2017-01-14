@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from raptiformica.settings import KEY_VALUE_PATH
+from raptiformica.settings import conf
 from raptiformica.settings.load import get_config
 from raptiformica.settings.meshnet import ensure_route_to_new_neighbour
 from raptiformica.settings.types import get_first_server_type
@@ -22,7 +22,7 @@ def retrieve_provisioning_configs(server_type=None):
     log.debug("Retrieving provisioning config")
     server_type = server_type or get_first_server_type()
     config = get_config()
-    server_types = config[KEY_VALUE_PATH]['server']
+    server_types = config[conf().KEY_VALUE_PATH]['server']
     server_type = server_types.get(server_type, {})
     return {k: {'source': v['source'], 'bootstrap': v['bootstrap']}
             for k, v in server_type.items()}

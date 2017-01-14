@@ -14,12 +14,8 @@ class TestSpawn(TestCase):
             server_type='headless', compute_type='vagrant',
             check_available=False
         )
-        # patching the original function instead of the function in the scope
-        # of cli.py because this is a conditional import and so that function
-        # won't be available to patch until the function that imports it is
-        # evaluated.
         self.spawn_machine = self.set_up_patch(
-            'raptiformica.actions.spawn.spawn_machine'
+            'raptiformica.cli.spawn_machine'
         )
 
     def test_spawn_parses_spawn_arguments(self):

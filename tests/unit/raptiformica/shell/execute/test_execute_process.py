@@ -1,6 +1,6 @@
 from subprocess import PIPE
 
-from raptiformica.settings import CACHE_DIR
+from raptiformica.settings import conf
 from raptiformica.shell.execute import execute_process
 from tests.testcase import TestCase
 
@@ -16,7 +16,7 @@ class TestExecuteProcess(TestCase):
         )
         self.environ = {
             'some': 'env_var',
-            'RAPTIFORMICA_CACHE_DIR': CACHE_DIR
+            'RAPTIFORMICA_CACHE_DIR': conf().CACHE_DIR
         }
         self.set_up_patch('raptiformica.shell.execute.environ', self.environ)
 
@@ -31,7 +31,8 @@ class TestExecuteProcess(TestCase):
         )
 
     def test_execute_process_passes_overwritten_cache_dir_from_settings_to_env(self):
-        self.set_up_patch('raptiformica.shell.execute.CACHE_DIR', '.raptiformica.d.test')
+        configuration = self.set_up_patch('raptiformica.shell.execute.conf')
+        configuration.return_value.CACHE_DIR = '.raptiformica.d.test'
 
         execute_process(self.command_as_list)
 
