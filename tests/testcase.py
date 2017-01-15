@@ -77,9 +77,20 @@ class IntegrationTestCase(TestCase):
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
         alive_agents = consul_members_output.count("alive")
         if expected_peers is None:
-            self.assertGreaterEqual(alive_agents, 3)
+            self.assertGreaterEqual(
+                alive_agents, 3,
+                msg="Did not find enough ({} of at least 3) alive agents. "
+                    "consul members output: {}".format(alive_agents,
+                                                       consul_members_output)
+            )
         else:
-            self.assertEqual(alive_agents, expected_peers)
+            self.assertEqual(
+                alive_agents, expected_peers,
+                msg="Did not find enough ({} of the {}) alive agents. "
+                    "consul members output: {}".format(alive_agents,
+                                                       expected_peers,
+                                                       consul_members_output)
+            )
 
     def list_registered_peers(self):
         consul_members_output = self.run_instance_command(
