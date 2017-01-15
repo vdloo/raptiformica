@@ -559,7 +559,8 @@ def not_already_known_consul_neighbour(ipv6_address):
     log.info(
         "Checking if the consul agent already knows {}".format(ipv6_address)
     )
-    check_already_known = "consul members | grep {}".format(ipv6_address)
+    check_already_known = "consul members | grep -v left | " \
+                          "grep {}".format(ipv6_address)
     return not check_nonzero_exit(check_already_known)
 
 
