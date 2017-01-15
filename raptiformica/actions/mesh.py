@@ -465,6 +465,7 @@ def reload_consul_agent_if_necessary():
     :return None:
     """
     if consul_config_hash_outdated():
+        clean_up_old_consul()
         reload_consul_agent()
         write_consul_config_hash()
 
