@@ -24,7 +24,11 @@ class TestTreeCluster(IntegrationTestCase):
     firewall. The two public hosts (B and C) do not connect directly.
     """
     def spawn_docker_instances(self):
-        self.run_raptiformica_command("spawn --no-assimilate --server-type headless --compute-type docker")
+        self.run_raptiformica_command(
+            "spawn --no-assimilate "
+            "--server-type headless "
+            "--compute-type docker"
+        )
 
     def setUp(self):
         super(TestTreeCluster, self).setUp()
