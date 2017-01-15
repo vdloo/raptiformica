@@ -47,6 +47,8 @@ class TestParseSpawnArguments(TestCase):
                  help='Do not join or set up the distributed network.'),
             call('--no-after-assimilate', action='store_true', default=False,
                  help='Do not perform the after assimilation hooks'),
+            call('--no-after-mesh', action='store_true', default=False,
+                 help='Do not perform the after mesh hooks'),
             call('--server-type', type=str, default=self.get_first_server_type.return_value,
                  choices=self.get_server_types.return_value,
                  help='Specify a server type. Default is {}'.format(

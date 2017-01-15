@@ -609,14 +609,16 @@ def attempt_join_meshnet():
         join_meshnet()
 
 
-def mesh_machine():
+def mesh_machine(after_mesh=True):
     """
     Configure the mesh services and attempt to join the meshnet.
     If there are 'after_mesh' hooks configured, fire those.
     Exit the process with exit code 0 if no exception occurred
     so that the remote raptiformica command caller registers
     the execution as successful.
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :return None:
     """
     attempt_join_meshnet()
-    fire_hooks('after_mesh')
+    if after_mesh:
+        fire_hooks('after_mesh')

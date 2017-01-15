@@ -82,7 +82,16 @@ class TestSlaveMachine(TestCase):
     def test_slave_machine_deploys_meshnet_if_assimilate(self):
         slave_machine('1.2.3.4', port=2222, assimilate=True)
 
-        self.deploy_meshnet.assert_called_once_with('1.2.3.4', port=2222)
+        self.deploy_meshnet.assert_called_once_with(
+            '1.2.3.4', port=2222, after_mesh=True
+        )
+
+    def test_slave_machine_does_not_perform_after_mesh_hooks_if_specified(self):
+        slave_machine('1.2.3.4', port=2222, assimilate=True, after_mesh=False)
+
+        self.deploy_meshnet.assert_called_once_with(
+            '1.2.3.4', port=2222, after_mesh=False
+        )
 
     def test_slave_machine_does_not_deploy_meshnet_if_assimilate_is_false(self):
         slave_machine('1.2.3.4', port=2222, assimilate=False)

@@ -46,7 +46,7 @@ def run_raptiformica_command(command_as_string, host, port=22):
     return exit_code
 
 
-def mesh(host, port=22):
+def mesh(host, port=22, after_mesh=True):
     """
     Run ./bin/raptiformica_mesh.py on a remote machine.
     This command uses the mutable config to configure the
@@ -54,13 +54,15 @@ def mesh(host, port=22):
     new one if there are enough machines.
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :return int exit_code: Exit code from the ./bin/raptiformica_mesh.py command
     """
     log.info("Joining the remote host into the distributed network")
     # todo: let the remote raptiformica command use the same logging level
     # as the current process
     return run_raptiformica_command(
-        "export PYTHONPATH=.; ./bin/raptiformica_mesh.py --verbose",
+        "export PYTHONPATH=.; ./bin/raptiformica_mesh.py"
+        "{}".format('' if after_mesh else ' --no-after-mesh'),
         host, port=port
     )
 

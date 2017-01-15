@@ -1,3 +1,5 @@
+from mock import call
+
 from raptiformica.cli import parse_mesh_arguments
 from raptiformica.settings import conf
 from tests.testcase import TestCase
@@ -21,7 +23,16 @@ class TestParseMeshArguments(TestCase):
     def test_parse_mesh_arguments_adds_arguments(self):
         parse_mesh_arguments()
 
-        self.assertFalse(self.argument_parser.return_value.add_argument.called)
+        expected_calls = [
+            call(
+                '--no-after-mesh', action='store_true', default=False,
+                help='Do not perform the after mesh hooks'
+            )
+        ]
+        self.assertEqual(
+            self.argument_parser.return_value.add_argument.mock_calls,
+            expected_calls
+        )
 
     def test_parse_mesh_arguments_parses_arguments(self):
         parse_mesh_arguments()

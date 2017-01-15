@@ -21,4 +21,13 @@ class TestDeployMeshnet(TestCase):
     def test_deploy_meshnet_runs_raptiformica_mesh_command_on_remote_host(self):
         deploy_meshnet('1.2.3.4', port=2222)
 
-        self.mesh.assert_called_once_with('1.2.3.4', port=2222)
+        self.mesh.assert_called_once_with(
+            '1.2.3.4', port=2222, after_mesh=True
+        )
+
+    def test_deploy_meshnet_skips_after_mesh_hooks_if_specified(self):
+        deploy_meshnet('1.2.3.4', port=2222, after_mesh=False)
+
+        self.mesh.assert_called_once_with(
+            '1.2.3.4', port=2222, after_mesh=False
+        )
