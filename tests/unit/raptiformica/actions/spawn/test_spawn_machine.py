@@ -46,6 +46,7 @@ class TestSpawnMachine(TestCase):
             provision=True,
             assimilate=False,
             after_assimilate=False,
+            after_mesh=False,
             server_type=self.get_first_server_type.return_value,
             uuid='some_uuid_1234'
         )
@@ -73,6 +74,23 @@ class TestSpawnMachine(TestCase):
             provision=True,
             assimilate=True,
             after_assimilate=True,
+            after_mesh=False,
+            server_type='workstation',
+            uuid='some_uuid_1234'
+        )
+
+    def test_spawn_machines_slaves_machine_and_performs_after_mesh_hooks_if_specified(self):
+        spawn_machine(server_type='workstation', compute_type='docker',
+                      provision=True, assimilate=True, after_assimilate=True,
+                      after_mesh=True)
+
+        self.slave_machine.assert_called_once_with(
+            '127.0.0.1',
+            port=2222,
+            provision=True,
+            assimilate=True,
+            after_assimilate=True,
+            after_mesh=True,
             server_type='workstation',
             uuid='some_uuid_1234'
         )

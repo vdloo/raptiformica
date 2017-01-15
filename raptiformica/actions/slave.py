@@ -63,21 +63,23 @@ def assimilate_machine(host, port=22, uuid=None):
     ensure_route_to_new_neighbour(host, port=port, compute_checkout_uuid=uuid)
 
 
-def deploy_meshnet(host, port=22):
+def deploy_meshnet(host, port=22, after_mesh=True):
     """
     Join the machine in the distributed network
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :return None:
     """
     log.info("Joining the machine into the distributed network")
     # uploading self again to update the meshnet config
     upload_self(host, port=port)
-    mesh(host, port=port)
+    mesh(host, port=port, after_mesh=after_mesh)
 
 
 def slave_machine(host, port=22, provision=True, assimilate=True,
-                  after_assimilate=True, server_type=None, uuid=None):
+                  after_assimilate=True, after_mesh=True, server_type=None,
+                  uuid=None):
     """
     Provision the remote machine and optionally (default yes) assimilate it
     into the network.
@@ -87,6 +89,7 @@ def slave_machine(host, port=22, provision=True, assimilate=True,
     :param bool assimilate: whether or not we should assimilate the remote machine
     :param bool after_assimilate: whether or not we should perform the after
     assimilation hooks
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :param str server_type: name of the server type to provision the machine as
     :param str uuid: identifier for a local compute checkout
     :return None:
@@ -99,6 +102,6 @@ def slave_machine(host, port=22, provision=True, assimilate=True,
     fire_hooks('after_slave')
     if assimilate:
         assimilate_machine(host, port=port, uuid=uuid)
-        deploy_meshnet(host, port=port)
+        deploy_meshnet(host, port=port, after_mesh=after_mesh)
         if after_assimilate:
             fire_hooks('after_assimilate')

@@ -18,7 +18,15 @@ class TestMesh(TestCase):
         mesh('1.2.3.4', port=2222)
 
         self.run_raptiformica_command.assert_called_once_with(
-            'export PYTHONPATH=.; ./bin/raptiformica_mesh.py --verbose',
+            'export PYTHONPATH=.; ./bin/raptiformica_mesh.py',
+            '1.2.3.4', port=2222
+        )
+
+    def test_mesh_runs_raptiformica_command_and_skips_after_mesh_hooks_if_specified(self):
+        mesh('1.2.3.4', port=2222, after_mesh=False)
+
+        self.run_raptiformica_command.assert_called_once_with(
+            'export PYTHONPATH=.; ./bin/raptiformica_mesh.py --no-after-mesh',
             '1.2.3.4', port=2222
         )
 

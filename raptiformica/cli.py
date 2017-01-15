@@ -59,6 +59,8 @@ def parse_slave_arguments():
                         help='Do not join or set up the distributed network.')
     parser.add_argument('--no-after-assimilate', action='store_true', default=False,
                         help='Do not perform the after assimilation hooks')
+    parser.add_argument('--no-after-mesh', action='store_true', default=False,
+                        help='Do not perform the after mesh hooks')
     parser.add_argument('--server-type', type=str, default=get_first_server_type(),
                         choices=get_server_types(),
                         help='Specify a server type. Default is '
@@ -77,6 +79,7 @@ def slave():
         port=args.port,
         assimilate=not args.no_assimilate,
         after_assimilate=not args.no_after_assimilate,
+        after_mesh=not args.no_after_mesh,
         provision=not args.no_provision,
         server_type=args.server_type
     )
@@ -126,6 +129,8 @@ def parse_spawn_arguments():
                         help='Do not join or set up the distributed network.')
     parser.add_argument('--no-after-assimilate', action='store_true', default=False,
                         help='Do not perform the after assimilation hooks')
+    parser.add_argument('--no-after-mesh', action='store_true', default=False,
+                        help='Do not perform the after mesh hooks')
     parser.add_argument('--server-type', type=str, default=get_first_server_type(),
                         choices=get_server_types(),
                         help='Specify a server type. Default is {}'.format(get_first_server_type()))
@@ -146,6 +151,7 @@ def spawn():
     spawn_machine(
         assimilate=not args.no_assimilate,
         after_assimilate=not args.no_after_assimilate,
+        after_mesh=not args.no_after_mesh,
         provision=not args.no_provision,
         server_type=args.server_type,
         compute_type=args.compute_type,
@@ -201,6 +207,8 @@ def parse_mesh_arguments():
                     'file on this machine and attempt to join '
                     'the distributed network'.format(conf().MUTABLE_CONFIG)
     )
+    parser.add_argument('--no-after-mesh', action='store_true', default=False,
+                        help='Do not perform the after mesh hooks')
     return parse_arguments(parser)
 
 
@@ -209,8 +217,8 @@ def mesh():
     Join this machine into the distributed network
     :return None:
     """
-    parse_mesh_arguments()
-    mesh_machine()
+    args = parse_mesh_arguments()
+    mesh_machine(after_mesh=not args.no_after_mesh)
 
 
 def parse_hook_arguments():

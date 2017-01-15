@@ -22,3 +22,8 @@ class TestMeshMachine(TestCase):
         self.fire_hooks.assert_called_once_with(
             'after_mesh'
         )
+
+    def test_mesh_machine_does_not_fire_after_mesh_hook_if_no_after_mesh(self):
+        mesh_machine(after_mesh=False)
+
+        self.assertFalse(self.fire_hooks.called)
