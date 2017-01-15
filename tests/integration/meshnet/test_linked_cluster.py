@@ -23,7 +23,11 @@ class TestLinkedCluster(IntegrationTestCase):
     not accessible by the first host.
     """
     def spawn_docker_instances(self):
-        self.run_raptiformica_command("spawn --no-assimilate --server-type headless --compute-type docker")
+        self.run_raptiformica_command(
+            "spawn --no-assimilate "
+            "--server-type headless "
+            "--compute-type docker"
+        )
 
     def setUp(self):
         super(TestLinkedCluster, self).setUp()

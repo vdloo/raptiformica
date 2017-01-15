@@ -16,7 +16,9 @@ class TestSimpleCluster(IntegrationTestCase):
     This simulates a subnet in a data-center for example.
     """
     def spawn_docker_instance(self):
-        self.run_raptiformica_command("spawn --server-type headless --compute-type docker")
+        self.run_raptiformica_command(
+            "spawn --server-type headless --compute-type docker"
+        )
 
     def setUp(self):
         super(TestSimpleCluster, self).setUp()

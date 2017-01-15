@@ -1,9 +1,13 @@
 import unittest
 from functools import partial
+from os.path import expanduser
+from os.path import join
 from uuid import uuid4
 
 from mock import patch, Mock
 from shutil import rmtree
+
+from os import makedirs
 
 from raptiformica.settings import conf
 from raptiformica.settings.load import upload_config_mapping
@@ -19,9 +23,9 @@ class TestCase(unittest.TestCase):
 
 class IntegrationTestCase(TestCase):
     def run_raptiformica_command(self, parameters, buffered=False):
-        raptiformica_command = "{}/bin/raptiformica {}".format(
-            conf().PROJECT_DIR.rstrip('/'), parameters
-        )
+        raptiformica_command = "{}/bin/raptiformica {} --cache-dir {} " \
+                               "".format(conf().PROJECT_DIR.rstrip('/'),
+                                           parameters, self.temp_cache_dir)
         _, standard_out, standard_error = run_command_print_ready(
             raptiformica_command,
             buffered=buffered, shell=True
@@ -35,9 +39,11 @@ class IntegrationTestCase(TestCase):
         :param bool buffered: Write output to stdout or capture and return it
         :return str output: The buffered output if buffered was True
         """
-        raptiformica_command = "`{}/bin/raptiformica ssh --info-only` {}".format(
-            conf().PROJECT_DIR.rstrip('/'), command_as_string
-        )
+        raptiformica_command = "`{}/bin/raptiformica ssh --info-only " \
+                               "--cache-dir {}` {}" \
+                               "".format(conf().PROJECT_DIR.rstrip('/'),
+                                         self.temp_cache_dir,
+                                         command_as_string)
         _, standard_out, standard_error = run_command_print_ready(
             raptiformica_command,
             buffered=buffered, shell=True
@@ -72,6 +78,10 @@ class IntegrationTestCase(TestCase):
         self.clean_all_docker_images()
         self.clean_up_cache_dir()
         print("Cleaned up any lingering state\n\n")
+
+        self.temp_cache_dir = '.raptiformica.test.{}'.format(uuid4().hex)
+        self.abs_temp_cache_dir = join(expanduser("~"), self.temp_cache_dir)
+        makedirs(self.abs_temp_cache_dir)
 
     def check_consul_consensus_was_established(self, expected_peers=None):
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
@@ -267,3 +277,4 @@ class IntegrationTestCase(TestCase):
         self.kill_all_dockers()
         self.clean_all_docker_images()
         self.clean_up_cache_dir()
+        rmtree(self.abs_temp_cache_dir, ignore_errors=True)
