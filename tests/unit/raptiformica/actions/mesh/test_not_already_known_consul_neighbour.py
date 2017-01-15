@@ -18,7 +18,7 @@ class TestNotAlreadyKnownConsulNeighbour(TestCase):
         not_already_known_consul_neighbour('some_ipv6_address')
 
         self.check_nonzero_exit.assert_called_once_with(
-            'consul members | grep some_ipv6_address'
+            'consul members | grep -v left | grep some_ipv6_address'
         )
 
     def test_not_already_known_consul_neighbour_returns_false_if_ipv6_address_found(self):
