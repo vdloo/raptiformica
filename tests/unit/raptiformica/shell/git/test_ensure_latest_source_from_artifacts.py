@@ -13,8 +13,25 @@ class TestEnsureLatestSourceFromArtifacts(TestCase):
         self.ensure_latest_source = self.set_up_patch(
             'raptiformica.shell.git.ensure_latest_source'
         )
+        self.conf = self.set_up_patch(
+            'raptiformica.shell.git.conf'
+        )
+        self.conf.return_value = Mock(
+            CACHE_DIR='.raptiformica.temp.custom',
+            INSTALL_DIR='/usr/etc/'
+        )
 
     def test_ensure_latest_source_from_artifacts_ensures_artifacts_directory(self):
+        ensure_latest_source_from_artifacts(
+            "https://github.com/vdloo/puppetfiles",
+            "puppetfiles", host='1.2.3.4', port=22
+        )
+
+        self.ensure_directory.assert_called_once_with(
+            '.raptiformica.d/artifacts/repositories'
+        )
+
+    def test_ensure_latest_source_from_artifacts_ensures_artifacts_dir_in_default_cache_on_remote_hosts(self):
         ensure_latest_source_from_artifacts(
             "https://github.com/vdloo/puppetfiles",
             "puppetfiles", host='1.2.3.4', port=22

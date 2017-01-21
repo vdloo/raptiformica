@@ -4,7 +4,7 @@ from shlex import quote
 from functools import reduce
 from os.path import join
 
-from raptiformica.settings import conf
+from raptiformica.settings import conf, Config
 from raptiformica.shell.execute import run_command_print_ready, \
     log_failure_factory, run_command
 from raptiformica.utils import ensure_directory
@@ -183,7 +183,10 @@ def ensure_latest_source_from_artifacts(source, name, destination=None, host=Non
     1 when there already was a checkout
     """
     repositories_directory = reduce(
-        join, (conf().CACHE_DIR, 'artifacts', 'repositories')
+        join, (
+            Config.CACHE_DIR if host else conf().CACHE_DIR,
+            'artifacts', 'repositories'
+        )
     )
     destination = destination or conf().INSTALL_DIR
     ensure_directory(repositories_directory)
