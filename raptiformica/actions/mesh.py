@@ -17,7 +17,7 @@ CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 CONSUL_CONF_HASH = '/var/run/consul_config_hash'
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
-WAIT_FOR_CONSUL_TIMEOUT = 10
+WAIT_FOR_CONSUL_TIMEOUT = 15
 
 
 def list_neighbours(mapping):
