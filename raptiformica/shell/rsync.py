@@ -3,7 +3,7 @@ from logging import getLogger
 
 from os.path import isdir, join
 
-from raptiformica.settings import conf
+from raptiformica.settings import conf, Config
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory, log_success_factory
 from raptiformica.shell.raptiformica import create_remote_raptiformica_cache
 
@@ -87,7 +87,7 @@ def upload_self(host, port=22):
     )
     create_cache_exit_code = create_remote_raptiformica_cache(host, port=port)
     upload_config_exit_code = upload_partial(
-        conf().ABS_CACHE_DIR, "$HOME"
+        conf().ABS_CACHE_DIR + '/', "$HOME/{}".format(Config.CACHE_DIR)
     ) if isdir(conf().ABS_CACHE_DIR) else 0
     return not any(
         (
@@ -110,6 +110,6 @@ def download_artifacts(host, port=22):
     log.info("Downloading artifacts from the remote host")
     download_partial = partial(download, host=host, port=port)
     download_artifacts_exit_code = download_partial(
-        join(conf().CACHE_DIR, 'artifacts'), conf().ABS_CACHE_DIR
+        join(Config.CACHE_DIR, 'artifacts'), conf().ABS_CACHE_DIR
     )
     return not download_artifacts_exit_code

@@ -1,7 +1,7 @@
 from logging import getLogger
 from shlex import quote
 
-from raptiformica.settings import conf
+from raptiformica.settings import conf, Config
 from raptiformica.shell.execute import raise_failure_factory, run_command_remotely, run_command_print_ready
 
 log = getLogger(__name__)
@@ -16,7 +16,7 @@ def create_remote_raptiformica_cache(host, port=22):
     """
     log.info("Ensuring remote raptiformica cache directory")
     exit_code, _, _ = run_command_remotely(
-        ["mkdir", "-p", "$HOME/{}".format(conf().CACHE_DIR)],
+        ["mkdir", "-p", "$HOME/{}".format(Config.CACHE_DIR)],
         host, port=port, buffered=False
     )
     return exit_code

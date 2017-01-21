@@ -1,6 +1,7 @@
 from mock import call
+from os.path import join
 
-from raptiformica.settings import conf
+from raptiformica.settings import conf, Config
 from raptiformica.shell.rsync import upload_self
 from tests.testcase import TestCase
 
@@ -32,7 +33,8 @@ class TestUploadSelf(TestCase):
         expected_calls = [
             call(conf().PROJECT_DIR, conf().INSTALL_DIR, host='1.2.3.4',
                  port=22),
-            call(conf().ABS_CACHE_DIR, "$HOME", host='1.2.3.4', port=22)
+            call(conf().ABS_CACHE_DIR + '/', join("$HOME", Config.CACHE_DIR), host='1.2.3.4',
+                 port=22)
         ]
         self.assertCountEqual(self.upload.mock_calls, expected_calls)
 
