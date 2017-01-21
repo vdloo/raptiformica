@@ -3,7 +3,7 @@
   "compute": {
     "docker": {
       "headless": {
-        "available": "docker -v",
+        "available": "docker -v && (uname -m | grep x86_64)",
         "source": "https://github.com/vdloo/raptiformica",
         "start_instance": "cd modules/compute/docker; ssh-add -L > instance_key.pub; (sudo docker images | grep raptiformica-baseimage || sudo docker build -t raptiformica-baseimage .) && sudo docker run --privileged -d raptiformica-baseimage > container_id && sleep 10",
         "get_hostname": "bash -c \"sudo docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(cat modules/compute/docker/container_id)\" | tail -n 1",
