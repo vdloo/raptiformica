@@ -80,6 +80,7 @@ class IntegrationTestCase(TestCase):
         print("Cleaned up any lingering state\n\n")
 
         self.temp_cache_dir = '.raptiformica.test.{}'.format(uuid4().hex)
+        conf().set_cache_dir(self.temp_cache_dir)
         self.abs_temp_cache_dir = join(expanduser("~"), self.temp_cache_dir)
         makedirs(self.abs_temp_cache_dir)
 
