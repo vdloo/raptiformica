@@ -43,13 +43,6 @@ class TestReloadConsulAgentIfNecessary(TestCase):
 
         self.assertFalse(self.reload_consul_agent.called)
 
-    def test_reload_consul_agent_cleans_up_old_consul_if_config_hash_is_outdated(self):
-        self.consul_config_hash_outdated.return_value = True
-
-        reload_consul_agent_if_necessary()
-
-        self.clean_up_old_consul.assert_called_once_with()
-
     def test_reload_consul_agent_reloads_consul_agent_if_config_hash_is_outdated(self):
         self.consul_config_hash_outdated.return_value = True
 
