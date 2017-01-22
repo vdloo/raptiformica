@@ -21,7 +21,6 @@ def download(source, destination, host, port=22):
     """
     download_command = [
         '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
-        '-ignore-missing-args',  # Don't warn when downloading from self
         'root@{}:{}'.format(host, source), destination,
         '--exclude=.venv', '--exclude=*.pyc',
         '-e', 'ssh -p {} '
