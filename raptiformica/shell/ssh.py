@@ -84,11 +84,13 @@ def run_detached_command(command, failure_message='Failed running detached comma
 
 
 @contextmanager
-def detached_command_context(command):
+def detached_command_context(command, persist=True):
     """
     Run code in a detached command context. The command is executed,
     detached and cleaned up after the context exists.
     :param str command: Command to run in the background
+    :param bool persist: Don't kill the detached command after
+    leaving the context
     :return None:
     """
     log.debug("Starting detached command {}".format(command))
@@ -96,12 +98,16 @@ def detached_command_context(command):
     try:
         yield
     finally:
-        log.debug("Killing detached command running in screen {}".format(
-            screen_name
-        ))
-        run_command_print_ready(
-            "pkill -9 -f {}".format(screen_name), shell=True
-        )
+        if persist:
+            log.debug("Exiting context but detached command will persist "
+                      "in screen {}".format(screen_name))
+        else:
+            log.debug("Killing detached command running in screen {}".format(
+                screen_name
+            ))
+            run_command_print_ready(
+                "pkill -9 -f {}".format(screen_name), shell=True
+            )
 
 
 @contextmanager
