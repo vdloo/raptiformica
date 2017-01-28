@@ -209,7 +209,9 @@ def stop_detached_cjdroute():
     :return:
     """
     log.info("Stopping cjdroute in the background")
-    kill_running = "pkill -f '[c]jdroute --nobg'"
+    kill_running = "ps aux | grep [c]jdroute | awk '{print $2}' | " \
+                   "xargs --no-run-if-empty -I {} " \
+                   "sh -c \"grep -q docker /proc/{}/cgroup || kill {}\""
     run_command_print_ready(
         kill_running,
         shell=True,
@@ -415,7 +417,9 @@ def ensure_no_consul_running():
     :return None:
     """
     log.info("Stopping any running consul processes")
-    kill_running = "pkill -f '[c]onsul'"
+    kill_running = "ps aux | grep [c]onsul | awk '{print $2}' | " \
+                   "xargs --no-run-if-empty -I {} " \
+                   "sh -c \"grep -q docker /proc/{}/cgroup || kill {}\""
     run_command_print_ready(
         kill_running,
         shell=True,
