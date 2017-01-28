@@ -105,25 +105,6 @@ def unzip_consul_release(host=None, port=22):
     unzip_consul_web_ui(host=host, port=port)
 
 
-def consul_setup(host=None, port=22):
-    """
-    Run the consul setup script. Places the systemd service file.
-    :param str host: hostname or ip of the remote machine, or None for the local machine
-    :param int port: port to use to connect to the remote machine over ssh
-    :return int exit_code: exit code of the configured bootstrap command
-    """
-    log.info("Build, configure and install CJDNS")
-    setup_script = path.join(
-        conf().RAPTIFORMICA_DIR, 'resources/setup_consul.sh'
-    )
-    cjdns_setup_command = [setup_script]
-    exit_code, _, _ = run_critical_unbuffered_command_print_ready(
-        cjdns_setup_command, host=host, port=port,
-        failure_message="Failed to ensure that consul was configured"
-    )
-    return exit_code
-
-
 def ensure_consul_installed(host=None, port=22):
     """
     Install consul. This is done with scripting instead of puppet for ansible because at this point in the code
@@ -136,4 +117,3 @@ def ensure_consul_installed(host=None, port=22):
     ensure_consul_dependencies(host=host, port=port)
     ensure_latest_consul_release(host=host, port=port)
     unzip_consul_release(host=host, port=port)
-    consul_setup(host=host, port=port)
