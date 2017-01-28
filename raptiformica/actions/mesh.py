@@ -1,3 +1,4 @@
+import pipes
 from contextlib import suppress
 from os import remove
 from os.path import join, isfile
@@ -465,7 +466,7 @@ def consul_config_hash_outdated():
     """
     Check the current consul config hash against the config hash written
     to /var/run when the last consul agent was started.
-    :return None:
+    :return bool outdated: True if outdated, False if up to date
     """
     log.info(
         "Checking if the latest reported running "
@@ -481,6 +482,22 @@ def consul_config_hash_outdated():
         # There is no config hash yet so it is not up to
         # date because it does not exist
         return True
+
+
+def consul_shared_secret_changed():
+    """
+    Check the shared secret from the config against the one in
+    the local keyring
+    :return bool changed: True if changed, False if up to date
+    """
+    log.info(
+        "Checking if the keyring on disk is up to "
+        "date with the shared secret in the config"
+    )
+    shared_secret = get_consul_password(get_config_mapping())
+    check_shared_secret_up_to_date = "grep {} /opt/consul/serf/local.keyring" \
+                                     "".format(pipes.quote(shared_secret))
+    return not check_nonzero_exit(check_shared_secret_up_to_date)
 
 
 def write_consul_config_hash():
@@ -513,6 +530,16 @@ def remove_old_consul_keyring():
         remove('/opt/consul/serf/local.keyring')
 
 
+def restart_consul_agent_if_necessary():
+    """
+    Restart consul if the shared secret has changed.
+    :return None:
+    """
+    if consul_shared_secret_changed():
+        remove_old_consul_keyring()
+        restart_consul()
+
+
 def reload_consul_agent_if_necessary():
     """
     Reload consul if the agent is running but the config file has changed
@@ -539,6 +566,18 @@ def block_until_consul_port_is_free():
     )
 
 
+def restart_consul():
+    """
+    Stop and start the consul agent. If the agent is not
+    already running, just start it.
+    :return None:
+    """
+    clean_up_old_consul()
+    block_until_consul_port_is_free()
+    start_detached_consul_agent()
+    write_consul_config_hash()
+
+
 def ensure_consul_agent():
     """
     Ensure the consul agent is running with the latest configuration
@@ -549,12 +588,10 @@ def ensure_consul_agent():
     log.info("Ensuring consul agent is running with an up to date configuration")
     consul_running = check_if_consul_is_available()
     if consul_running:
+        restart_consul_agent_if_necessary()
         reload_consul_agent_if_necessary()
     else:
-        clean_up_old_consul()
-        block_until_consul_port_is_free()
-        start_detached_consul_agent()
-        write_consul_config_hash()
+        restart_consul()
     block_until_consul_becomes_available()
 
 
