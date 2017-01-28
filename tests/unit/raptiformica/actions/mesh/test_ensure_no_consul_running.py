@@ -19,9 +19,34 @@ class TestEnsureNoConsulRunning(TestCase):
     def test_ensure_no_consul_running_kills_any_running_consul_agents(self):
         ensure_no_consul_running()
 
-        expected_command = "pkill -f '[c]onsul'"
+        expected_command = "ps aux | grep [c]onsul | awk '{print $2}' | " \
+                           "xargs --no-run-if-empty -I {} " \
+                           "sh -c \"grep -q docker /proc/{}/cgroup || kill {}\""
         self.run_command_print_ready.assert_called_once_with(
             expected_command,
             shell=True,
             buffered=False
+        )
+        self.assertIn(
+            'ps aux |', expected_command,
+            'It should list all processes on the system'
+        )
+        self.assertIn(
+            '| grep [c]onsul |', expected_command,
+            'Should find the processes with consul in the name, '
+            'excluding this one'
+        )
+        self.assertIn(
+            "| awk '{print $2}' |", expected_command,
+            'Should print the PID of the processes matching the name'
+        )
+        self.assertIn(
+            "xargs --no-run-if-empty", expected_command,
+            'Should map over the found PIDs, do nothing if no matches'
+        )
+        self.assertIn(
+            "-I {} sh -c \"grep -q docker /proc/{}/cgroup || kill {}\"",
+            expected_command,
+            'Should only kill processes not in Docker containers, '
+            'those could have their own raptiformica instances running'
         )
