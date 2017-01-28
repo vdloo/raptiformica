@@ -1,3 +1,5 @@
+from contextlib import suppress
+from os import remove
 from os.path import join, isfile
 from logging import getLogger
 from shutil import rmtree
@@ -458,6 +460,19 @@ def write_consul_config_hash():
         config_hash_file.write(binary_config_hash)
 
 
+def remove_old_consul_keyring():
+    """
+    Remove any old local consul keyring. Can be removed when
+    https://github.com/hashicorp/consul/issues/719 is fixed.
+    The configured shared secret will not be used if the local
+    keyring already exists because it takes precedence over the
+    configuration options
+    :return None:
+    """
+    with suppress(FileNotFoundError):
+        remove('/opt/consul/serf/local.keyring')
+
+
 def reload_consul_agent_if_necessary():
     """
     Reload consul if the agent is running but the config file has changed
@@ -465,6 +480,7 @@ def reload_consul_agent_if_necessary():
     :return None:
     """
     if consul_config_hash_outdated():
+        remove_old_consul_keyring()
         reload_consul_agent()
         write_consul_config_hash()
 
