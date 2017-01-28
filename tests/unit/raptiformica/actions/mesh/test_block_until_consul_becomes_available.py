@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 
 class TestBlockUntilConsulBecomesAvailable(TestCase):
     def setUp(self):
-        self.wait =  self.set_up_patch(
+        self.wait = self.set_up_patch(
             'raptiformica.actions.mesh.wait'
         )
 

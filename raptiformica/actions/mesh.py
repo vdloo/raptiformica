@@ -19,6 +19,8 @@ CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 CONSUL_CONF_HASH = '/var/run/consul_config_hash'
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
+WAIT_FOR_CONSUL_PORT_TIMEOUT = 10
+WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 10
 WAIT_FOR_CONSUL_TIMEOUT = 15
 
 
@@ -215,6 +217,39 @@ def stop_detached_cjdroute():
     )
 
 
+def check_if_port_available_factory(port):
+    """
+    Create a function that checks if the specified port is in use
+    :param int port: The port to check
+    :return func check_if_port_available: function that checks if
+    the port is in use
+    """
+    def check_if_port_available():
+        """
+        Check if a port is in use
+        :param int port: The port to check
+        :return bool not_in_use: True if not in use, False if in use
+        """
+        check_port_command = "netstat -tuna | grep {:d} && " \
+                             "/bin/false || /bin/true".format(port)
+        return check_nonzero_exit(check_port_command)
+    return check_if_port_available
+
+
+def block_until_cjdroute_port_is_free():
+    """
+    Wait for the cjdroute port to become available. If it
+    was in use before it could take a while before the OS
+    frees it for use.
+    :return None:
+    """
+    log.info("Waiting until the cjdroute port becomes available")
+    wait(
+        check_if_port_available_factory(conf().CJDNS_DEFAULT_PORT),
+        timeout=WAIT_FOR_CJDROUTE_PORT_TIMEOUT
+    )
+
+
 def start_detached_cjdroute():
     """
     Start cjdroute running in the foreground in a detached screen
@@ -249,7 +284,7 @@ def block_until_tun0_becomes_available():
     Poll the network interfaces list until the virtual network adapter becomes available
     :return None || TimeoutError:
     """
-    log.info("Waiting until virtual network adapter becomes availble")
+    log.info("Waiting until virtual network adapter becomes available")
     wait(
         check_if_tun0_is_available,
         timeout=WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT
@@ -367,6 +402,7 @@ def ensure_cjdns_routing():
     log.info("Ensuring cjdns routing")
     if cjdroute_config_hash_outdated() or not check_if_tun0_is_available():
         stop_detached_cjdroute()
+        block_until_cjdroute_port_is_free()
         start_detached_cjdroute()
         write_cjdroute_config_hash()
         block_until_tun0_becomes_available()
@@ -485,6 +521,20 @@ def reload_consul_agent_if_necessary():
         write_consul_config_hash()
 
 
+def block_until_consul_port_is_free():
+    """
+    Wait for the consul port to become available. If it
+    was in use before it could take a while before the OS
+    frees it for use.
+    :return None:
+    """
+    log.info("Waiting until the consul port becomes available")
+    wait(
+        check_if_port_available_factory(conf().CONSUL_DEFAULT_PORT),
+        timeout=WAIT_FOR_CONSUL_PORT_TIMEOUT
+    )
+
+
 def ensure_consul_agent():
     """
     Ensure the consul agent is running with the latest configuration
@@ -498,6 +548,7 @@ def ensure_consul_agent():
         reload_consul_agent_if_necessary()
     else:
         clean_up_old_consul()
+        block_until_consul_port_is_free()
         start_detached_consul_agent()
         write_consul_config_hash()
     block_until_consul_becomes_available()

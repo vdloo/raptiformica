@@ -16,6 +16,9 @@ class TestEnsureConsulAgent(TestCase):
         self.clean_up_old_consul = self.set_up_patch(
             'raptiformica.actions.mesh.clean_up_old_consul'
         )
+        self.block_until_consul_port_is_free = self.set_up_patch(
+            'raptiformica.actions.mesh.block_until_consul_port_is_free'
+        )
         self.start_detached_consul_agent = self.set_up_patch(
             'raptiformica.actions.mesh.start_detached_consul_agent'
         )
@@ -50,6 +53,13 @@ class TestEnsureConsulAgent(TestCase):
 
         self.assertFalse(self.clean_up_old_consul.called)
 
+    def test_ensure_consul_agent_does_not_block_until_consul_port_is_free_if_consul_available(self):
+        self.check_if_consul_is_available.return_value = True
+
+        ensure_consul_agent()
+
+        self.assertFalse(self.block_until_consul_port_is_free.called)
+
     def test_ensure_consul_agent_does_not_start_a_new_detached_consul_agent_if_consul_already_available(self):
         self.check_if_consul_is_available.return_value = True
 
@@ -73,6 +83,13 @@ class TestEnsureConsulAgent(TestCase):
         ensure_consul_agent()
 
         self.clean_up_old_consul.assert_called_once_with()
+
+    def test_ensure_consul_agent_blocks_until_consul_port_is_free_if_not_available(self):
+        self.check_if_consul_is_available.return_value = False
+
+        ensure_consul_agent()
+
+        self.block_until_consul_port_is_free.assert_called_once_with()
 
     def test_ensure_consul_agent_starts_detached_consul_agent_if_consul_agent_not_available(self):
         self.check_if_consul_is_available.return_value = False

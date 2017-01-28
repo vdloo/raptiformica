@@ -22,6 +22,7 @@ class Config(object):
     KEY_VALUE_TIMEOUT = 1  # How long to wait for a config retrieval
     KEY_VALUE_PATH = 'raptiformica'
     CJDNS_DEFAULT_PORT = 4863
+    CONSUL_DEFAULT_PORT = 8300
     MACHINE_ARCH = uname()[4]
 
     def set_cache_dir(self, cache_dir):
