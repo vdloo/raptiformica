@@ -7,8 +7,8 @@ class TestReloadConsulAgentIfNecessary(TestCase):
         self.consul_config_hash_outdated = self.set_up_patch(
             'raptiformica.actions.mesh.consul_config_hash_outdated'
         )
-        self.clean_up_old_consul = self.set_up_patch(
-            'raptiformica.actions.mesh.clean_up_old_consul'
+        self.remove_old_consul_keyring = self.set_up_patch(
+            'raptiformica.actions.mesh.remove_old_consul_keyring'
         )
         self.reload_consul_agent = self.set_up_patch(
             'raptiformica.actions.mesh.reload_consul_agent'
@@ -22,12 +22,17 @@ class TestReloadConsulAgentIfNecessary(TestCase):
 
         self.consul_config_hash_outdated.assert_called_once_with()
 
-    def test_reload_consul_agent_does_not_clean_up_old_consul_if_config_hash_still_up_to_date(self):
+    def test_reload_consul_agent_if_necessary_removes_old_consul_keyring(self):
+        reload_consul_agent_if_necessary()
+
+        self.remove_old_consul_keyring.assert_called_once_with()
+
+    def test_reload_consul_agent_if_necessary_does_not_remove_old_consul_keyring_if_hash_still_up_to_date(self):
         self.consul_config_hash_outdated.return_value = False
 
         reload_consul_agent_if_necessary()
 
-        self.assertFalse(self.clean_up_old_consul.called)
+        self.assertFalse(self.remove_old_consul_keyring.called)
 
     def test_reload_consul_agent_does_not_reload_consul_agent_if_config_hash_still_up_to_date(self):
         self.consul_config_hash_outdated.return_value = False
