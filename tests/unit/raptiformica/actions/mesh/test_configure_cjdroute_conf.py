@@ -67,6 +67,11 @@ class TestConfigureCjdrouteConf(TestCase):
                         }
                     },
                     'bind': '0.0.0.0:4863'
+                }],
+                'ETHInterface': [{
+                    'beacon': 0,
+                    'bind': 'all',
+                    'connectTo': {}
                 }]
             },
             'publicKey': 'yet_another_public_key.k'
