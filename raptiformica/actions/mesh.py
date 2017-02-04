@@ -112,6 +112,12 @@ def configure_cjdroute_conf():
         'connectTo': neighbours,
         'bind': '0.0.0.0:{}'.format(conf().CJDNS_DEFAULT_PORT)
     }]
+    cjdroute_config['interfaces']['ETHInterface'] = [{
+        # Disable peer auto-discovery
+        'beacon': 0,
+        'bind': 'all',
+        'connectTo': {}
+    }]
     write_json(cjdroute_config, CJDROUTE_CONF_PATH)
 
 
