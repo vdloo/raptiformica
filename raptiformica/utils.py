@@ -1,5 +1,7 @@
 import hashlib
 import json
+from copy import deepcopy
+from functools import wraps
 from itertools import chain
 from os import path, makedirs, walk
 
@@ -109,6 +111,48 @@ def wait(predicate, timeout=5):
         else:
             waited += 1
             sleep(1)
+
+
+def retry(attempts=2, expect=(RuntimeError,)):
+    """
+    Decorator that retries the wrapped body until the attempts
+    run out when the expected exception is encountered.
+    :param int attempts: Amount of tries to perform
+    :param iterable expect: Iterable of exceptions to expect
+    :return func decorator: The decorator
+    """
+    def retry_decorator(func):
+        """
+        The decorator that wraps the function
+        :param func func: The function to decorate
+        :return func: The wrapped function
+        """
+        def retry_wrapper(*args, **kwargs):
+            """
+            The retry wrapper
+            :param args: The args
+            :param kwargs: The kwargs
+            :return mul result: The wrapped function result
+            """
+            attempts_left = deepcopy(attempts)
+            while True:
+                attempts_left -= 1
+                try:
+                    return func(*args, **kwargs)
+                except expect:
+                    if attempts_left <= 0:
+                        log.warning(
+                            "Ran out of attempts for this function! Not "
+                            "catching expected exception anymore."
+                        )
+                        raise
+                    else:
+                        log.info(
+                            "Caught expected exception, have {} attempts "
+                            "left".format(attempts)
+                        )
+        return wraps(func)(retry_wrapper)
+    return retry_decorator
 
 
 def group_n_elements(elements, n=1):
