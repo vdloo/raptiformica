@@ -119,7 +119,9 @@ def try_config_request(func):
             # Absolute import because the distributed proxy
             # imports from settings as well
             with raptiformica.distributed.proxy.forward_any_port(
-                source_port=8500, predicate=['consul', 'members']
+                source_port=8500, predicate=[
+                    'consul', 'kv', 'get', '/raptiformica/raptiformica_api_version'
+                ]
             ):
                 return func()
         raise

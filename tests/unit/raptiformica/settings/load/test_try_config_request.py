@@ -38,7 +38,9 @@ class TestTryConfigRequest(TestCase):
 
         self.forward_any_port.assert_called_once_with(
             source_port=8500,
-            predicate=['consul', 'members']
+            predicate=[
+                'consul', 'kv', 'get', '/raptiformica/raptiformica_api_version'
+            ]
         )
 
     def test_try_config_request_tries_callback_again_with_forwarded_port(self):
