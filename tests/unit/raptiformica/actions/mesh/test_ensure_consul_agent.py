@@ -79,3 +79,19 @@ class TestEnsureConsulAgent(TestCase):
         ensure_consul_agent()
 
         self.block_until_consul_becomes_available.assert_called_once_with()
+
+    def test_ensure_consul_agent_is_retried_if_block_until_available_times_out(self):
+        self.block_until_consul_becomes_available.side_effect = (TimeoutError, None)
+
+        ensure_consul_agent()
+
+        self.assertEqual(2, self.check_if_consul_is_available.call_count)
+        self.assertEqual(2, self.restart_consul_agent_if_necessary.call_count)
+        self.assertEqual(2, self.reload_consul_agent_if_necessary.call_count)
+        self.assertEqual(2, self.block_until_consul_becomes_available.call_count)
+
+    def test_ensure_consul_agent_is_only_retried_one_time(self):
+        self.block_until_consul_becomes_available.side_effect = (TimeoutError, TimeoutError)
+
+        with self.assertRaises(TimeoutError):
+            ensure_consul_agent()
