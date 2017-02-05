@@ -149,7 +149,7 @@ def retry(attempts=2, expect=(RuntimeError,)):
                     else:
                         log.info(
                             "Caught expected exception, have {} attempts "
-                            "left".format(attempts)
+                            "left".format(attempts - 1)
                         )
         return wraps(func)(retry_wrapper)
     return retry_decorator
