@@ -11,7 +11,7 @@ from raptiformica.shell.execute import run_command_print_ready, run_command, che
     log_failure_factory, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements, \
-    calculate_checksum
+    calculate_checksum, retry
 
 log = getLogger(__name__)
 
@@ -402,6 +402,7 @@ def write_cjdroute_config_hash():
         config_hash_file.write(binary_config_hash)
 
 
+@retry(attempts=2, expect=(TimeoutError,))
 def ensure_cjdns_routing():
     """
     Start a new cjdroute instance, wait until the distributed
@@ -584,6 +585,7 @@ def restart_consul():
     write_consul_config_hash()
 
 
+@retry(attempts=2, expect=(TimeoutError,))
 def ensure_consul_agent():
     """
     Ensure the consul agent is running with the latest configuration
