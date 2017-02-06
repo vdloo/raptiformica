@@ -24,6 +24,7 @@ class Config(object):
     CJDNS_DEFAULT_PORT = 4863
     CONSUL_DEFAULT_PORT = 8300
     MACHINE_ARCH = uname()[4]
+    FORWARDED_CONSUL_ONCE_ALREADY = False
 
     def set_cache_dir(self, cache_dir):
         """
@@ -38,6 +39,18 @@ class Config(object):
         self.MACHINES_DIR = join(self.EPHEMERAL_DIR, 'machines')
         self.USER_MODULES_DIR = join(self.ABS_CACHE_DIR, 'modules')
         self.USER_ARTIFACTS_DIR = join(self.ABS_CACHE_DIR, 'artifacts')
+
+    def set_forwarded_remote_consul_once(self):
+        """
+        Record in the Config object that we've forwarded any available
+        remote consul port once already. After the first time the cached
+        config should be up to date enough to give the agent first-class
+        access to the distributed key value store. Finding a working consul
+        port to forward takes a lot of time so it should only happen if it
+        is really needed.
+        :return None:
+        """
+        self.FORWARDED_CONSUL_ONCE_ALREADY = True
 
 config = Config()
 

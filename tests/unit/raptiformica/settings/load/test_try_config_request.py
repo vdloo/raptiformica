@@ -1,6 +1,7 @@
 from mock import Mock, call
 from urllib.error import HTTPError
 
+from raptiformica.settings import conf
 from raptiformica.settings.load import try_config_request
 from tests.testcase import TestCase
 
@@ -13,6 +14,7 @@ class TestTryConfigRequest(TestCase):
         )
         self.forward_any_port.return_value.__exit__ = lambda a, b, c, d: None
         self.forward_any_port.return_value.__enter__ = lambda a: None
+        conf().FORWARDED_CONSUL_ONCE_ALREADY = False
 
     def test_try_config_request_performs_callback(self):
         try_config_request(self.callback)
@@ -42,6 +44,16 @@ class TestTryConfigRequest(TestCase):
                 'consul', 'kv', 'get', '/raptiformica/raptiformica_api_version'
             ]
         )
+
+    def test_try_config_request_does_not_forward_remote_port_if_already_forwarded_once_before(self):
+        conf().set_forwarded_remote_consul_once()
+
+        self.callback.side_effect = [
+            HTTPError('url', 'code', 'msg', 'hdrs', Mock()),
+            Mock()
+        ]
+        with self.assertRaises(HTTPError):
+            try_config_request(self.callback)
 
     def test_try_config_request_tries_callback_again_with_forwarded_port(self):
         self.callback.side_effect = [
