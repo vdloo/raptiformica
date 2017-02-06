@@ -114,16 +114,24 @@ def try_config_request(func):
         log.debug("Attempting API call on local Consul instance")
         return func()
     except API_EXCEPTIONS:
-        log.debug("Attempting API call on remote Consul instance")
-        with suppress(RuntimeError):
-            # Absolute import because the distributed proxy
-            # imports from settings as well
-            with raptiformica.distributed.proxy.forward_any_port(
-                source_port=8500, predicate=[
-                    'consul', 'kv', 'get', '/raptiformica/raptiformica_api_version'
-                ]
-            ):
-                return func()
+        if conf().FORWARDED_CONSUL_ONCE_ALREADY:
+            log.debug(
+                "Not attempting to forward any remote Consul instance, "
+                "already attempted that once. Working from the most recent "
+                "available cached config now"
+            )
+        else:
+            log.debug("Attempting API call on remote Consul instance")
+            conf().set_forwarded_remote_consul_once()
+            with suppress(RuntimeError):
+                # Absolute import because the distributed proxy
+                # imports from settings as well
+                with raptiformica.distributed.proxy.forward_any_port(
+                    source_port=8500, predicate=[
+                        'consul', 'kv', 'get', '/raptiformica/raptiformica_api_version'
+                    ]
+                ):
+                    return func()
         raise
 
 
