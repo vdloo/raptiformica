@@ -1,5 +1,6 @@
 import hashlib
 import json
+from time import time
 from copy import deepcopy
 from functools import wraps
 from itertools import chain
@@ -7,6 +8,8 @@ from os import path, makedirs, walk
 
 from logging import getLogger
 from time import sleep
+
+from os.path import getmtime
 
 log = getLogger(__name__)
 
@@ -182,3 +185,12 @@ def calculate_checksum(filename):
             file_hash.update(buf)
             buf = f.read(128)
         return file_hash.hexdigest()
+
+
+def file_age_in_seconds(filename):
+    """
+    Get the difference in seconds between now and the mtime of the file
+    :param str filename: File to get the time since last mtime update of
+    :return int seconds: Time in seconds since last mtime uptdate
+    """
+    return time() - getmtime(filename)
