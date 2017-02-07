@@ -15,6 +15,8 @@ class Config(object):
     BASE_CONFIG = join(PROJECT_DIR, '.base_config.json')
     MUTABLE_CONFIG = join(ABS_CACHE_DIR, 'mutable_config.json')
     CONFIG_CACHE_LOCK = '/tmp/raptiformica_config_cache.lock'
+    PACKAGE_MANGER_UPDATED = '/tmp/raptiformica_last_updated_package_manager'
+    PACKAGE_MANAGER_CACHE_OUTDATED = 600
     MODULES_DIR = join(PROJECT_DIR, 'modules')
     USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
     USER_ARTIFACTS_DIR = join(ABS_CACHE_DIR, 'artifacts')

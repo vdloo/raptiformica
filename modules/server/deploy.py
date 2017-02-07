@@ -2,7 +2,7 @@
 from raptiformica.log import setup_logging
 from raptiformica.shell.consul import ensure_consul_installed
 from raptiformica.shell.cjdns import ensure_cjdns_installed
-from raptiformica.shell.package_manager import update_package_manager_cache
+from raptiformica.shell.package_manager import update_local_package_manager_cache_if_necessary
 
 
 def main():
@@ -12,7 +12,7 @@ def main():
     :return None:
     """
     setup_logging()
-    update_package_manager_cache()
+    update_local_package_manager_cache_if_necessary()
     ensure_cjdns_installed()
     ensure_consul_installed()
 

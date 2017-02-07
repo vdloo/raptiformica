@@ -1,6 +1,10 @@
 from logging import getLogger
+from pathlib import Path
+from os.path import isfile
 
+from raptiformica.settings import conf
 from raptiformica.shell.execute import run_multiple_labeled_commands
+from raptiformica.utils import file_age_in_seconds
 
 log = getLogger(__name__)
 
@@ -24,3 +28,16 @@ def update_package_manager_cache(host=None, port=22):
         ensure_cache_updated_commands, host=host, port=port,
         failure_message="Failed to run (if {}) update package manager command"
     )
+
+
+def update_local_package_manager_cache_if_necessary():
+    """
+    Update the package manager cache if the last update was longer than the
+    specified PACKAGE_MANAGER_CACHE_OUTDATED seconds defined in the config
+    :return None:
+    """
+    outdated = conf().PACKAGE_MANAGER_CACHE_OUTDATED
+    updated = conf().PACKAGE_MANGER_UPDATED
+    if not isfile(updated) or file_age_in_seconds(updated) > outdated:
+        update_package_manager_cache()
+        Path(updated).touch()
