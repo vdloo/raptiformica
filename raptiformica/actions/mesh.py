@@ -504,7 +504,9 @@ def consul_keyring_in_memory_is_stale(shared_secret):
         "Checking if the keyring in memory is up to "
         "date with the shared secret from the config"
     )
-    check_shared_secret_up_to_date = "consul keyring --list |& grep -q {}" \
+    check_shared_secret_up_to_date = "if consul keyring -list > /dev/null; " \
+                                     "then consul keyring -list | " \
+                                     "grep -q {}; else /bin/true; fi" \
                                      "".format(pipes.quote(shared_secret))
     return not check_nonzero_exit(check_shared_secret_up_to_date)
 
