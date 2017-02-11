@@ -33,12 +33,16 @@ class TestConsulSharedSecretChanged(TestCase):
             'raptiformica.actions.mesh.get_consul_password'
         )
         self.get_consul_password.side_effect = get_consul_password
-        self.check_nonzero_exit = self.set_up_patch(
-            'raptiformica.actions.mesh.check_nonzero_exit'
+        self.consul_keyring_on_disk_is_stale = self.set_up_patch(
+            'raptiformica.actions.mesh.consul_keyring_on_disk_is_stale'
         )
-        self.check_nonzero_exit.return_value = False
+        self.consul_keyring_on_disk_is_stale.return_value = False
+        self.consul_keyring_in_memory_is_stale = self.set_up_patch(
+            'raptiformica.actions.mesh.consul_keyring_in_memory_is_stale'
+        )
+        self.consul_keyring_in_memory_is_stale.return_value = False
 
-    def test_consul_shared_secret_changed_logs_checking_keyring(self):
+    def test_consul_shared_secret_changed_logs_checking_shared_secret(self):
         consul_shared_secret_changed()
 
         self.log.info.assert_called_once_with(ANY)
@@ -55,33 +59,42 @@ class TestConsulSharedSecretChanged(TestCase):
             self.get_config_mapping.return_value
         )
 
-    def test_consul_shared_secret_changed_checks_nonzero_exit_of_keyring_grep(self):
+    def test_consul_shared_secret_changed_checks_if_consul_keyring_on_disk_is_stale(self):
         consul_shared_secret_changed()
 
-        self.check_nonzero_exit.assert_called_once_with(
-            'grep a_different_secret /opt/consul/serf/local.keyring'
+        self.consul_keyring_on_disk_is_stale.assert_called_once_with(
+            'a_different_secret'
         )
 
-    def test_consul_shared_secret_changed_sanitizes_garbage_shared_secret(self):
-        self.get_consul_password.side_effect = None
-        self.get_consul_password.return_value = '; rm -Rf /some/dir/\''
+    def test_consul_shared_secret_changed_does_not_check_in_memory_keyring_if_on_disk_was_already_stale(self):
+        self.consul_keyring_on_disk_is_stale.return_value = True
 
         consul_shared_secret_changed()
 
-        self.check_nonzero_exit.assert_called_once_with(
-            'grep \'; rm -Rf /some/dir/\'"\'"\'\' /opt/consul/serf/local.keyring'
+        self.assertFalse(self.consul_keyring_in_memory_is_stale.called)
+
+    def test_consul_shared_secret_changed_checks_if_in_memory_keyring_is_stale_if_on_disk_was_up_to_date(self):
+        consul_shared_secret_changed()
+
+        self.consul_keyring_in_memory_is_stale.assert_called_once_with(
+            'a_different_secret'
         )
 
-    def test_consul_shared_secret_changes_returns_false_if_zero(self):
-        self.check_nonzero_exit.return_value = True
-
-        ret = consul_shared_secret_changed()
-
-        self.assertFalse(ret)
-
-    def test_consul_shared_secret_changes_returns_true_if_non_zero(self):
-        self.check_nonzero_exit.return_value = False
+    def test_consul_shared_secret_changed_returns_true_if_on_disk_is_stale(self):
+        self.consul_keyring_on_disk_is_stale.return_value = True
 
         ret = consul_shared_secret_changed()
 
         self.assertTrue(ret)
+
+    def test_consul_shared_secret_changed_returns_true_if_on_disk_is_up_to_date_but_in_memory_is_stale(self):
+        self.consul_keyring_on_disk_is_stale.return_value = True
+
+        ret = consul_shared_secret_changed()
+
+        self.assertTrue(ret)
+
+    def test_consul_shared_secret_changed_returns_false_if_on_disk_and_in_memory_up_to_date(self):
+        ret = consul_shared_secret_changed()
+
+        self.assertFalse(ret)
