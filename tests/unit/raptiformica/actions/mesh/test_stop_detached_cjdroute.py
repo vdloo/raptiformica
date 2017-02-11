@@ -21,7 +21,8 @@ class TestStopDetachedCjdroute(TestCase):
 
         expected_command = "ps aux | grep [c]jdroute | awk '{print $2}' | " \
                            "xargs --no-run-if-empty -I {} " \
-                           "sh -c \"grep -q docker /proc/{}/cgroup || kill {}\""
+                           "sh -c \"grep -q docker /proc/{}/cgroup && " \
+                           "grep -qv docker /proc/1/cgroup || kill {}\""
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
@@ -45,10 +46,12 @@ class TestStopDetachedCjdroute(TestCase):
             'Should map over the found PIDs, do nothing if no matches'
         )
         self.assertIn(
-            "-I {} sh -c \"grep -q docker /proc/{}/cgroup || kill {}\"",
+            "-I {} sh -c \"grep -q docker /proc/{}/cgroup && "
+            "grep -qv docker /proc/1/cgroup || kill {}\"",
             expected_command,
-            'Should only kill processes not in Docker containers, '
-            'those could have their own raptiformica instances running'
+            'Should only kill processes not in Docker containers unless '
+            'running inside a Docker, those could have their own raptiformica '
+            'instances running'
         )
 
     def test_stop_detached_cjdroute_does_not_raise_error_when_stopping_returned_nonzero(self):
