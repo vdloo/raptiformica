@@ -23,14 +23,16 @@ class TestConsulKeyringInMemoryIsStale(TestCase):
         consul_keyring_in_memory_is_stale('the_secret')
 
         self.check_nonzero_exit.assert_called_once_with(
-            'consul keyring --list |& grep -q the_secret'
+            'if consul keyring -list > /dev/null; then consul keyring -list | '
+            'grep -q the_secret; else /bin/true; fi'
         )
 
     def test_consul_keyring_in_memory_is_stale_escapes_special_characters_in_shared_secret(self):
         consul_keyring_in_memory_is_stale('\';echo 123 $%^"')
 
         self.check_nonzero_exit.assert_called_once_with(
-            'consul keyring --list |& grep -q \'\'"\'"\';echo 123 $%^"\''
+            'if consul keyring -list > /dev/null; then consul keyring -list | '
+            'grep -q \'\'"\'"\';echo 123 $%^"\'; else /bin/true; fi'
         )
 
     def test_consul_keyring_in_memory_is_stale_returns_true_if_returned_nonzero(self):
