@@ -2,6 +2,7 @@ import uuid
 from os.path import join
 from logging import getLogger
 
+from raptiformica.actions.prune import ensure_neighbour_removed_from_config_by_host
 from raptiformica.distributed.events import send_reload_meshnet
 from raptiformica.distributed.ping import find_host_that_can_ping
 from raptiformica.settings import conf
@@ -79,6 +80,7 @@ def update_neighbours_config(host, port=22, uuid=None):
     neighbour_mapping = {
         join(neighbour_path, k): v for k, v in neighbour_entry.items()
     }
+    ensure_neighbour_removed_from_config_by_host(host)
     return try_update_config_mapping(neighbour_mapping)
 
 

@@ -1,10 +1,10 @@
 from mock import call
 
-from raptiformica.actions.prune import ensure_neighbour_removed_from_config
+from raptiformica.actions.prune import _del_neighbour_by_key
 from tests.testcase import TestCase
 
 
-class TestEnsureNeighbourRemovedFromConfig(TestCase):
+class TestDelNeighbourByKey(TestCase):
     def setUp(self):
         self.get_config = self.set_up_patch(
             'raptiformica.settings.load.get_config_mapping'
@@ -30,20 +30,20 @@ class TestEnsureNeighbourRemovedFromConfig(TestCase):
             'raptiformica.actions.prune.try_delete_config'
         )
 
-    def test_ensure_neighbour_removed_from_config_gets_mapping(self):
-        ensure_neighbour_removed_from_config("some_uuid")
+    def test_del_neighbour_by_key_gets_mapping(self):
+        _del_neighbour_by_key('uuid', "some_uuid")
 
         self.get_config.assert_called_once_with()
 
-    def test_ensure_neighbour_removed_from_config_removes_neighbour_by_uuid_from_config(self):
-        ensure_neighbour_removed_from_config("eb442c6170694b12b277c9e88d714cf2")
+    def test_del_neighbour_by_key_removes_neighbour_by_uuid_from_config(self):
+        _del_neighbour_by_key('uuid', "eb442c6170694b12b277c9e88d714cf2")
 
         self.try_delete_config.assert_called_once_with(
             'raptiformica/meshnet/neighbours/a_pubkey.k/',
             recurse=True
         )
 
-    def test_ensure_neighbour_removed_from_config_removes_all_entries_with_matching_uuid(self):
+    def test_del_neighbour_by_key_removes_all_entries_with_matching_uuid(self):
         # pretend the uuid of the other neighbour is the same as the first,
         # we should then also then remove that entry
         self.mapping[
@@ -51,7 +51,7 @@ class TestEnsureNeighbourRemovedFromConfig(TestCase):
         ] = "eb442c6170694b12b277c9e88d714cf2"
         self.get_config.return_value = self.mapping
 
-        ensure_neighbour_removed_from_config("eb442c6170694b12b277c9e88d714cf2")
+        _del_neighbour_by_key('uuid', "eb442c6170694b12b277c9e88d714cf2")
 
         expected_calls = (
             call(
@@ -67,7 +67,7 @@ class TestEnsureNeighbourRemovedFromConfig(TestCase):
             self.try_delete_config.mock_calls, expected_calls
         )
 
-    def test_ensure_neighbour_removed_from_config_does_not_remove_any_entries_if_no_uuid_match(self):
-        ensure_neighbour_removed_from_config("not_a_matching_uuid")
+    def test_del_neighbour_by_key_does_not_remove_any_entries_if_no_uuid_match(self):
+        _del_neighbour_by_key('uuid', "not_a_matching_uuid")
 
         self.assertFalse(self.try_delete_config.called)
