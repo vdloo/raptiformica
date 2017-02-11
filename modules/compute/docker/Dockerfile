@@ -8,6 +8,13 @@ RUN apt-get update && apt-get install -y \
     rsync \
     puppet \
     htop \
+    nodejs \
+    build-essential \
+    python \
+    iputils-ping \
+    wget \
+    unzip \
+    screen \
     git
 RUN puppet module install puppetlabs-vcsrepo
 RUN puppet module install maestrodev-wget
