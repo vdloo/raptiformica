@@ -491,20 +491,51 @@ def consul_config_hash_outdated():
         return True
 
 
-def consul_shared_secret_changed():
+def consul_keyring_in_memory_is_stale(shared_secret):
     """
     Check the shared secret from the config against the one in
-    the local keyring
+    the local keyring in memory
+    :param str shared_secret: The up to date shared secret
+    :return bool changed: True if changed, False if up to date
+    """
+    log.info(
+        "Checking if the keyring in memory is up to "
+        "date with the shared secret from the config"
+    )
+    check_shared_secret_up_to_date = "consul keyring --list |& grep -q {}" \
+                                     "".format(pipes.quote(shared_secret))
+    return not check_nonzero_exit(check_shared_secret_up_to_date)
+
+
+def consul_keyring_on_disk_is_stale(shared_secret):
+    """
+    Check the shared secret from the config against the one in
+    the local keyring on disk
+    :param str shared_secret: The up to date shared secret
     :return bool changed: True if changed, False if up to date
     """
     log.info(
         "Checking if the keyring on disk is up to "
-        "date with the shared secret in the config"
+        "date with the shared secret from the config"
     )
-    shared_secret = get_consul_password(get_config_mapping())
     check_shared_secret_up_to_date = "grep {} /opt/consul/serf/local.keyring" \
                                      "".format(pipes.quote(shared_secret))
     return not check_nonzero_exit(check_shared_secret_up_to_date)
+
+
+def consul_shared_secret_changed():
+    """
+    Check the shared secret from the config against the one in
+    the local keyring on disk and in memory
+    :return bool changed: True if changed, False if up to date
+    """
+    log.info("Checking if we should update the consul shared secret")
+    shared_secret = get_consul_password(get_config_mapping())
+    return consul_keyring_on_disk_is_stale(
+        shared_secret
+    ) or consul_keyring_in_memory_is_stale(
+        shared_secret
+    )
 
 
 def write_consul_config_hash():
