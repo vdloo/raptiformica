@@ -165,34 +165,76 @@ def clean_up_stale_instance(compute_checkout_directory, clean_up_stale_instance_
     )
 
 
-def get_neighbours_by_uuid(uuid):
+def _get_neighbour_by_key(key, value):
     """
-    Get neighbours by uuid
-    :param str uuid: uuid of the neighbour to get the root keys for
-    :return list [str, ..]: List of keys of the neighbours with that uuid.
-    Should only be one, but in case there are more those should also be dealt with.
+    Get neighbours by specified key
+    :param str key: The key to look for the value in
+    :return list [str, ..[: : List of keys in the neighbours with the value
+    for the specified key
     """
     config = get_config()
     meshnet_config = config[conf().KEY_VALUE_PATH].get('meshnet', {})
     neighbours = meshnet_config.get('neighbours', {})
     return [
         '{}/meshnet/neighbours/{}/'.format(conf().KEY_VALUE_PATH, k)
-        for k, v in neighbours.items() if v['uuid'] == uuid
+        for k, v in neighbours.items() if v[key] == value
     ]
 
 
-def ensure_neighbour_removed_from_config(uuid):
+# todo: remove this function if it remains unused in the future
+def get_neighbours_by_uuid(uuid):
     """
-    Remove a neighbour from the distributed k v mapping by uuid
-    :param str uuid: uuid of the neighbour to remove from the config
+    Get neighbours by uuid
+    :param str uuid: uuid of the neighbour to get the root kv store keys for
+    :return list [str, ..]: List of keys of the neighbours with that uuid.
+    Should only be one, but in case there are more those should also be dealt with.
+    """
+    return _get_neighbour_by_key('uuid', uuid)
+
+
+# todo: remove this function if it remains unused in the future
+def get_neighbours_by_host(host):
+    """
+    Get neighbours by host
+    :param str host: host of the neighbour to get the root kv store keys for
+    :return list [str, ..]: List of keys of the neighbours with that host.
+    Should only be one, but in case there are more those should also be dealt with.
+    """
+    return _get_neighbour_by_key('host', host)
+
+
+def _del_neighbour_by_key(key, value):
+    """
+    Remove a neighbour from the distributed k v mapping by key
+    with a specific value.
+    :param str key: The key to look for the value in
+    :param str value: The value to look for
     :return None:
     """
-    neighbour_keys = get_neighbours_by_uuid(uuid)
+    neighbour_keys = _get_neighbour_by_key(key, value)
     for neighbour_key in neighbour_keys:
         try_delete_config(
             neighbour_key,
             recurse=True
         )
+
+
+def ensure_neighbour_removed_from_config_by_uuid(uuid):
+    """
+    Remove a neighbour from the distributed k v mapping by uuid
+    :param str uuid: uuid of the neighbour to remove from the config
+    :return None:
+    """
+    _del_neighbour_by_key('uuid', uuid)
+
+
+def ensure_neighbour_removed_from_config_by_host(host):
+    """
+    Remove a neighbour from the distributed k v mapping by host
+    :param str host: host of the neighbour to remove from the config
+    :return None:
+    """
+    _del_neighbour_by_key('host', host)
 
 
 def fire_clean_up_triggers(clean_up_triggers, force=False):
@@ -210,7 +252,7 @@ def fire_clean_up_triggers(clean_up_triggers, force=False):
             clean_up_stale_instance(directory, clean_up_stale_instance_command)
             rmtree(directory, ignore_errors=True)
             uuid = directory.split('/')[-1]
-            ensure_neighbour_removed_from_config(uuid)
+            ensure_neighbour_removed_from_config_by_uuid(uuid)
 
 
 def prune_local_machines(force=False):

@@ -8,6 +8,9 @@ class TestUpdateNeighboursConfig(TestCase):
         self.cjdns.get_public_key.return_value = 'a_public_key.k'
         self.cjdns.get_ipv6_address.return_value = 'ipv6_address'
         self.config = {'meshnet': {'neighbours': {}}}
+        self.ensure_neighbour_removed_from_config_by_host = self.set_up_patch(
+            'raptiformica.settings.meshnet.ensure_neighbour_removed_from_config_by_host'
+        )
         self.try_update_config = self.set_up_patch(
             'raptiformica.settings.meshnet.try_update_config_mapping'
         )
@@ -21,6 +24,13 @@ class TestUpdateNeighboursConfig(TestCase):
         update_neighbours_config('1.2.3.4', port=2222)
 
         self.cjdns.get_ipv6_address.assert_called_once_with('1.2.3.4', port=2222)
+
+    def test_update_neighbours_config_removes_entries_for_the_updated_host(self):
+        update_neighbours_config('1.2.3.4', port=2222)
+
+        self.ensure_neighbour_removed_from_config_by_host.assert_called_once_with(
+            '1.2.3.4'
+        )
 
     def test_update_neighbours_config_returns_updated_config(self):
         ret = update_neighbours_config('1.2.3.4', port=2222)
