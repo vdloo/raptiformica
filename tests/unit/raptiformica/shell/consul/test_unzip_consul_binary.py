@@ -27,7 +27,7 @@ class TestUnzipConsulBinary(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'unzip', '-o',
-            'consul_0.7.3_linux_amd64.zip',
+            'consul_0.7.4_linux_amd64.zip',
             '-d', '/usr/bin'
         ]
         self.execute_process.assert_called_once_with(

@@ -9,13 +9,13 @@ from raptiformica.shell.wget import wget
 log = getLogger(__name__)
 
 CONSUL_ARCHES = defaultdict(
-    lambda: 'https://releases.hashicorp.com/consul/0.7.3/consul_0.7.3_linux_amd64.zip',
-    i686='https://releases.hashicorp.com/consul/0.7.3/consul_0.7.3_linux_386.zip',
-    x86_64='https://releases.hashicorp.com/consul/0.7.3/consul_0.7.3_linux_amd64.zip',
-    armv71='https://releases.hashicorp.com/consul/0.7.3/consul_0.7.3_linux_arm.zip'
+    lambda: 'https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_linux_amd64.zip',
+    i686='https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_linux_386.zip',
+    x86_64='https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_linux_amd64.zip',
+    armv71='https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_linux_arm.zip'
 )
 CONSUL_RELEASE = CONSUL_ARCHES[conf().MACHINE_ARCH]
-CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.3/consul_0.7.3_web_ui.zip'
+CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_web_ui.zip'
 
 
 def ensure_consul_dependencies(host=None, port=22):
