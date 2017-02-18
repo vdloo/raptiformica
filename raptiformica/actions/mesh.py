@@ -3,6 +3,7 @@ from contextlib import suppress
 from os import remove
 from os.path import join, isfile
 from logging import getLogger
+from random import shuffle
 from shutil import rmtree
 
 from raptiformica.settings import conf
@@ -722,6 +723,7 @@ def join_consul_neighbours(mapping):
     :return None:
     """
     ipv6_addresses = get_neighbour_hosts(mapping)
+    shuffle(ipv6_addresses)
     new_ipv6_addresses = list(
         filter(not_already_known_consul_neighbour, ipv6_addresses)
     )
