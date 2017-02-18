@@ -26,6 +26,9 @@ class TestJoinConsulNeighbours(TestCase):
         self.get_neighbour_hosts = self.set_up_patch(
             'raptiformica.actions.mesh.get_neighbour_hosts'
         )
+        self.shuffle = self.set_up_patch(
+            'raptiformica.actions.mesh.shuffle'
+        )
         self.not_already_known_consul_neighbour = self.set_up_patch(
             'raptiformica.actions.mesh.not_already_known_consul_neighbour'
         )
@@ -39,6 +42,14 @@ class TestJoinConsulNeighbours(TestCase):
         join_consul_neighbours(self.mapping)
 
         self.get_neighbour_hosts.assert_called_once_with(self.mapping)
+
+    def test_join_consul_neighbours_randomizes_peer_join_order(self):
+        join_consul_neighbours(self.mapping)
+
+        self.assertCountEqual(
+            ('some_ipv6_address', 'some_other_ipv6_address'),
+            sorted(self.shuffle.call_args[0][0])
+        )
 
     def test_join_consul_neighbours_checks_each_neighbour_for_already_known(self):
         join_consul_neighbours(self.mapping)
