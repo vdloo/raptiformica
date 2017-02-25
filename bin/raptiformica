@@ -6,10 +6,7 @@ PACKAGE_ENTRYPOINT="raptiformica_package.py"
 PRUNE_ENTRYPOINT="raptiformica_prune.py"
 DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
-MESH_ENTRYPOINT="raptiformica_mesh.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
-UPDATE_ENTRYPOINT="raptiformica_update.py"
-HOOK_ENTRYPOINT="raptiformica_hook.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
 INJECT_ENTRYPOINT="raptiformica_inject.py"
@@ -27,25 +24,12 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
   package                    Package a machine into a
                              reusable image
 
-  update                     Update the local machine by
-                             running the configured commands
-                             from the installed provisioning 
-                             modules
-
-  mesh                       Deploy a mesh configuration 
-                             based on the config file on 
-                             this machine and attempt to 
-                             join the distributed network
-
   prune                      Clean up inactive instances
 
   destroy                    Destroy cluster, clean up cache.
 
   modprobe                   Load or unload a module into
                              the system
-
-  hook                       Run all handlers for a specific 
-                             hook from the config
 
   inject                     Add a host to the local meshnet 
                              configuration.
@@ -78,24 +62,12 @@ case $1 in
     RAPTIFORMICA_CMD=$MEMBERS_ENTRYPOINT
     shift
     ;;
-    mesh)
-    RAPTIFORMICA_CMD=$MESH_ENTRYPOINT
-    shift
-    ;;
     slave)
     RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
     shift
     ;;
-    update)
-    RAPTIFORMICA_CMD=$UPDATE_ENTRYPOINT
-    shift
-    ;;
     modprobe)
     RAPTIFORMICA_CMD=$MODPROBE_ENTRYPOINT
-    shift
-    ;;
-    hook)
-    RAPTIFORMICA_CMD=$HOOK_ENTRYPOINT
     shift
     ;;
     inject)

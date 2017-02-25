@@ -12,7 +12,6 @@ from raptiformica.actions.prune import prune_local_machines
 from raptiformica.actions.slave import slave_machine
 from raptiformica.actions.spawn import spawn_machine
 from raptiformica.actions.ssh_connect import ssh_connect
-from raptiformica.actions.update import update_machine
 from raptiformica.log import setup_logging
 from raptiformica.settings import conf
 from raptiformica.settings.meshnet import update_meshnet_config
@@ -83,35 +82,6 @@ def slave():
         provision=not args.no_provision,
         server_type=args.server_type
     )
-
-
-def parse_update_arguments():
-    """
-    Parse the commandline options for updating existing machines
-    :return obj args: parsed arguments
-    """
-    parser = ArgumentParser(
-        prog="raptiformica update",
-        description='Update the local machine by running the configured '
-                    'commands from the installed provisioning modules'
-    )
-    parser.add_argument(
-        '--server-type', type=str, default=get_first_server_type(),
-        choices=get_server_types(),
-        help='Specify a server type. Default is {}'.format(
-            get_first_server_type()
-        )
-    )
-    return parse_arguments(parser)
-
-
-def update():
-    """
-    Update an existing machine
-    :return None:
-    """
-    args = parse_update_arguments()
-    update_machine(server_type=args.server_type)
 
 
 def parse_spawn_arguments():
