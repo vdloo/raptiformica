@@ -12,7 +12,7 @@ if [ ! -f cjdroute ]; then
         cp ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/cjdroute .
     else
         echo 'compiling new cjdoute'
-        ./do
+        lsb_release -a | grep Raspbian -i -q && Seccomp_NO=1 ./do || ./do
         mkdir -p ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/
         cp -f cjdroute ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/
     fi
