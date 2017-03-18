@@ -52,5 +52,11 @@ def find_host_that_can_ping(host):
     """
     log.info("Finding a host in the network that can ping {}".format(host))
     host_and_port_pairs = host_and_port_pairs_from_config()
-    _, access_host, access_host_ssh_port = try_ping(host_and_port_pairs, host)
+    neighbour_host_and_port_pairs = [
+        pair for pair in host_and_port_pairs
+        if pair[0] != host
+    ]
+    _, access_host, access_host_ssh_port = try_ping(
+        neighbour_host_and_port_pairs, host
+    )
     return access_host, access_host_ssh_port

@@ -12,6 +12,11 @@ class TestFindHostThatCanPing(TestCase):
         self.host_and_port_pairs_from_config = self.set_up_patch(
             'raptiformica.distributed.ping.host_and_port_pairs_from_config'
         )
+        self.host_and_port_pairs_from_config.return_value = [
+            ('1.2.3.2', '22'),
+            ('1.2.3.3', '22'),
+            ('1.2.3.4', '22')
+        ]
         self.try_ping = self.set_up_patch(
             'raptiformica.distributed.ping.try_ping'
         )
@@ -29,11 +34,17 @@ class TestFindHostThatCanPing(TestCase):
 
         self.host_and_port_pairs_from_config.assert_called_once_with()
 
-    def test_find_host_that_can_ping_tries_pinging_the_host_from_the_config_neighbours(self):
+    def test_find_host_that_can_ping_tries_pinging_the_host_from_config_neighbours(self):
         find_host_that_can_ping('1.2.3.4')
 
+        expected_host_and_port_pairs = [
+            ('1.2.3.2', '22'),
+            ('1.2.3.3', '22')
+            # Does not include '1.2.3.4', we should not try to
+            # ping the host from the host we are trying to ping
+        ]
         self.try_ping.assert_called_once_with(
-            self.host_and_port_pairs_from_config.return_value,
+            expected_host_and_port_pairs,
             '1.2.3.4'
         )
 
