@@ -45,6 +45,25 @@ class TestConfigureCjdrouteConf(TestCase):
         expected_calls = [call(CJDROUTE_CONF_PATH)] * 2
         self.assertCountEqual(self.load_json.mock_calls, expected_calls)
 
+    def test_configure_cjdroute_conf_tries_loading_cjdroute_conf_again_if_fails_once(self):
+        self.load_json.side_effect = [
+            # The consul watcher could be reloading the config file.
+            # We can always try again later, if it still fails we should raise.
+            ValueError,
+            self.load_json.return_value,
+            self.load_json.return_value
+        ]
+        configure_cjdroute_conf()
+
+        expected_calls = [call(CJDROUTE_CONF_PATH)] * 3
+        self.assertCountEqual(self.load_json.mock_calls, expected_calls)
+
+    def test_configure_cjdroute_conf_raises_value_error_if_failed_to_load_config_repeatedly(self):
+        self.load_json.side_effect = [ValueError, ValueError]
+
+        with self.assertRaises(ValueError):
+            configure_cjdroute_conf()
+
     def test_configure_cjdroute_conf_writes_cjdroute_config_to_disk(self):
         configure_cjdroute_conf()
 

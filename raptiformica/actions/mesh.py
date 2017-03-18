@@ -94,6 +94,7 @@ def parse_cjdns_neighbours(mapping):
     return neighbours
 
 
+@retry(attempts=2, expect=(ValueError,))
 def configure_cjdroute_conf():
     """
     Configure the cjdroute config according to the
