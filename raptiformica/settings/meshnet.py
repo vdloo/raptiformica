@@ -65,11 +65,11 @@ def update_neighbours_config(host, port=22, uuid=None):
 
     neighbour_entry = {
         'host': host,
-        'cjdns_port': conf().CJDNS_DEFAULT_PORT,
+        'cjdns_port': str(conf().CJDNS_DEFAULT_PORT),
         'cjdns_public_key': cjdns_public_key,
         'cjdns_ipv6_address': cjdns_ipv6_address,
         # todo: get this port dynamically from the cjdroute.conf
-        'ssh_port': port,
+        'ssh_port': str(port),
     }
     if uuid:
         neighbour_entry['uuid'] = uuid

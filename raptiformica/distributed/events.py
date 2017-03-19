@@ -52,7 +52,7 @@ def send_reload_meshnet():
     the meshnet configs this is achieved.
     Note: If no consensus has been established yet this approach won't
     work since the neighbour details will not be available to the peers.
-    In that case the system will try to establish a connnection to the peer
+    In that case the system will try to establish a connection to the peer
     synchronously.
     :return None:
     """
