@@ -33,5 +33,7 @@ fi
 
 echo "ensuring binary and config to /usr/bin"
 cp -f cjdroute /usr/bin/
-cp -f cjdroute.conf /etc/
+if [ ! -f /etc/cjdroute.conf ]; then
+    cp cjdroute.conf /etc/
+fi
 
