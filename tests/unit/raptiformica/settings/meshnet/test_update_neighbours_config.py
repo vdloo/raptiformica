@@ -37,10 +37,10 @@ class TestUpdateNeighboursConfig(TestCase):
 
         expected_config = {
             'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_ipv6_address': 'ipv6_address',
-            'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_port': 4863,
+            'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_port': "4863",
             'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_public_key': 'a_public_key.k',
             'raptiformica/meshnet/neighbours/a_public_key.k/host': '1.2.3.4',
-            'raptiformica/meshnet/neighbours/a_public_key.k/ssh_port': 2222
+            'raptiformica/meshnet/neighbours/a_public_key.k/ssh_port': "2222"
 
         }
         self.try_update_config.assert_called_once_with(expected_config)
@@ -51,10 +51,10 @@ class TestUpdateNeighboursConfig(TestCase):
 
         expected_config = {
             'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_ipv6_address': 'ipv6_address',
-            'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_port': 4863,
+            'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_port': "4863",
             'raptiformica/meshnet/neighbours/a_public_key.k/cjdns_public_key': 'a_public_key.k',
             'raptiformica/meshnet/neighbours/a_public_key.k/host': '1.2.3.4',
-            'raptiformica/meshnet/neighbours/a_public_key.k/ssh_port': 2222,
+            'raptiformica/meshnet/neighbours/a_public_key.k/ssh_port': "2222",
             'raptiformica/meshnet/neighbours/a_public_key.k/uuid': 'someuuid1234'
         }
         self.try_update_config.assert_called_once_with(expected_config)
