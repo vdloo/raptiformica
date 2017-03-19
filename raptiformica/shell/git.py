@@ -72,21 +72,21 @@ def pull_origin_master(directory, host=None, port=22):
     return exit_code
 
 
-def reset_hard_origin_master(directory, host=None, port=22):
+def reset_hard_head(directory, host=None, port=22):
     """
-    Reset a checkout to the trunk of the repository
-    :param str directory: directory on the remote machine to reset hard origin master in
+    Reset a checkout to the HEAD of the branch
+    :param str directory: directory on the remote machine to reset to HEAD in
     :param str host: hostname or ip of the remote machine, or None for local
     :param int port: port to use to connect to the remote machine over ssh
     :return int exit_code: exit code of the remote command
     """
-    log.info("Resetting origin master in {}".format(directory))
-    reset_hard_origin_master_command = 'cd {}; git reset --hard ' \
-                                       'origin/master'.format(quote(directory))
+    log.info("Resetting to HEAD in {}".format(directory))
+    reset_hard_command = 'cd {}; git reset --hard ' \
+                         'HEAD'.format(quote(directory))
     exit_code, _, _ = run_command_print_ready(
-        reset_hard_origin_master_command, host=host, port=port,
+        reset_hard_command, host=host, port=port,
         failure_callback=log_failure_factory(
-            "Failed to reset --hard origin/master"
+            "Failed to reset to HEAD"
         ),
         buffered=False,
         shell=True
@@ -105,7 +105,7 @@ def update_source(directory, host=None, port=22):
     log.info("Updating the repository in {}".format(directory))
     exit_code = pull_origin_master(directory, host=host, port=port)
     if exit_code != 0:
-        reset_hard_origin_master(directory, host=host, port=port)
+        reset_hard_head(directory, host=host, port=port)
 
 
 def ensure_latest_source_failure_factory(source, provisioning_directory, host=None, port=22):
