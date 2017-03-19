@@ -273,6 +273,11 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
+    def slave_instance(self, ip_address):
+        self.run_raptiformica_command(
+            "slave {}".format(ip_address)
+        )
+
     def tearDown(self):
         print("Finished running this test case, cleaning up the resources\n\n")
         self.kill_all_dockers()
