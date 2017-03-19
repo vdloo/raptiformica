@@ -146,6 +146,10 @@ class IntegrationTestCase(TestCase):
 
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
         expected_value = str(uuid4())
+
+        # Try to connect to the remote consul instead of using the local cache
+        conf().set_forwarded_remote_consul_once(set_to=False)
+
         upload_config_mapping({'test/some/key/in/some/path': expected_value})
         ret = self.run_instance_command(
             '"consul kv get -recurse | grep test"', buffered=True
@@ -272,6 +276,11 @@ class IntegrationTestCase(TestCase):
                     "the scenario for TestTreeCluster :(".format(NATted_ip)
                 )
             )
+
+    def slave_instance(self, ip_address):
+        self.run_raptiformica_command(
+            "slave {}".format(ip_address)
+        )
 
     def tearDown(self):
         print("Finished running this test case, cleaning up the resources\n\n")
