@@ -142,9 +142,16 @@ def ensure_route_to_new_neighbour(
     connected_host, connected_host_port = find_host_that_can_ping(host)
     if connected_host:
         log.info("Found peer that can connect directly to the new neighbour")
-        bootstrap_host_to_neighbour(
-            host, port, connected_host, connected_host_port
-        )
+        try:
+            bootstrap_host_to_neighbour(
+                host, port, connected_host, connected_host_port
+            )
+        except RuntimeError:
+            log.debug(
+                "Failed to add new peer to the known host that can ping it. "
+                "If a quorum is already established the meshnet reload event we'll "
+                "send now should catch it. Skipping for now."
+            )
     else:
         log.info(
             "Found no neighbour that could already connect "

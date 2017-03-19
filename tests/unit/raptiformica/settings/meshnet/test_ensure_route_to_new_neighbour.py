@@ -46,6 +46,17 @@ class TestEnsureRouteToNewNeighbour(TestCase):
             '1.2.3.4', 2222, '1.2.3.3', 22
         )
 
+    def test_ensure_route_to_new_neighbour_does_not_error_when_bootstrapping_host_to_connected_neighbour_fails(self):
+        self.bootstrap_host_to_neighbour.side_effect = RuntimeError(
+            "Permission denied, can't login over SSH"
+        )
+
+        ensure_route_to_new_neighbour('1.2.3.4', port=2222)
+
+        self.bootstrap_host_to_neighbour.assert_called_once_with(
+            '1.2.3.4', 2222, '1.2.3.3', 22
+        )
+
     def test_ensure_route_to_new_neighbour_does_not_bootstrap_host_to_neighbour_if_no_connected_neighbour(self):
         self.find_host_that_can_ping.return_value = (None, None)
 
