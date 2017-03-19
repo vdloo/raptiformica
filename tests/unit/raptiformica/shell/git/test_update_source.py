@@ -7,7 +7,7 @@ class TestUpdateSource(TestCase):
         self.log = self.set_up_patch('raptiformica.shell.git.log')
         self.pull_origin_master = self.set_up_patch('raptiformica.shell.git.pull_origin_master')
         self.pull_origin_master.return_value = 0
-        self.reset_hard_origin_master = self.set_up_patch('raptiformica.shell.git.reset_hard_origin_master')
+        self.reset_hard_origin_master = self.set_up_patch('raptiformica.shell.git.reset_hard_head')
 
     def test_that_update_source_logs_updating_source_message(self):
         update_source('/usr/etc/puppetfiles', '1.2.3.4', port=22)
@@ -23,7 +23,7 @@ class TestUpdateSource(TestCase):
             port=22
         )
 
-    def test_that_update_source_resets_origin_master_if_pulling_origin_master_returned_nonzero(self):
+    def test_that_update_source_resets_to_head_if_pulling_origin_master_returned_nonzero(self):
         self.pull_origin_master.return_value = 1
 
         update_source('/usr/etc/puppetfiles', '1.2.3.4', port=22)
@@ -34,7 +34,7 @@ class TestUpdateSource(TestCase):
             port=22
         )
 
-    def test_that_update_source_does_not_reset_origin_master_if_pulling_origin_master_returned_zero(self):
+    def test_that_update_source_does_not_reset_to_head_if_pulling_origin_master_returned_zero(self):
         update_source('/usr/etc/puppetfiles', '1.2.3.4', port=22)
 
         self.assertFalse(self.reset_hard_origin_master.called)
