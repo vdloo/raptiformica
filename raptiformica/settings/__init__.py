@@ -42,7 +42,7 @@ class Config(object):
         self.USER_MODULES_DIR = join(self.ABS_CACHE_DIR, 'modules')
         self.USER_ARTIFACTS_DIR = join(self.ABS_CACHE_DIR, 'artifacts')
 
-    def set_forwarded_remote_consul_once(self):
+    def set_forwarded_remote_consul_once(self, set_to=True):
         """
         Record in the Config object that we've forwarded any available
         remote consul port once already. After the first time the cached
@@ -50,9 +50,10 @@ class Config(object):
         access to the distributed key value store. Finding a working consul
         port to forward takes a lot of time so it should only happen if it
         is really needed.
+        :param bool set_to: What value to set it to, default is True
         :return None:
         """
-        self.FORWARDED_CONSUL_ONCE_ALREADY = True
+        self.FORWARDED_CONSUL_ONCE_ALREADY = set_to
 
 config = Config()
 
