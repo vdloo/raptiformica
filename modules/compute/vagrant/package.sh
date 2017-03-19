@@ -37,6 +37,10 @@ MACHINE_UUID=$(grep .raptiformica.d/var/machines/vagrant/headless/ $LOG_FILE  | 
 # Change dir to the new check out
 cd $HOME/.raptiformica.d/var/machines/vagrant/headless/$MACHINE_UUID/modules/compute/vagrant/
 
+# Do not save an IP address in the packaged box
+vagrant ssh -c "sudo rm -f /etc/cjdroute.conf"
+
+# Package the running instance
 vagrant package
 
 # Incremental images
