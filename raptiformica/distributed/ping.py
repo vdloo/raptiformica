@@ -1,3 +1,5 @@
+from contextlib import closing
+from socket import socket, AF_INET, SOCK_STREAM
 from logging import getLogger
 
 from raptiformica.distributed.discovery import host_and_port_pairs_from_config
@@ -60,3 +62,15 @@ def find_host_that_can_ping(host):
         neighbour_host_and_port_pairs, host
     )
     return access_host, access_host_ssh_port
+
+
+def check_port_open(host, port):
+    """
+    Check if a port is open on a host
+    :param str host: The host to check the port on
+    :param int port: The port to check
+    :return bool open: True if open, False if not
+    """
+    log.debug("Checking if port {} is open on host {}".format(port, host))
+    with closing(socket(AF_INET, SOCK_STREAM)) as s:
+        return s.connect_ex((host, port)) == 0

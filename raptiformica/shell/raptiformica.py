@@ -2,6 +2,7 @@ from logging import getLogger
 from shlex import quote
 
 from raptiformica.settings import conf, Config
+from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.execute import raise_failure_factory, run_command_remotely, run_command_print_ready
 
 log = getLogger(__name__)
@@ -82,6 +83,30 @@ def inject(host_to_inject, host_to_inject_port, host, port=22):
         "--verbose {} --port {}".format(
             quote(host_to_inject),
             quote(str(host_to_inject_port))
+        ),
+        host, port=port
+    )
+
+
+def slave(host_to_slave, host_to_slave_port, host, port=22, server_type=None):
+    """
+    Slave a host into the meshnet config on a remote machine
+    :param str host_to_slave: hostname of the host to slave
+    :param int host_to_slave_port: ssh port of the host to slave
+    from the remote machine
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :param str server_type: name of the server type to provision the machine as
+    :return int exit_code: Exit code from the ./bin/raptiformica_slave.py command
+    """
+    server_type = server_type or get_first_server_type()
+    log.info("Slaving the specified host from the remote host")
+    return run_raptiformica_command(
+        "export PYTHONPATH=.; ./bin/raptiformica_slave.py "
+        "--verbose {} --port {} --server-type {}".format(
+            quote(host_to_slave),
+            quote(str(host_to_slave_port)),
+            server_type
         ),
         host, port=port
     )

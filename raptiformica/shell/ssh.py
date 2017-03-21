@@ -76,7 +76,7 @@ def run_detached_command(command, failure_message='Failed running detached comma
     detached_command = "/usr/bin/env screen -S {} -d -m bash -c '{}'".format(
         screen_name, command
     )
-    exit_code, standard_out, _ = run_critical_command_print_ready(
+    run_critical_command_print_ready(
         detached_command, buffered=False, shell=True,
         failure_message=failure_message
     )
@@ -107,7 +107,7 @@ def detached_command_context(command):
 @contextmanager
 def forward_remote_port(host, source_port, destination_port=None, ssh_port=22, timeout=600):
     """
-    Forward the remote port of any of the machines in the cluster
+    Forward the remote port of a remote machine
     :param str host: Host to forward the port from
     :param int source_port: Remote port to forward
     :param int destination_port: Destination port on the localhost to forward to.
@@ -129,3 +129,57 @@ def forward_remote_port(host, source_port, destination_port=None, ssh_port=22, t
         # todo: replace this with a block until ping
         sleep(1)
         yield
+
+
+@contextmanager
+def forward_local_port(host, source_port, destination_port=None, ssh_port=22, timeout=600):
+    """
+    Forward the local port of the local machine to a remote machine
+    :param str host: Host to forward the port to
+    :param int source_port: The local port to forward
+    :param int destination_port: The remote port to forward it to
+    :param int ssh_port: SSH port of the remote host
+    :param int timeout: Clean up tunnel after a certain time
+    :return None:
+    """
+    ssh_command = ssh_login_command(host, port=ssh_port)
+    destination_port = destination_port or source_port
+    tunnel_command = '{} -R {}:localhost:{} sleep {}'.format(
+        ssh_command, destination_port, source_port, timeout
+    )
+    log.debug("Forwarding local port {} from host {} to remote port {}".format(
+        source_port, host, destination_port
+    ))
+    with detached_command_context(tunnel_command):
+        # Give the tunnel some time to be established
+        # todo: replace this with a block until ping
+        sleep(1)
+        yield
+
+
+def copy_id_from_remote(host, ssh_port=22):
+    """
+    Copy the ID of a remote host to the local host. Allows the remote
+    host to log in to this machine over SSH.
+    :param str host: The host to copy the ID from
+    :param int ssh_port: The SSH port to use to log in to the host
+    :return None:
+    """
+    ssh_command = ssh_login_command(host, port=ssh_port)
+    # todo: get any public key instead of hardcoding id_rsa
+    # todo: make this only add the key once
+    ssh_get_pubkey_command = ssh_command + ' cat .ssh/id_rsa.pub >> ' \
+                                           '$HOME/.ssh/authorized_keys'
+    failure_message = "Failed to copy the ID " \
+                      "from {}:{} to the local " \
+                      "authorized keys file" \
+                      "".format(host, ssh_port)
+    log.debug(
+        "Copying the ID from {}:{} to the "
+        "local authorized keys file"
+        "".format(host, ssh_port)
+    )
+    run_critical_command_print_ready(
+        ssh_get_pubkey_command, buffered=False, shell=True,
+        failure_message=failure_message
+    )
