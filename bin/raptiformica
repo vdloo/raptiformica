@@ -7,6 +7,7 @@ PRUNE_ENTRYPOINT="raptiformica_prune.py"
 DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
+JOIN_ENTRYPOINT="raptiformica_join.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
 INJECT_ENTRYPOINT="raptiformica_inject.py"
@@ -18,15 +19,18 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
   spawn                      Spawn a machine to slave and 
                              assimilate into the network
 
-  slave                      Provision and join a machine 
-                             into the network
+  slave                      Provision and assimilate a 
+                             machine into the network
+
+  join                       Provision and join this machine 
+                             into an existing network
 
   package                    Package a machine into a
                              reusable image
 
   prune                      Clean up inactive instances
 
-  destroy                    Destroy cluster, clean up cache.
+  destroy                    Destroy cluster, clean up cache
 
   modprobe                   Load or unload a module into
                              the system
@@ -35,7 +39,7 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
                              configuration.
 
   members                    Show the members of the 
-                             distributed network.
+                             distributed network
 
   ssh                        SSH into one of the machines
 END
@@ -64,6 +68,10 @@ case $1 in
     ;;
     slave)
     RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
+    shift
+    ;;
+    join)
+    RAPTIFORMICA_CMD=$JOIN_ENTRYPOINT
     shift
     ;;
     modprobe)

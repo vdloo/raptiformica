@@ -4,6 +4,7 @@ from os.path import expanduser
 
 from raptiformica.actions.destroy import destroy_cluster
 from raptiformica.actions.hook import trigger_handlers
+from raptiformica.actions.join import join_machine
 from raptiformica.actions.members import show_members
 from raptiformica.actions.mesh import mesh_machine, attempt_join_meshnet, ensure_no_consul_running
 from raptiformica.actions.modules import unload_module, load_module
@@ -74,6 +75,52 @@ def slave():
     """
     args = parse_slave_arguments()
     slave_machine(
+        args.host,
+        port=args.port,
+        assimilate=not args.no_assimilate,
+        after_assimilate=not args.no_after_assimilate,
+        after_mesh=not args.no_after_mesh,
+        provision=not args.no_provision,
+        server_type=args.server_type
+    )
+
+
+def parse_join_arguments():
+    """
+    Parse the commandline options for provisioning and assimilating this machine
+    into an existing network
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica join",
+        description='Provision and join this machine into an existing network'
+    )
+    parser.add_argument('host', type=str,
+                        help='Hostname or ip of the remote machine to use to slave this machine to')
+    parser.add_argument('--port', '-p', type=int, default=22,
+                        help='Port to use to connect to the remote machine with over SSH')
+    parser.add_argument('--no-provision', action='store_true', default=False,
+                        help='Do not run the provisioning scripts for the specified server type')
+    parser.add_argument('--no-assimilate', action='store_true', default=False,
+                        help='Do not join or set up the distributed network.')
+    parser.add_argument('--no-after-assimilate', action='store_true', default=False,
+                        help='Do not perform the after assimilation hooks')
+    parser.add_argument('--no-after-mesh', action='store_true', default=False,
+                        help='Do not perform the after mesh hooks')
+    parser.add_argument('--server-type', type=str, default=get_first_server_type(),
+                        choices=get_server_types(),
+                        help='Specify a server type. Default is '
+                             '{}'.format(get_first_server_type()))
+    return parse_arguments(parser)
+
+
+def join():
+    """
+    Provision and assimilate this machine into an existing network
+    :return None:
+    """
+    args = parse_join_arguments()
+    join_machine(
         args.host,
         port=args.port,
         assimilate=not args.no_assimilate,
