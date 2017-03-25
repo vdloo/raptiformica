@@ -99,14 +99,6 @@ def parse_join_arguments():
                         help='Hostname or ip of the remote machine to use to slave this machine to')
     parser.add_argument('--port', '-p', type=int, default=22,
                         help='Port to use to connect to the remote machine with over SSH')
-    parser.add_argument('--no-provision', action='store_true', default=False,
-                        help='Do not run the provisioning scripts for the specified server type')
-    parser.add_argument('--no-assimilate', action='store_true', default=False,
-                        help='Do not join or set up the distributed network.')
-    parser.add_argument('--no-after-assimilate', action='store_true', default=False,
-                        help='Do not perform the after assimilation hooks')
-    parser.add_argument('--no-after-mesh', action='store_true', default=False,
-                        help='Do not perform the after mesh hooks')
     parser.add_argument('--server-type', type=str, default=get_first_server_type(),
                         choices=get_server_types(),
                         help='Specify a server type. Default is '
@@ -123,10 +115,6 @@ def join():
     join_machine(
         args.host,
         port=args.port,
-        assimilate=not args.no_assimilate,
-        after_assimilate=not args.no_after_assimilate,
-        after_mesh=not args.no_after_mesh,
-        provision=not args.no_provision,
         server_type=args.server_type
     )
 
