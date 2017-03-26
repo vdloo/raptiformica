@@ -16,11 +16,11 @@ class TestDetermineCloneData(TestCase):
         )
 
     def test_determine_clone_data(self):
-        url, name = determine_clone_data('https://example.com/puppetfiles.git')
+        url, name = determine_clone_data('https://example.com/puppetfiles')
 
         self.assertEqual(
             url,
-            'https://example.com/puppetfiles.git'
+            'https://example.com/puppetfiles'
         )
         self.assertEqual(
             name,

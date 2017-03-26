@@ -8,7 +8,7 @@ from raptiformica.shell.execute import raise_failure_factory, \
     run_multiple_labeled_commands
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
 
-CJDNS_REPOSITORY = "https://github.com/cjdelisle/cjdns.git"
+CJDNS_REPOSITORY = "https://github.com/cjdelisle/cjdns"
 
 log = getLogger(__name__)
 
