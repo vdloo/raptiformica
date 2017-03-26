@@ -40,16 +40,8 @@ class TestCacheRepos(TestCase):
     def test_cache_repos_ensures_latest_sources_from_artifacts_for_non_provisioning_source(self):
         cache_repos()
 
-        # These sources are not in the provisioning configs (modules)
-        # but are required for the core code
-        expected_calls = (
-            call(
-                CJDNS_REPOSITORY, "cjdns", only_cache=True
-            ),
-            call(
-                CONSUL_KV_REPOSITORY, "consul-kv", only_cache=True
-            ),
-        )
-        self.assertCountEqual(
-            self.ensure_latest_source_from_artifacts.mock_calls, expected_calls
+        # This source is not in the provisioning configs (modules)
+        # but is required for the core code
+        self.ensure_latest_source_from_artifacts.assert_called_once_with(
+            CJDNS_REPOSITORY, "cjdns", only_cache=True
         )

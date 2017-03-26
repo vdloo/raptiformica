@@ -88,9 +88,6 @@ def cache_repos(server_type=None):
     ensure_latest_source_from_artifacts(
         CJDNS_REPOSITORY, "cjdns", only_cache=True
     )
-    ensure_latest_source_from_artifacts(
-        CONSUL_KV_REPOSITORY, "consul-kv", only_cache=True
-    )
 
 
 def spawn_machine(provision=False, assimilate=False, after_assimilate=False,
