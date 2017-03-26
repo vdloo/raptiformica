@@ -2,7 +2,7 @@ from logging import getLogger
 
 from raptiformica.settings import conf
 from raptiformica.settings.load import get_config
-from raptiformica.settings.meshnet import ensure_route_to_new_neighbour
+from raptiformica.settings.meshnet import ensure_route_to_new_neighbour, update_cjdns_config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
@@ -120,6 +120,7 @@ def slave_machine(host, port=22, provision=True, assimilate=True,
     """
     log.info("Slaving machine {}".format(host))
     server_type = server_type or get_first_server_type()
+    update_cjdns_config()
     upload_self(host, port=port)
     if provision:
         provision_machine(host, port=port, server_type=server_type)

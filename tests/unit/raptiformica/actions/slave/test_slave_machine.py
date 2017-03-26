@@ -7,6 +7,7 @@ from tests.testcase import TestCase
 class TestSlaveMachine(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.slave.log')
+        self.update_cjdns_config = self.set_up_patch('raptiformica.actions.slave.update_cjdns_config')
         self.upload_self = self.set_up_patch('raptiformica.actions.slave.upload_self')
         self.provision_machine = self.set_up_patch('raptiformica.actions.slave.provision_machine')
         self.fire_hooks = self.set_up_patch('raptiformica.actions.slave.fire_hooks')
@@ -21,6 +22,14 @@ class TestSlaveMachine(TestCase):
         slave_machine('1.2.3.4')
 
         self.assertTrue(self.log.info.called)
+
+    def test_slave_machine_ensures_cjdns_config_up_front(self):
+        slave_machine('1.2.3.4')
+
+        # By creating the secret if it does not exist yet before uploading
+        # the raptiformica config dir to the remote host it can be tracked
+        # which machine originated from which client.
+        self.update_cjdns_config.assert_called_once_with()
 
     def test_slave_machine_uploads_raptiformica_to_the_remote_host(self):
         slave_machine('1.2.3.4')
