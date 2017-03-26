@@ -21,7 +21,7 @@ class TestSimpleCluster(IntegrationTestCase):
         )
 
     def reslave_last_docker_instance(self):
-        docker_instances = self.list_docker_instances()
+        docker_instances = self.list_relevant_docker_instances()
         docker_ip = self.get_docker_ip(docker_instances[-1])
         self.slave_instance(docker_ip)
 
