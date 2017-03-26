@@ -51,11 +51,10 @@ class IntegrationTestCase(TestCase):
         return standard_out
 
     def kill_all_dockers(self):
-        # todo: only kill the dockers relevant to each test process
-        kill_all_dockers_command = "sudo docker ps | " \
-                                   "grep raptiformica | " \
-                                   "awk '{print$1}' | " \
-                                   "sudo xargs --no-run-if-empty docker kill"
+        dockers_to_kill = self.list_relevant_docker_instances()
+        kill_all_dockers_command = "echo {} | " \
+                                   "sudo xargs --no-run-if-empty docker " \
+                                   "kill".format(' '.join(dockers_to_kill))
         run_command_print_ready(
             kill_all_dockers_command,
             buffered=False, shell=True
@@ -75,15 +74,15 @@ class IntegrationTestCase(TestCase):
         rmtree(conf().ABS_CACHE_DIR, ignore_errors=True)
 
     def setUp(self):
-        self.kill_all_dockers()
-        self.clean_all_docker_images()
-        self.clean_up_cache_dir()
-        print("Cleaned up any lingering state\n\n")
-
         self.temp_cache_dir = '.raptiformica.test.{}'.format(uuid4().hex)
         conf().set_cache_dir(self.temp_cache_dir)
         self.abs_temp_cache_dir = join(expanduser("~"), self.temp_cache_dir)
         makedirs(self.abs_temp_cache_dir)
+
+        self.kill_all_dockers()
+        self.clean_all_docker_images()
+        self.clean_up_cache_dir()
+        print("Cleaned up any lingering state\n\n")
 
     def check_consul_consensus_was_established(self, expected_peers=None):
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
@@ -142,7 +141,7 @@ class IntegrationTestCase(TestCase):
         # If the cjdns password from the in use temporary cache dir matches the secret
         # in the guest, that means the docker belongs to this test case
         check_relevant_command = 'sudo docker exec {} cat /root/.raptiformica.d/mutable_config.json | ' \
-                                 'grep "$(grep raptiformica/meshnet/cjdns/password ' \
+                                 'grep -q "$(grep raptiformica/meshnet/cjdns/password ' \
                                  '{}/mutable_config.json)"' \
                                  ''.format(instance_id, self.abs_temp_cache_dir)
         exit_code, _, __ = run_command_print_ready(

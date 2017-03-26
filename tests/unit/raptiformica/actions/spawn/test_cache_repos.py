@@ -2,7 +2,6 @@ from mock import ANY, call
 
 from raptiformica.actions.spawn import cache_repos
 from raptiformica.shell.cjdns import CJDNS_REPOSITORY
-from raptiformica.shell.consul import CONSUL_KV_REPOSITORY
 from tests.testcase import TestCase
 
 
