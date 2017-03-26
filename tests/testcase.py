@@ -131,6 +131,37 @@ class IntegrationTestCase(TestCase):
         )
         return standard_out.split()
 
+    def docker_instance_is_relevant(self, instance_id):
+        """
+        Check if a docker instance is relevant oo this
+        testcase
+        :param str instance_id: The docker ID to check
+        :return bool relevant: True if relevant, False if not
+        """
+        # If the cjdns password from the in use temporary cache dir matches the secret
+        # in the guest, that means the docker belongs to this test case
+        check_relevant_command = 'sudo docker exec {} cat /root/.raptiformica.d/mutable_config.json | ' \
+                                 'grep "$(grep "raptiformica/meshnet/cjdns/password" ' \
+                                 '{}/mutable_config.json)"' \
+                                 ''.format(instance_id, self.abs_temp_cache_dir)
+        exit_code, _, __ = run_command_print_ready(
+            check_relevant_command,
+            buffered=False, shell=True
+        )
+        return exit_code == 0
+
+    def list_relevant_docker_instances(self):
+        """
+        Find the running docker instances on the host that belong
+        to this running testcase
+        :return list[str, ..]: List of docker IDs
+        """
+        all_docker_instances = self.list_docker_instances()
+        return list(filter(
+            self.docker_instance_is_relevant,
+            all_docker_instances
+        ))
+
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
         registered_peers = self.list_registered_peers()
         for registered_peer in registered_peers:
