@@ -141,7 +141,7 @@ class IntegrationTestCase(TestCase):
         # If the cjdns password from the in use temporary cache dir matches the secret
         # in the guest, that means the docker belongs to this test case
         check_relevant_command = 'sudo docker exec {} cat /root/.raptiformica.d/mutable_config.json | ' \
-                                 'grep "$(grep "raptiformica/meshnet/cjdns/password" ' \
+                                 'grep "$(grep raptiformica/meshnet/cjdns/password ' \
                                  '{}/mutable_config.json)"' \
                                  ''.format(instance_id, self.abs_temp_cache_dir)
         exit_code, _, __ = run_command_print_ready(
