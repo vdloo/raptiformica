@@ -7,7 +7,7 @@ cd "$PACKAGED_DIR"
 
 # make sure there is a checkout of the packaging code
 if [ ! -d raptiformica ]; then
-    git clone --recursive https://github.com/vdloo/raptiformica
+    git clone https://github.com/vdloo/raptiformica
 else
     cd raptiformica
     git clean -xfd

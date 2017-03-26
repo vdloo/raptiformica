@@ -26,7 +26,7 @@ class TestCloneSourceLocally(TestCase):
         )
 
         expected_command = [
-            '/usr/bin/env', 'git', 'clone', '--recursive',
+            '/usr/bin/env', 'git', 'clone',
             'https://github.com/vdloo/puppetfiles',
             '/usr/etc/puppetfiles'
         ]

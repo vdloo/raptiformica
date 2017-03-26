@@ -22,7 +22,7 @@ def execute_clone_source_command(url, directory, run_command_function):
     """
     log.info("Cloning {} to {}".format(url, directory))
     clone_command = [
-        '/usr/bin/env', 'git', 'clone', '--recursive', url, directory
+        '/usr/bin/env', 'git', 'clone', url, directory
     ]
     exit_code, _, _ = run_command_function(
         clone_command,

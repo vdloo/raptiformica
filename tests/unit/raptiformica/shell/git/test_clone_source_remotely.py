@@ -34,7 +34,7 @@ class TestCloneSourceRemotely(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@127.0.0.1', '-p', '2222',
-            '/usr/bin/env', 'git', 'clone', '--recursive',
+            '/usr/bin/env', 'git', 'clone',
             'https://github.com/vdloo/puppetfiles',
             '/usr/etc/puppetfiles'
         ]
