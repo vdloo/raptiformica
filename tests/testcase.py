@@ -51,6 +51,7 @@ class IntegrationTestCase(TestCase):
         return standard_out
 
     def kill_all_dockers(self):
+        # todo: only kill the dockers relevant to each test process
         kill_all_dockers_command = "sudo docker ps | " \
                                    "grep raptiformica | " \
                                    "awk '{print$1}' | " \
