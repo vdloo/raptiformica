@@ -1,0 +1,12 @@
+# pycharm
+*.idea
+
+# python bytecode
+*.pyc
+
+#vim
+*.swo
+*.swp
+
+#virtualenv
+.venv
