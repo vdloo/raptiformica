@@ -168,7 +168,9 @@ def ensure_latest_source(source, name, destination=None, host=None, port=22):
     return exit_code
 
 
-def ensure_latest_source_from_artifacts(source, name, destination=None, host=None, port=22):
+def ensure_latest_source_from_artifacts(
+    source, name, destination=None, host=None, port=22, only_cache=False
+):
     """
     Ensure a repository is checked out and the latest version in the name directory
     in the INSTALL DIR on the specified machine. Caches the repository in artifacts
@@ -178,23 +180,31 @@ def ensure_latest_source_from_artifacts(source, name, destination=None, host=Non
     :param str destination: Where to clone to
     :param str host: hostname or ip of the remote machine, None for the local machine
     :param int port: port to use to connect to the remote machine over ssh
+    :param bool only_cache: False if the repo should be cloned to the destination,
+    True if it should only be cached
     :return int checkout_exists: exit code of the test -d command for the directory
     0 if the repository was freshly cloned,
     1 when there already was a checkout
     """
-    repositories_directory = reduce(
-        join, (
-            Config.CACHE_DIR if host else conf().CACHE_DIR,
-            'artifacts', 'repositories'
+    def get_repositories_directory(local=False):
+        return reduce(
+            join, (
+                Config.CACHE_DIR if host or local else conf().ABS_CACHE_DIR,
+                'artifacts', 'repositories'
+            )
         )
-    )
     destination = destination or conf().INSTALL_DIR
-    ensure_directory(repositories_directory)
-    source_dir = join(repositories_directory, name)
+    ensure_directory(get_repositories_directory())
+    source_dir = join(get_repositories_directory(local=True), name)
     cached_repo = 'file:///root/{}'.format(source_dir)
-    ensure_latest_source(
-        source, name, destination=repositories_directory, host=host, port=port
+    cache_rc = ensure_latest_source(
+        source, name,
+        destination=get_repositories_directory(local=False),
+        host=host, port=port
     )
-    return ensure_latest_source(
-        cached_repo, name, destination=destination, host=host, port=port
-    )
+    if only_cache:
+        return cache_rc
+    else:
+        return ensure_latest_source(
+            cached_repo, name, destination=destination, host=host, port=port
+        )

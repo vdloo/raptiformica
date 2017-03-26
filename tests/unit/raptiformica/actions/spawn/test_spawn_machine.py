@@ -9,6 +9,7 @@ class TestSpawnMachine(TestCase):
         self.start_compute_type = self.set_up_patch('raptiformica.actions.spawn.start_compute_type')
         self.start_compute_type.return_value = ('some_uuid_1234', '127.0.0.1', 2222)
         self.fire_hooks = self.set_up_patch('raptiformica.actions.spawn.fire_hooks')
+        self.cache_repos = self.set_up_patch('raptiformica.actions.spawn.cache_repos')
         self.slave_machine = self.set_up_patch('raptiformica.actions.spawn.slave_machine')
         self.get_first_server_type = self.set_up_patch(
             'raptiformica.actions.spawn.get_first_server_type'
@@ -35,6 +36,20 @@ class TestSpawnMachine(TestCase):
         self.start_compute_type.assert_called_once_with(
             server_type=self.get_first_server_type.return_value,
             compute_type=self.get_first_compute_type.return_value
+        )
+
+    def test_spawn_machine_caches_repos_using_the_default_server_type(self):
+        spawn_machine()
+
+        self.cache_repos.assert_called_once_with(
+            server_type=self.get_first_server_type.return_value,
+        )
+
+    def test_spawn_machine_caches_repos_using_a_specified_server_type(self):
+        spawn_machine(server_type='workstation')
+
+        self.cache_repos.assert_called_once_with(
+            server_type='workstation'
         )
 
     def test_spawn_machine_slaves_machine_as_default_server_type(self):
@@ -99,6 +114,7 @@ class TestSpawnMachine(TestCase):
         spawn_machine(server_type='workstation', compute_type='docker', only_check_available=True)
 
         self.assertFalse(self.start_compute_type.called)
+        self.assertFalse(self.cache_repos.called)
         self.assertFalse(self.slave_machine.called)
         self.assertFalse(self.fire_hooks.called)
 

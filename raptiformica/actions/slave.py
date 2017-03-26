@@ -28,26 +28,50 @@ def retrieve_provisioning_configs(server_type=None):
             for k, v in server_type.items()}
 
 
-def provision_machine(host=None, port=22, server_type=None):
+def ensure_source_on_machine(host=None, port=22, server_type=None,
+                             only_cache=False, callback=lambda name, config: None):
     """
-    Deploy the bootstrapping repo on the remote machine and run the bootstrap command
-    :param str host: hostname or ip of the remote machine
+    Ensure the required sources for the defined server type are available on the machine
+    :param str host: hostname or ip of the remote machine. None for the local machine.
     :param int port: port to use to connect to the remote machine over ssh
+    Not needed for the local machine.
     :param str server_type: name of the server type. i.e. headless
+    :param bool only_cache: False if the repo should be cloned to the destination,
+    True if it should only be cached
+    :param func callback: Action to perform after the sources are ensured.
+    Takes name and config.
     :return None:
     """
     server_type = server_type or get_first_server_type()
     log.info("Provisioning host {} as server type {}".format(
         host or 'local machine', server_type
     ))
-    server_type = server_type or get_first_server_type()
     provisioning_configs = retrieve_provisioning_configs(server_type)
     for name, config in provisioning_configs.items():
-        log.info("Provisioning for {}".format(name))
         ensure_latest_source_from_artifacts(
-            config['source'], name, host=host, port=port
+            config['source'], name, host=host, port=port,
+            only_cache=only_cache
         )
+        callback(name, config)
+
+
+def provision_machine(host=None, port=22, server_type=None):
+    """
+    Deploy the bootstrapping repo on the remote machine and run the bootstrap command
+    :param str host: hostname or ip of the remote machine. None for the local machine.
+    :param int port: port to use to connect to the remote machine over ssh.
+    Not needed for the local machine.
+    :param str server_type: name of the server type. i.e. headless
+    :return None:
+    """
+    def bootstrap_provisioning(name, config):
+        log.info("Provisioning for {}".format(name))
         run_resource_command(config['bootstrap'], name, host=host, port=port)
+
+    ensure_source_on_machine(
+        host=host, port=port, server_type=server_type,
+        callback=bootstrap_provisioning
+    )
 
 
 def assimilate_machine(host, port=22, uuid=None):

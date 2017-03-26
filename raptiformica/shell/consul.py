@@ -16,6 +16,7 @@ CONSUL_ARCHES = defaultdict(
 )
 CONSUL_RELEASE = CONSUL_ARCHES[conf().MACHINE_ARCH]
 CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.7.4/consul_0.7.4_web_ui.zip'
+CONSUL_KV_REPOSITORY = 'https://github.com/vdloo/consul-kv'
 
 
 def ensure_consul_dependencies(host=None, port=22):
