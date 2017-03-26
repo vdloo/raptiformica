@@ -1,10 +1,13 @@
 from logging import getLogger
 
-from raptiformica.actions.slave import slave_machine
+from raptiformica.actions.slave import slave_machine, ensure_source_on_machine
 from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type
+from raptiformica.shell.cjdns import CJDNS_REPOSITORY
 from raptiformica.shell.compute import start_instance
+from raptiformica.shell.consul import CONSUL_KV_REPOSITORY
+from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.ssh import verify_ssh_agent_running
 from raptiformica.utils import startswith, endswith
@@ -65,6 +68,31 @@ def start_compute_type(server_type=None, compute_type=None):
     )
 
 
+def cache_repos(server_type=None):
+    """
+    Cache repos on the client host. When spawning a new machine there is no
+    guarantee that another machine has already been spawned and has yielded
+    artifacts for reuse. In case of private repos in use they will have to
+    be cloned on the client (which presumably has access or a route to the
+    location of the repo). Also for repos that will not be transferred back
+    to the client host it is nice to only download them once if we can to
+    save bandwidth.
+    :param str server_type: name of the server type. i.e. headless
+    :return None:
+    """
+    log.info(
+        "Caching repos on the client host so the guests "
+        "don't have to download them individually"
+    )
+    ensure_source_on_machine(server_type=server_type, only_cache=True)
+    ensure_latest_source_from_artifacts(
+        CJDNS_REPOSITORY, "cjdns", only_cache=True
+    )
+    ensure_latest_source_from_artifacts(
+        CONSUL_KV_REPOSITORY, "consul-kv", only_cache=True
+    )
+
+
 def spawn_machine(provision=False, assimilate=False, after_assimilate=False,
                   after_mesh=False, server_type=None, compute_type=None,
                   only_check_available=False):
@@ -93,6 +121,9 @@ def spawn_machine(provision=False, assimilate=False, after_assimilate=False,
             server_type=server_type, compute_type=compute_type
         )
         fire_hooks('after_start_instance')
+        # todo: maybe move this caching to slave_machine instead of keeping
+        # this only in spawn_machine
+        cache_repos(server_type=server_type)
         slave_machine(
             host, port=port,
             assimilate=assimilate,

@@ -62,13 +62,15 @@ class TestProvision(TestCase):
                 'https://github.com/vdloo/raptiformica-map',
                 'raptiformica-map',
                 host='1.2.3.4',
-                port=22
+                port=22,
+                only_cache=False
             ),
             call(
                 'https://github.com/vdloo/puppetfiles',
                 'puppetfiles',
                 host='1.2.3.4',
-                port=22
+                port=22,
+                only_cache=False
             ),
         )
         self.assertCountEqual(

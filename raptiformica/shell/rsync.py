@@ -58,6 +58,7 @@ def upload(source, destination, host, port=22):
               '-oStrictHostKeyChecking=no '
               '-oUserKnownHostsFile=/dev/null'.format(port)
     ]
+    log.info("Uploading local {} to remote {}".format(source, destination))
     exit_code, _, _ = run_command_print_ready(
         upload_command,
         success_callback=log_success_factory(
