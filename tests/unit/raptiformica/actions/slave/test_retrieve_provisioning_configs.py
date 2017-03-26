@@ -16,10 +16,10 @@ class TestRetrieveProvisioningConfigs(TestCase):
         )
         self.mapping = {
             "raptiformica/compute/vagrant/headless/get_port": "cd headless && vagrant ssh-config | grep Port | awk '{print $NF}'",
-            "raptiformica/compute/vagrant/headless/source": "https://github.com/vdloo/vagrantfiles.git",
+            "raptiformica/compute/vagrant/headless/source": "https://github.com/vdloo/vagrantfiles",
             "raptiformica/compute/vagrant/headless/start_instance": "cd headless && vagrant up",
             "raptiformica/server/headless/puppetfiles/bootstrap": "./papply.sh manifests/headless.pp",
-            "raptiformica/server/headless/puppetfiles/source": "https://github.com/vdloo/puppetfiles.git"
+            "raptiformica/server/headless/puppetfiles/source": "https://github.com/vdloo/puppetfiles"
         }
         self.get_config.return_value = self.mapping
 
@@ -44,7 +44,7 @@ class TestRetrieveProvisioningConfigs(TestCase):
         expected_config = {
             'puppetfiles': {
                 'bootstrap': './papply.sh manifests/headless.pp',
-                'source': 'https://github.com/vdloo/puppetfiles.git'
+                'source': 'https://github.com/vdloo/puppetfiles'
             }
 
         }
@@ -53,18 +53,18 @@ class TestRetrieveProvisioningConfigs(TestCase):
     def test_retrieve_provisioning_configs_returns_multiple_configs_for_specified_server_type_if_multiple_configs(self):
         self.mapping.update({
             "raptiformica/server/headless/raptiformica-map/bootstrap": "./deploy.sh",
-            "raptiformica/server/headless/raptiformica-map/source": "https://github.com/vdloo/raptiformica-map.git"
+            "raptiformica/server/headless/raptiformica-map/source": "https://github.com/vdloo/raptiformica-map"
         })
         ret = retrieve_provisioning_configs('headless')
 
         expected_config = {
             'puppetfiles': {
                 'bootstrap': './papply.sh manifests/headless.pp',
-                'source': 'https://github.com/vdloo/puppetfiles.git'
+                'source': 'https://github.com/vdloo/puppetfiles'
             },
             'raptiformica-map': {
                 'bootstrap': './deploy.sh',
-                'source': 'https://github.com/vdloo/raptiformica-map.git'
+                'source': 'https://github.com/vdloo/raptiformica-map'
             }
 
         }
