@@ -5,6 +5,7 @@ from os.path import join, isfile
 from logging import getLogger
 from random import shuffle
 from shutil import rmtree
+from os import path
 
 from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping
@@ -180,6 +181,38 @@ def configure_consul_conf():
     for directory in ('/etc/consul.d', '/etc/opt/consul'):
         ensure_directory(directory)
     write_json(consul_config, CONSUL_CONF_PATH)
+
+
+def configure_raptiformica_conf():
+    """
+    Place start on boot configurations for the agent
+    :return None:
+    """
+    log.info(
+        "Configuring the agent to run at "
+        "boot (if the system supports that)"
+    )
+
+    servicefiles_path = '/etc/systemd/system/multi-user.target.wants'
+    if not path.exists(servicefiles_path):
+        return
+    start_detached_agent_command = "/usr/bin/env screen -d -m sh -c '" \
+                                   "PYTHONPATH=/usr/etc/raptiformica " \
+                                   "python3 /usr/etc/raptiformica/bin/" \
+                                   "raptiformica_agent.py'"
+    unit_content = """[Unit]
+Description=Start raptiformica agent
+
+[Service]
+Type=oneshot
+ExecStart={}
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+""".format(start_detached_agent_command)
+    with open('{}/raptiformica.service'.format(servicefiles_path), 'w+') as f:
+        f.write(unit_content)
 
 
 def count_neighbours():
@@ -676,6 +709,7 @@ def configure_meshing_services():
     log.info("Configuring the meshnet services")
     configure_cjdroute_conf()
     configure_consul_conf()
+    configure_raptiformica_conf()
 
 
 def start_meshing_services():
