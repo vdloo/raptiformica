@@ -214,7 +214,7 @@ def try_delete_config(key, recurse=False):
         path = join(conf().KEY_VALUE_ENDPOINT, key)
         consul_conn.delete(path, recurse=recurse)
         sync_shared_config_mapping()
-    except URLError:
+    except API_EXCEPTIONS:
         log.debug(
             "Could not connect to the distributed key value store to "
             "delete the key. Only deleting from local cache for now."
