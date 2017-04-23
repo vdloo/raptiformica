@@ -323,7 +323,8 @@ def ensure_ipv6_routing():
 def start_detached_consul_agent():
     """
     Start the consul agent running in the foreground in a detached screen
-    Doing it this way because at this point in the process it could be that the remote host does not have an init system
+    Doing it this way because at this point in the process it could be that
+    the remote host does not have an init system
     :return None:
     """
     log.info("Starting a detached consul agent")
@@ -640,6 +641,33 @@ def ensure_consul_agent():
     block_until_consul_becomes_available()
 
 
+def ensure_raptiformica_agent():
+    """
+    Ensure the raptiformica agent is running. Will attempt to rejoin
+    the configured network if the machine has lost connection to the
+    cluster.
+
+    Starts the raptiformica agent running in the foreground in a
+    detached screen. Doing it this way because it could be that the
+    remote host does not have an init system. Subshell exits zero but
+    does not run in case another agent is already running.
+    :return None:
+    """
+    log.info("Ensuring raptiformica agent is running")
+    start_detached_agent_command = "/usr/bin/env screen -d -m sh -c '" \
+                                   "PYTHONPATH=/usr/etc/raptiformica " \
+                                   "python3 /usr/etc/raptiformica/bin/" \
+                                   "raptiformica_agent.py'"
+    run_command_print_ready(
+        start_detached_agent_command,
+        failure_callback=raise_failure_factory(
+            "Failed to start the raptiformica agent in the background"
+        ),
+        shell=True,
+        buffered=False
+    )
+
+
 def configure_meshing_services():
     """
     Configures the meshnet services.
@@ -659,6 +687,7 @@ def start_meshing_services():
     log.info("Starting meshing services")
     ensure_cjdns_routing()
     ensure_consul_agent()
+    ensure_raptiformica_agent()
 
 
 def get_neighbour_hosts(mapping):

@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from os import environ
 from os.path import expanduser
 
+from raptiformica.actions.agent import run_agent
 from raptiformica.actions.destroy import destroy_cluster
 from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.join import join_machine
@@ -224,6 +225,30 @@ def mesh():
     """
     args = parse_mesh_arguments()
     mesh_machine(after_mesh=not args.no_after_mesh)
+
+
+def parse_agent_arguments():
+    """
+    Parse the commandline options for running the agent that ensures the 
+    machine to remain in the cluster after interruptions
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica agent",
+        description='Continuously running program that ensures the machine '
+                    'stays in the cluster on interruptions.'
+    )
+    return parse_arguments(parser)
+
+
+def agent():
+    """
+    Continuously running program that ensures the machine 
+    stays in the cluster on interruptions.
+    :return None:
+    """
+    parse_agent_arguments()
+    run_agent()
 
 
 def parse_hook_arguments():
