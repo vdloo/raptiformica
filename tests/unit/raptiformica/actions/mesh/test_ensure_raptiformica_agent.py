@@ -20,9 +20,9 @@ class TestEnsureRaptiformicaAgent(TestCase):
         ensure_raptiformica_agent()
 
         expected_command = "/usr/bin/env screen -d -m " \
-                           "PYTHONPATH=/usr/etc/raptiformica " \
+                           "sh -c 'PYTHONPATH=/usr/etc/raptiformica " \
                            "python3 /usr/etc/raptiformica/bin/" \
-                           "raptiformica_agent.py"
+                           "raptiformica_agent.py'"
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,

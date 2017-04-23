@@ -16,7 +16,11 @@ class TestAgentAlreadyRunning(TestCase):
     def test_agent_already_running_checks_if_there_is_another_agent_already_running(self):
         agent_already_running()
 
-        expected_command = "ps a | grep 'bin/[r]aptiformica_agent.py' | " \
+        expected_command = "ps aux | grep 'bin/[r]aptiformica_agent.py' | " \
+                           "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
+                           "awk '{print $2}' | xargs --no-run-if-empty -I {} " \
+                           "sh -c \"grep -q docker /proc/{}/cgroup 2> /dev/null " \
+                           "&& grep -qv docker /proc/1/cgroup || echo {}\" | " \
                            "wc -l | { read li; test $li -gt 0; }"
         self.check_nonzero_exit.assert_called_once_with(
             expected_command
@@ -27,7 +31,11 @@ class TestAgentAlreadyRunning(TestCase):
 
         agent_already_running()
 
-        expected_command = "ps a | grep 'bin/[r]aptiformica_agent.py' | " \
+        expected_command = "ps aux | grep 'bin/[r]aptiformica_agent.py' | " \
+                           "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
+                           "awk '{print $2}' | xargs --no-run-if-empty -I {} " \
+                           "sh -c \"grep -q docker /proc/{}/cgroup 2> /dev/null " \
+                           "&& grep -qv docker /proc/1/cgroup || echo {}\" | " \
                            "wc -l | { read li; test $li -gt 1; }"
         self.check_nonzero_exit.assert_called_once_with(
             expected_command

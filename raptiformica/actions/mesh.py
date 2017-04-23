@@ -654,10 +654,10 @@ def ensure_raptiformica_agent():
     :return None:
     """
     log.info("Ensuring raptiformica agent is running")
-    start_detached_agent_command = "/usr/bin/env screen -d -m " \
+    start_detached_agent_command = "/usr/bin/env screen -d -m sh -c '" \
                                    "PYTHONPATH=/usr/etc/raptiformica " \
                                    "python3 /usr/etc/raptiformica/bin/" \
-                                   "raptiformica_agent.py"
+                                   "raptiformica_agent.py'"
     run_command_print_ready(
         start_detached_agent_command,
         failure_callback=raise_failure_factory(

@@ -34,8 +34,12 @@ def agent_already_running():
     """
     agent_program_name = 'raptiformica.actions.agent'
     allowed_procs = 1 if _get_program_name() == agent_program_name else 0
-    check_running = "ps a | grep 'bin/[r]aptiformica_agent.py' " \
-                    "| wc -l | {{ read li; test $li -gt {}; }}" \
+    check_running = "ps aux | grep 'bin/[r]aptiformica_agent.py' | " \
+                    "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
+                    "awk '{{print $2}}' | xargs --no-run-if-empty -I {{}} " \
+                    "sh -c \"grep -q docker /proc/{{}}/cgroup 2> /dev/null " \
+                    "&& grep -qv docker /proc/1/cgroup || echo {{}}\" | " \
+                    "wc -l | {{ read li; test $li -gt {}; }}" \
                     "".format(allowed_procs)
     return check_nonzero_exit(check_running)
 
