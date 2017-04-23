@@ -149,7 +149,7 @@ def configure_consul_conf():
         'bind_addr': '::',  # todo: bind only to the TUN ipv6 address
         'advertise_addr': cjdroute_config['ipv6'],
         'encrypt': shared_secret,
-        'disable_remote_exec': False,
+        'disable_remote_exec': True,
         'performance': {
             # High performance settings. Machines leave and join the
             # cluster fast and often.

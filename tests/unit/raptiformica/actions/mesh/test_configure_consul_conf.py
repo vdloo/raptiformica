@@ -65,7 +65,7 @@ class TestConfigureConsulConf(TestCase):
             'bind_addr': '::',
             'advertise_addr': 'the_ipv6_address',
             'encrypt': 'a_different_secret',
-            'disable_remote_exec': False,
+            'disable_remote_exec': True,
             'performance': {
                 # High performance settings. Machines leave
                 # and join the cluster fast and often.
