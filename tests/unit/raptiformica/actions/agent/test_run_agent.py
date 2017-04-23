@@ -1,33 +1,30 @@
-from mock import call
-
 from raptiformica.actions.agent import run_agent
 from tests.testcase import TestCase
 
 
 class TestRunAgent(TestCase):
     def setUp(self):
-        self.attempt_join_meshnet = self.set_up_patch(
-            'raptiformica.actions.agent.attempt_join_meshnet'
+        self.agent_already_running = self.set_up_patch(
+            'raptiformica.actions.agent.agent_already_running'
         )
-        self.attempt_join_meshnet.side_effect = [None, RuntimeError]
-        self.sleep = self.set_up_patch(
-            'raptiformica.actions.agent.sleep'
-        )
-
-    def test_run_agent_joins_meshnet_until_loop_terminates(self):
-        with self.assertRaises(RuntimeError):
-            run_agent()
-
-        expected_calls = (
-            call(), call()
-        )
-        self.assertCountEqual(
-            self.attempt_join_meshnet.mock_calls, expected_calls
+        self.agent_already_running.return_value = True
+        self.loop_rejoin = self.set_up_patch(
+            'raptiformica.actions.agent.loop_rejoin'
         )
 
-    def test_run_agent_sleeps_between_rejoins(self):
-        with self.assertRaises(RuntimeError):
-            run_agent()
+    def test_run_agent_checks_if_agent_is_already_running(self):
+        run_agent()
 
-        self.sleep.assert_called_once_with(30)
+        self.agent_already_running.assert_called_once_with()
 
+    def test_run_agent_does_not_loop_rejoin_if_already_ruunning(self):
+        run_agent()
+
+        self.assertFalse(self.loop_rejoin.called)
+
+    def test_run_agent_loops_rejoin_if_not_already_running(self):
+        self.agent_already_running.return_value = False
+
+        run_agent()
+
+        self.loop_rejoin.assert_called_once_with()
