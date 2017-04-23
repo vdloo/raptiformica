@@ -67,9 +67,9 @@ class TestConfigureConsulConf(TestCase):
             'encrypt': 'a_different_secret',
             'disable_remote_exec': True,
             'performance': {
-                # High performance settings. Machines leave
+                # Low sensitivity settings. Machines leave
                 # and join the cluster fast and often.
-                'raft_multiplier': 1
+                'raft_multiplier': 10
             },
             'dns_config': {
                 'allow_stale': True,
