@@ -13,6 +13,9 @@ class TestConfigureMeshingServices(TestCase):
         self.configure_consul_conf = self.set_up_patch(
             'raptiformica.actions.mesh.configure_consul_conf'
         )
+        self.configure_raptiformica_conf = self.set_up_patch(
+            'raptiformica.actions.mesh.configure_raptiformica_conf'
+        )
 
     def test_configure_meshing_services_logs_starting_meshing_services_message(self):
         configure_meshing_services()
@@ -28,3 +31,8 @@ class TestConfigureMeshingServices(TestCase):
         configure_meshing_services()
 
         self.configure_consul_conf.assert_called_once_with()
+
+    def test_configure_meshing_services_configures_raptiformica_conf(self):
+        configure_meshing_services()
+
+        self.configure_raptiformica_conf.assert_called_once_with()
