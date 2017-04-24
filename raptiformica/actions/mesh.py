@@ -153,7 +153,7 @@ def configure_consul_conf():
         'performance': {
             # High performance settings. Machines leave and join the
             # cluster fast and often.
-            'raft_multiplier': 1
+            'raft_multiplier': 10
         },
         'dns_config': {
             'allow_stale': True,
