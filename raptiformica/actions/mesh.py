@@ -275,9 +275,8 @@ def check_if_port_available_factory(port):
         :param int port: The port to check
         :return bool not_in_use: True if not in use, False if in use
         """
-        check_port_command = "netstat -tuna | grep {:d} && " \
-                             "/bin/false || /bin/true".format(port)
-        return check_nonzero_exit(check_port_command)
+        check_port_command = "netstat -tuna | grep {:d}".format(port)
+        return not check_nonzero_exit(check_port_command)
     return check_if_port_available
 
 
