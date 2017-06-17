@@ -22,7 +22,7 @@ class TestEnsureNoConsulRunning(TestCase):
         expected_command = "ps aux | grep [c]onsul | awk '{print $2}' | " \
                            "xargs --no-run-if-empty -I {} " \
                            "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                           "grep -qv docker /proc/1/cgroup || kill {}\""
+                           "grep -qv docker /proc/1/cgroup || kill -SIGINT {}\""
         self.run_command_print_ready.assert_called_once_with(
             expected_command,
             shell=True,
@@ -47,9 +47,19 @@ class TestEnsureNoConsulRunning(TestCase):
         )
         self.assertIn(
             "-I {} sh -c \"grep -q docker /proc/{}/cgroup && "
-            "grep -qv docker /proc/1/cgroup || kill {}\"",
+            "grep -qv docker /proc/1/cgroup || kill -SIGINT {}\"",
             expected_command,
             'Should only kill processes not in Docker containers unless '
             'running inside a Docker, those could have their own raptiformica '
             'instances running'
+        )
+        self.assertIn(
+            "kill -SIGINT",
+            expected_command,
+            'Should gracefully kill consul. The default kill signal is '
+            'SIGTERM. Consul does not shut down gracefully on SIGTERM, '
+            'only on SIGINT. If it does not shut down gracefully there '
+            'is a chance that the socket will enter a TCP-WAIT state '
+            'after which Linux has a timeout of around 60 seconds before '
+            'the port becomes available again'
         )
