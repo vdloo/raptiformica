@@ -7,9 +7,6 @@ class TestRestartConsul(TestCase):
         self.clean_up_old_consul = self.set_up_patch(
             'raptiformica.actions.mesh.clean_up_old_consul'
         )
-        self.block_until_consul_port_is_free = self.set_up_patch(
-            'raptiformica.actions.mesh.block_until_consul_port_is_free'
-        )
         self.start_detached_consul_agent = self.set_up_patch(
             'raptiformica.actions.mesh.start_detached_consul_agent'
         )
@@ -21,11 +18,6 @@ class TestRestartConsul(TestCase):
         restart_consul()
 
         self.clean_up_old_consul.assert_called_once_with()
-
-    def test_restart_consul_blocks_until_consul_port_is_free(self):
-        restart_consul()
-
-        self.block_until_consul_port_is_free.assert_called_once_with()
 
     def test_restart_consul_starts_detached_consul_agent(self):
         restart_consul()

@@ -655,20 +655,6 @@ def reload_consul_agent_if_necessary():
         write_consul_config_hash()
 
 
-def block_until_consul_port_is_free():
-    """
-    Wait for the consul port to become available. If it
-    was in use before it could take a while before the OS
-    frees it for use.
-    :return None:
-    """
-    log.info("Waiting until the consul port becomes available")
-    wait(
-        check_if_port_available_factory(conf().CONSUL_DEFAULT_PORT),
-        timeout=WAIT_FOR_CONSUL_PORT_TIMEOUT
-    )
-
-
 def restart_consul():
     """
     Stop and start the consul agent. If the agent is not
@@ -676,7 +662,6 @@ def restart_consul():
     :return None:
     """
     clean_up_old_consul()
-    block_until_consul_port_is_free()
     start_detached_consul_agent()
     write_consul_config_hash()
 
