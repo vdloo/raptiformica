@@ -19,6 +19,9 @@ class TestEnsureCjdnsRouting(TestCase):
         self.block_until_cjdroute_port_is_free = self.set_up_patch(
             'raptiformica.actions.mesh.block_until_cjdroute_port_is_free'
         )
+        self.ensure_ipv6_enabled = self.set_up_patch(
+            'raptiformica.actions.mesh.ensure_ipv6_enabled'
+        )
         self.start_detached_cjdroute = self.set_up_patch(
             'raptiformica.actions.mesh.start_detached_cjdroute'
         )
@@ -79,6 +82,13 @@ class TestEnsureCjdnsRouting(TestCase):
 
         self.block_until_cjdroute_port_is_free.assert_called_once_with()
 
+    def test_ensure_cjdns_routing_ensures_ipv6_enabled(self):
+        self.cjdroute_config_hash_outdated.return_value = True
+
+        ensure_cjdns_routing()
+
+        self.ensure_ipv6_enabled.assert_called_once_with()
+
     def test_ensure_cjdns_routing_starts_detached_cjdroute_if_config_hash_up_to_date_and_tun0_available(self):
         self.cjdroute_config_hash_outdated.return_value = True
 
@@ -122,6 +132,14 @@ class TestEnsureCjdnsRouting(TestCase):
         ensure_cjdns_routing()
 
         self.block_until_cjdroute_port_is_free.assert_called_once_with()
+
+    def test_ensure_cjdns_routing_ensure_ipv6_enabled_if_tun0_not_available(self):
+        self.cjdroute_config_hash_outdated.return_value = False
+        self.check_if_tun0_is_available.return_value = False
+
+        ensure_cjdns_routing()
+
+        self.ensure_ipv6_enabled.assert_called_once_with()
 
     def test_ensure_cjdns_routing_starts_detached_cjdroute_if_tun0_not_available(self):
         self.cjdroute_config_hash_outdated.return_value = False
@@ -171,6 +189,14 @@ class TestEnsureCjdnsRouting(TestCase):
 
         self.assertFalse(self.block_until_cjdroute_port_is_free.called)
 
+    def test_ensure_cjdns_routing_does_not_ensure_ipv6_enabled_if_config_hash_up_to_date_and_tun0(self):
+        self.cjdroute_config_hash_outdated.return_value = False
+        self.check_if_tun0_is_available.return_value = True
+
+        ensure_cjdns_routing()
+
+        self.assertFalse(self.ensure_ipv6_enabled.called)
+
     def test_ensure_cjdns_routing_does_not_start_detached_cjdroute_if_config_hash_up_to_date_and_tun0_available(self):
         self.cjdroute_config_hash_outdated.return_value = False
         self.check_if_tun0_is_available.return_value = True
@@ -212,6 +238,7 @@ class TestEnsureCjdnsRouting(TestCase):
         self.assertEqual(2, self.cjdroute_config_hash_outdated.call_count)
         self.assertEqual(2, self.stop_detached_cjdroute.call_count)
         self.assertEqual(2, self.block_until_cjdroute_port_is_free.call_count)
+        self.assertEqual(2, self.ensure_ipv6_enabled.call_count)
         self.assertEqual(2, self.start_detached_cjdroute.call_count)
         self.assertEqual(2, self.write_cjdroute_config_hash.call_count)
         self.assertEqual(2, self.block_until_tun0_becomes_available.call_count)

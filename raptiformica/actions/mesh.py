@@ -294,6 +294,31 @@ def block_until_cjdroute_port_is_free():
     )
 
 
+def ensure_ipv6_enabled():
+    """
+    Ensure IPv6 is enabled at the kernel level, otherwise cjdroute
+    will fail with a cryptic error like:
+
+    Got error [Failed to configure tunnel [NetPlatform_linux.c:153
+    ioctl(SIOCSIFADDR) [Permission denied]]]
+
+    If the command fails, the raptiformica will continue and try anyway
+
+    :return None:
+    """
+    log.info("Ensuring IPv6 is enabled at the kernel level")
+    ensure_ipv6_command = "/usr/bin/env sysctl net.ipv6.conf.all.disable_ipv6=0"
+    run_command_print_ready(
+        ensure_ipv6_command,
+        failure_callback=log_failure_factory(
+            "Failed to ensure IPv6 was enabled at the kernel level. Assuming OK. "
+            "If not, cjdroute will later fail to configure the tunnel."
+        ),
+        shell=True,
+        buffered=False
+    )
+
+
 def start_detached_cjdroute():
     """
     Start cjdroute running in the foreground in a detached screen
@@ -449,6 +474,7 @@ def ensure_cjdns_routing():
     if cjdroute_config_hash_outdated() or not check_if_tun0_is_available():
         stop_detached_cjdroute()
         block_until_cjdroute_port_is_free()
+        ensure_ipv6_enabled()
         start_detached_cjdroute()
         write_cjdroute_config_hash()
         block_until_tun0_becomes_available()
