@@ -9,9 +9,9 @@ class TestGetKV(TestCase):
     def setUp(self):
         self.request = self.set_up_patch('consul_kv.api.request')
         self.request.urlopen.return_value.__exit__ = lambda a, b, c, d: None
-        self.json_dump = '[{"Key": "key1", "Value": "Value"}]'
         self.base64decode = self.set_up_patch('consul_kv.api.b64decode')
         self.base64decode.return_value = 'value1'.encode('utf-8')
+        self.json_dump = '[{"Key": "key1", "Value": "Value"}]'
         self.request.urlopen.return_value.__enter__ = lambda x: Mock(
             read=lambda: Mock(
                 decode=lambda _: self.json_dump
@@ -39,7 +39,7 @@ class TestGetKV(TestCase):
     def test_get_kv_gets_all_nested_values_if_specified(self):
         get_kv('some/path', recurse=True)
 
-        expected_url = 'http://localhost:8500/v1/kv/some/path/?recurse'
+        expected_url = 'http://localhost:8500/v1/kv/some/path?recurse'
         self.request.Request.assert_called_once_with(
             url=expected_url,
             method='GET'
@@ -76,4 +76,32 @@ class TestGetKV(TestCase):
         expected_mapping = {
             'key1': 'value1'
         }
+        self.assertEqual(ret, expected_mapping)
+
+    def test_get_kv_returns_empty_results_as_none(self):
+        self.json_dump = '[{"Key": "key1", "Value": null}]'
+        self.request.urlopen.return_value.__enter__ = lambda x: Mock(
+            read=lambda: Mock(
+                decode=lambda _: self.json_dump
+            )
+        )
+
+        ret = get_kv('some/path', recurse=True)
+
+        expected_mapping = {
+            'key1': None
+        }
+        self.assertEqual(ret, expected_mapping)
+
+    def test_get_kv_ignores_empty_keys(self):
+        self.json_dump = '[{"Key": "", "Value": null}]'
+        self.request.urlopen.return_value.__enter__ = lambda x: Mock(
+            read=lambda: Mock(
+                decode=lambda _: self.json_dump
+            )
+        )
+
+        ret = get_kv('some/path', recurse=True)
+
+        expected_mapping = {}
         self.assertEqual(ret, expected_mapping)

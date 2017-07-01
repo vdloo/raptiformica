@@ -1,4 +1,4 @@
-from consul_kv.api import put_kv, get_kv, delete_kv, put_kv_txn
+from consul_kv.api import put_kv, get_kv, get_kv_cas, get_kv_meta, delete_kv, put_kv_txn
 from consul_kv.serializer import map_dictionary, dictionary_map
 from consul_kv.settings import DEFAULT_KV_ENDPOINT, DEFAULT_REQUEST_TIMEOUT
 
@@ -26,14 +26,15 @@ class Connection(object):
         )
         self.timeout = timeout or DEFAULT_REQUEST_TIMEOUT
 
-    def put(self, k, v):
+    def put(self, k, v, cas=None):
         """
         Put a key value pair at the configured endpoint
         :param str k: key to put
+        :param int cas: the cas version number. If None, no cas is used.
         :param str v: value to put
         :return None:
         """
-        return put_kv(k, v, endpoint=self.kv_endpoint, timeout=self.timeout)
+        return put_kv(k, v, cas, endpoint=self.kv_endpoint, timeout=self.timeout)
 
     def put_mapping(self, mapping):
         """
@@ -55,6 +56,31 @@ class Connection(object):
         """
         mapping = map_dictionary(dictionary)
         return self.put_mapping(mapping)
+
+    def get_cas(self, k=None, recurse=False):
+        """
+        Get a value for a key and use CAS to guard updates against updates
+        from multiple clients.
+        :param str k: key to get
+        :param bool recurse: return nested entries
+        :return dict mapping: retrieved key/value mapping
+        """
+        return get_kv_cas(
+            k=k, recurse=recurse, endpoint=self.kv_endpoint,
+            timeout=self.timeout
+        )
+
+    def get_meta(self, k=None, recurse=False):
+        """
+        Get the raw un-decoded key value data for a key
+        :param str k: key to get
+        :param bool recurse: return nested entries
+        :return dict: raw API response
+        """
+        return get_kv_meta(
+            k=k, recurse=recurse, endpoint=self.kv_endpoint,
+            timeout=self.timeout
+        )
 
     def get(self, k=None, recurse=False):
         """

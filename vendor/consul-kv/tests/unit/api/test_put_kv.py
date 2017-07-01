@@ -50,3 +50,12 @@ class TestPutKV(TestCase):
         put_kv('some_key', 'some_value')
 
         self.assertTrue(self.log.debug.called)
+
+    def test_put_kv_does_request_with_cas_version_number_as_query_param(self):
+        put_kv('some_key', 'some_value', cas=127)
+
+        self.request.Request.assert_called_once_with(
+            url='http://localhost:8500/v1/kv/some_key?cas=127',
+            data=str.encode('some_value'),
+            method='PUT'
+        )
