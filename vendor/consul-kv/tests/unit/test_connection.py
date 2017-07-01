@@ -8,6 +8,8 @@ class TestConnection(TestCase):
         self.put_kv = self.set_up_patch('consul_kv.put_kv')
         self.put_kv_txn = self.set_up_patch('consul_kv.put_kv_txn')
         self.get_kv = self.set_up_patch('consul_kv.get_kv')
+        self.get_kv_meta = self.set_up_patch('consul_kv.get_kv_meta')
+        self.get_kv_cas = self.set_up_patch('consul_kv.get_kv_cas')
         self.delete_kv = self.set_up_patch('consul_kv.delete_kv')
         self.kv_endpoint = 'http://some_host:8500/v1/kv/'
         self.txn_endpoint = 'http://some_host:8500/v1/txn/'
@@ -41,7 +43,15 @@ class TestConnection(TestCase):
         self.conn.put('key1', 'value1')
 
         self.put_kv.assert_called_once_with(
-            'key1', 'value1', endpoint=self.kv_endpoint,
+            'key1', 'value1', None, endpoint=self.kv_endpoint,
+            timeout=10
+        )
+
+    def test_connection_put_calls_put_kv_with_specified_cas_version(self):
+        self.conn.put('key1', 'value1', cas=123)
+
+        self.put_kv.assert_called_once_with(
+            'key1', 'value1', 123, endpoint=self.kv_endpoint,
             timeout=10
         )
 
@@ -85,6 +95,48 @@ class TestConnection(TestCase):
         ret = self.conn.get('key2', recurse=True)
 
         self.assertEqual(ret, self.get_kv.return_value)
+
+    def test_connection_get_cas_calls_get_kv_cas_with_kv_endpoint(self):
+        self.conn.get_cas('key1')
+
+        self.get_kv_cas.assert_called_once_with(
+            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            timeout=10
+        )
+
+    def test_connection_get_cas_recurses_if_specified(self):
+        self.conn.get_cas('key1', recurse=True)
+
+        self.get_kv_cas.assert_called_once_with(
+            k='key1', recurse=True, endpoint=self.kv_endpoint,
+            timeout=10
+        )
+
+    def test_connection_get_cas_returns_api_result(self):
+        ret = self.conn.get_cas('key2')
+
+        self.assertEqual(ret, self.get_kv_cas.return_value)
+
+    def test_connection_get_meta_calls_get_kv_meta_with_kv_endpoint(self):
+        self.conn.get_meta('key1')
+
+        self.get_kv_meta.assert_called_once_with(
+            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            timeout=10
+        )
+
+    def test_connection_get_meta_recurses_if_specified(self):
+        self.conn.get_meta('key1', recurse=True)
+
+        self.get_kv_meta.assert_called_once_with(
+            k='key1', recurse=True, endpoint=self.kv_endpoint,
+            timeout=10
+        )
+
+    def test_connection_get_meta_returns_api_result(self):
+        ret = self.conn.get_meta('key2')
+
+        self.assertEqual(ret, self.get_kv_meta.return_value)
 
     def test_connection_get_mapping_calls_get_recursively(self):
         get = self.set_up_patch('consul_kv.Connection.get')

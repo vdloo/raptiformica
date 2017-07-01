@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vdloo/consul-kv.svg?branch=master)](https://travis-ci.org/vdloo/consul-kv)
+
 # consul-kv
 
 Python 3 client for the [consul key/value store](https://www.consul.io/docs/agent/http/kv.html).
