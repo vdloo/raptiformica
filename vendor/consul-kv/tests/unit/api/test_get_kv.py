@@ -39,7 +39,7 @@ class TestGetKV(TestCase):
     def test_get_kv_gets_all_nested_values_if_specified(self):
         get_kv('some/path', recurse=True)
 
-        expected_url = 'http://localhost:8500/v1/kv/some/path?recurse'
+        expected_url = 'http://localhost:8500/v1/kv/some/path/?recurse'
         self.request.Request.assert_called_once_with(
             url=expected_url,
             method='GET'
