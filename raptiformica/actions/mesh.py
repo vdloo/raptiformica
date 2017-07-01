@@ -1,5 +1,8 @@
 import pipes
+from hashlib import md5
 from contextlib import suppress
+from uuid import UUID
+
 from os import remove
 from os.path import join, isfile
 from logging import getLogger
@@ -139,12 +142,17 @@ def configure_consul_conf():
                              "./bin/raptiformica_hook.py cluster_change " \
                              "--verbose\"".format(conf().RAPTIFORMICA_DIR)
     shared_secret = get_consul_password(get_config_mapping())
+    node_id = str(
+        UUID(bytes=md5(str.encode(cjdroute_config['ipv6'])).digest())
+    )
     consul_config = {
         'bootstrap_expect': 3,
         'data_dir': '/opt/consul',
         'datacenter': 'raptiformica',
         'log_level': 'INFO',
         'node_name': cjdroute_config['ipv6'],
+        # deterministic node ID derived from the IPv6 address
+        'node_id': node_id,
         'server': True,
         'bind_addr': '::',  # todo: bind only to the TUN ipv6 address
         'advertise_addr': cjdroute_config['ipv6'],
