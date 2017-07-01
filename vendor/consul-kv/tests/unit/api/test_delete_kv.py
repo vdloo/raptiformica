@@ -32,7 +32,7 @@ class TestDeleteKV(TestCase):
         delete_kv('some/path', recurse=True)
 
         self.request.Request.assert_called_once_with(
-            url='http://localhost:8500/v1/kv/some/path?recurse',
+            url='http://localhost:8500/v1/kv/some/path/?recurse=True',
             method='DELETE'
         )
 
@@ -69,7 +69,7 @@ class TestDeleteKV(TestCase):
         delete_kv('some_key', cas=127)
 
         self.request.Request.assert_called_once_with(
-            url='http://localhost:8500/v1/kv/some_key?cas=127',
+            url='http://localhost:8500/v1/kv/some_key/?cas=127',
             method='DELETE'
         )
 

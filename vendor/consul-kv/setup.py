@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name ='consul_kv',
     packages=['consul_kv'],
-    version='0.5',
+    version='0.6',
     description='Consul KV client for Python 3',
     author='Rick van de Loo',
     author_email='rickvandeloo@gmail.com',

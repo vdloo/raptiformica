@@ -31,8 +31,8 @@ def put_kv(
 
     url = join(endpoint, k) if k else endpoint
 
-    if len(params) > 0:
-        url = "{}?{}".format(url, urlencode(params))
+    if params:
+        url = "{}/?{}".format(url, urlencode(params))
 
     req = request.Request(
         url=url, data=encoded, method='PUT'
@@ -123,7 +123,7 @@ def get_kv_builder(postprocessor=lambda x: x):
         as defined in the specified postprocessor of the outer function.
         """
         url = join(endpoint, k) if k else endpoint
-        url = "{}?recurse".format(url) if recurse else url
+        url = "{}/?recurse".format(url) if recurse else url
         req = request.Request(
             url=url,
             method='GET'
@@ -168,14 +168,16 @@ def delete_kv(
     params = dict()
     if cas:
         params['cas'] = cas
+    if recurse:
+        params['recurse'] = recurse
 
     url = join(endpoint, k) if k else endpoint
 
-    if len(params) > 0:
-        url = "{}?{}".format(url, urlencode(params))
+    if params:
+        url = "{}/?{}".format(url, urlencode(params))
 
     req = request.Request(
-        url="%s?recurse" % url if recurse else url,
+        url=url,
         method='DELETE'
     )
     with request.urlopen(req, timeout=timeout) as f:
