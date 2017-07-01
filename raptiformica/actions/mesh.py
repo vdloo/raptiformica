@@ -498,7 +498,7 @@ def ensure_no_consul_running():
     kill_running = "ps aux | grep [c]onsul | awk '{print $2}' | " \
                    "xargs --no-run-if-empty -I {} " \
                    "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                   "grep -qv docker /proc/1/cgroup || kill -SIGINT {}\""
+                   "grep -qv docker /proc/1/cgroup || kill -2 {}\""  # SIGINT
     run_command_print_ready(
         kill_running,
         shell=True,
