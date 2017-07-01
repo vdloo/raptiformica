@@ -61,6 +61,8 @@ class TestConfigureConsulConf(TestCase):
             'datacenter': 'raptiformica',
             'log_level': 'INFO',
             'node_name': 'the_ipv6_address',
+            # deterministic node ID derived from the IPv6 address
+            'node_id': '1d08bba2-6d04-b253-d647-a7fd84e2002a',
             'server': True,
             'bind_addr': '::',
             'advertise_addr': 'the_ipv6_address',
