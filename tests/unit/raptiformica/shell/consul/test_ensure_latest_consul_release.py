@@ -29,7 +29,7 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
-            'https://releases.hashicorp.com/consul/0.8.4/consul_0.8.4_linux_amd64.zip'
+            'https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip'
         ]
         expected_web_ui_command = [
             '/usr/bin/env', 'ssh', '-A',
@@ -39,7 +39,7 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
-            'https://releases.hashicorp.com/consul/0.8.4/consul_0.8.4_web_ui.zip'
+            'https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_web_ui.zip'
         ]
         expected_calls = [
             call(expected_binary_command, buffered=False, shell=False),
