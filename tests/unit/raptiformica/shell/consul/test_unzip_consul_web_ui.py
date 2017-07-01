@@ -27,7 +27,7 @@ class TestUnzipConsulWebUI(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'unzip', '-o',
-            'consul_0.8.4_web_ui.zip',
+            'consul_0.8.5_web_ui.zip',
             '-d', '/usr/etc/consul_web_ui'
         ]
         self.execute_process.assert_called_once_with(
