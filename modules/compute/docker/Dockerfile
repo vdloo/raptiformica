@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     build-essential \
     python \
+    python-pip \
     iputils-ping \
     wget \
     unzip \
