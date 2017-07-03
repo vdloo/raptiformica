@@ -5,7 +5,7 @@ from tests.testcase import TestCase
 class TestGetFirstPlatformType(TestCase):
     def setUp(self):
         self.get_first_from_types = self.set_up_patch(
-                'raptiformica.settings.types.get_first_from_types'
+            'raptiformica.settings.types.get_first_from_types'
         )
 
     def test_get_first_platform_type_gets_first_platform_type(self):

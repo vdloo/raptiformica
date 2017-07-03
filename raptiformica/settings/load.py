@@ -269,6 +269,12 @@ def cache_config_mapping(mapping):
             "Passed key value mapping was null. "
             "Refusing to cache empty mapping!"
         )
+    if not validate_config_mapping(mapping):
+        raise RuntimeError(
+            "Missing all required service types from config. "
+            "It might have gotten corrupted. "
+            "Refusing to cache this mapping!"
+        )
     write_config_mapping(mapping, conf().MUTABLE_CONFIG)
 
 
@@ -282,6 +288,20 @@ def cached_config_mapping():
     """
     with config_cache_lock():
         return load_json(conf().MUTABLE_CONFIG)
+
+
+def validate_config_mapping(mapping):
+    """
+    Validate a config mapping. If for some reason the retrieved mapping is
+    corrupted we need to act accordingly.
+    :param dict mapping: key value mapping with config data
+    :return bool valid: True if valid, False if not
+    """
+    mapping_as_dict = dictionary_map(mapping)
+    for config_type in ('server', 'compute', 'platform'):
+        if config_type not in mapping_as_dict[conf().KEY_VALUE_PATH]:
+            return False
+    return True
 
 
 def get_local_config_mapping():
