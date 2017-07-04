@@ -162,6 +162,11 @@ def download_config_mapping():
             "Retrieved empty data from distributed key "
             "value store. Not accepting."
         )
+    if not validate_config_mapping(mapping):
+        raise ValueError(
+            "Retrieved corrupted data from distributed key "
+            "value store. Not accepting."
+        )
     return mapping
 
 
