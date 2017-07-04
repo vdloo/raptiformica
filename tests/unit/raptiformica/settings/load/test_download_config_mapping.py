@@ -8,7 +8,13 @@ from tests.testcase import TestCase
 class TestDownloadConfigMapping(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.settings.load.log')
-        self.get_mapping = self.set_up_patch('raptiformica.settings.load.consul_conn.get_mapping')
+        self.get_mapping = self.set_up_patch(
+            'raptiformica.settings.load.consul_conn.get_mapping'
+        )
+        self.validate_config_mapping = self.set_up_patch(
+            'raptiformica.settings.load.validate_config_mapping'
+        )
+        self.validate_config_mapping.return_value = True
 
     def test_download_config_mapping_logs_debug_message(self):
         download_config_mapping()
@@ -38,6 +44,12 @@ class TestDownloadConfigMapping(TestCase):
 
     def test_download_config_mapping_raises_value_error_if_returned_mapping_is_falsey(self):
         self.get_mapping.return_value = None
+
+        with self.assertRaises(ValueError):
+            download_config_mapping()
+
+    def test_download_config_mapping_raises_value_error_if_returned_mapping_is_invalid(self):
+        self.validate_config_mapping.return_value = False
 
         with self.assertRaises(ValueError):
             download_config_mapping()
