@@ -29,7 +29,8 @@ class TestPullOriginMaster(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=True
+            shell=True,
+            timeout=1800
         )
 
     def test_that_pull_origin_master_returns_pull_origin_master_exit_code(self):

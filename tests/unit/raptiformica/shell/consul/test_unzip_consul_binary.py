@@ -31,9 +31,10 @@ class TestUnzipConsulBinary(TestCase):
             '-d', '/usr/bin'
         ]
         self.execute_process.assert_called_once_with(
-                expected_command,
-                buffered=False,
-                shell=False
+            expected_command,
+            buffered=False,
+            shell=False,
+            timeout=1800
         )
 
     def test_unzip_consul_binary_raises_error_when_ensuring_latest_release_fails(self):

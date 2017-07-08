@@ -40,7 +40,8 @@ class TestRunRaptiformicaCommand(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_run_raptiformica_command_raises_error_if_remote_raptiformica_command_fails(self):

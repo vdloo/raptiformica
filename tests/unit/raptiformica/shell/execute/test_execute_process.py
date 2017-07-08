@@ -19,6 +19,14 @@ class TestExecuteProcess(TestCase):
             'RAPTIFORMICA_CACHE_DIR': conf().CACHE_DIR
         }
         self.set_up_patch('raptiformica.shell.execute.environ', self.environ)
+        self.terminate_on_timeout = self.set_up_patch(
+            'raptiformica.shell.execute.terminate_on_timeout'
+        )
+        self.terminate_on_timeout.return_value.__enter__ = lambda a: None
+        self.terminate_on_timeout.return_value.__exit__ = lambda a, b, c, d: None
+        self.write_real_time_output = self.set_up_patch(
+            'raptiformica.shell.execute.write_real_time_output'
+        )
 
     def test_execute_process_instantiates_process_object(self):
         execute_process(self.command_as_list)
@@ -45,13 +53,40 @@ class TestExecuteProcess(TestCase):
         )
 
     def test_execute_process_instantiates_process_object_as_shell_if_shell(self):
-        execute_process(self.command_as_list, shell=True)
+        execute_process(' '.join(self.command_as_list), shell=True)
 
         self.p_open.assert_called_once_with(
-            self.command_as_list, stdout=PIPE, stderr=PIPE,
+            ' '.join(self.command_as_list),
+            stdout=PIPE, stderr=PIPE,
             bufsize=-1, shell=True,
             universal_newlines=True,
             env=self.environ
+        )
+
+    def test_execute_process_terminates_on_timeout(self):
+        execute_process(self.command_as_list)
+
+        self.terminate_on_timeout.assert_called_once_with(
+            self.p_open.return_value, 1800, self.command_as_list
+        )
+
+    def test_execute_process_terminates_on_specified_timeout(self):
+        execute_process(self.command_as_list, timeout=10)
+
+        self.terminate_on_timeout.assert_called_once_with(
+            self.p_open.return_value, 10, self.command_as_list
+        )
+
+    def test_execute_process_does_not_write_real_time_output(self):
+        execute_process(self.command_as_list)
+
+        self.assertFalse(self.write_real_time_output.called)
+
+    def test_execute_process_writes_real_time_output_if_not_buffered(self):
+        execute_process(self.command_as_list, buffered=False)
+
+        self.write_real_time_output.assert_called_once_with(
+            self.p_open.return_value
         )
 
     def test_execute_process_communicates_for_output(self):

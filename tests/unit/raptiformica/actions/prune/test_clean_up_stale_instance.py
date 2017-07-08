@@ -33,9 +33,10 @@ class TestCleanUpStaleInstance(TestCase):
                             'docker/headless/a_generated_uuid; '
                             '{}'.format(self.clean_up_stale_instance_command)]
         self.execute_process.assert_called_once_with(
-                expected_command,
-                buffered=True,
-                shell=False
+            expected_command,
+            buffered=True,
+            shell=False,
+            timeout=1800
         )
 
     def test_clean_up_stale_instance_does_not_raise_error_when_command_failed(self):

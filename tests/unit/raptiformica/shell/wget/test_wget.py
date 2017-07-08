@@ -27,9 +27,10 @@ class TestWget(TestCase):
             'wget', '-nc', 'https://www.example.com/some_url.zip'
         ]
         self.execute_process.assert_called_once_with(
-                expected_command,
-                buffered=False,
-                shell=False
+            expected_command,
+            buffered=False,
+            shell=False,
+            timeout=15
         )
 
     def test_wget_raises_error_when_retrieving_the_file_failed(self):

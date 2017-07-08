@@ -30,7 +30,8 @@ class TestResetHardHead(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=True
+            shell=True,
+            timeout=1800
         )
 
     def test_that_reset_hard_head_returns_exit_code(self):

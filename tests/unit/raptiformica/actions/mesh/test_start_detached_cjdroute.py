@@ -25,7 +25,8 @@ class TestStartDetachedCjdroute(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
-            buffered=False
+            buffered=False,
+            timeout=1800
         )
 
     def test_start_detached_cjdroute_raises_error_when_starting_detached_cjdroute_failed(self):

@@ -1,6 +1,10 @@
 from raptiformica.shell.execute import run_critical_unbuffered_command_print_ready
+from raptiformica.utils import retry
+
+WGET_TIMEOUT = 15
 
 
+@retry(attempts=3, expect=(TimeoutError,))
 def wget(url, host=None, port=22, failure_message='Failed retrieving file'):
     """
     Download a file on the remote host
@@ -14,5 +18,5 @@ def wget(url, host=None, port=22, failure_message='Failed retrieving file'):
     """
     run_critical_unbuffered_command_print_ready(
         ['wget', '-nc', url], host=host, port=port,
-        failure_message=failure_message
+        failure_message=failure_message, timeout=WGET_TIMEOUT
     )

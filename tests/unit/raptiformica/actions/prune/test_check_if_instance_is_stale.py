@@ -35,7 +35,8 @@ class TestCheckIfInstanceIsStale(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=True,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_check_if_instance_is_stale_returns_true_if_instance_is_stale(self):

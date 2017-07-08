@@ -21,7 +21,8 @@ class TestDownloadArtifacts(TestCase):
             '.raptiformica.d/artifacts',
             conf().ABS_CACHE_DIR,
             host='1.2.3.4',
-            port=2222
+            port=2222,
+            timeout=60
         )
 
     def test_download_artifacts_returns_true_if_success(self):

@@ -26,7 +26,8 @@ class TestStopDetachedCjdroute(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
-            buffered=False
+            buffered=False,
+            timeout=1800
         )
         self.assertIn(
             'ps aux |', expected_command,

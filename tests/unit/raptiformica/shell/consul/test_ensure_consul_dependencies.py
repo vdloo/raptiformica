@@ -27,7 +27,7 @@ class TestEnsureConsulDependencies(TestCase):
             'pacman -S --noconfirm wget unzip screen --needed '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True
+            buffered=False, shell=True, timeout=1800
         )
         expected_debian_call = call(
             '/usr/bin/env ssh -A '
@@ -40,7 +40,7 @@ class TestEnsureConsulDependencies(TestCase):
             'apt-get install -yy wget unzip screen '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True
+            buffered=False, shell=True, timeout=1800
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
@@ -52,13 +52,13 @@ class TestEnsureConsulDependencies(TestCase):
             'type pacman 1> /dev/null && '
             'pacman -S --noconfirm wget unzip screen --needed '
             '|| /bin/true',
-            buffered=False, shell=True
+            buffered=False, shell=True, timeout=1800
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
             'apt-get install -yy wget unzip screen '
             '|| /bin/true',
-            buffered=False, shell=True
+            buffered=False, shell=True, timeout=1800
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)

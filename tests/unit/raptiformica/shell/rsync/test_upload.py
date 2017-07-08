@@ -24,7 +24,8 @@ class TestUpload(TestCase):
         self.execute_process.assert_called_once_with(
             expected_upload_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_upload_raises_error_when_uploading_failed(self):
