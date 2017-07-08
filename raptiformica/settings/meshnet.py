@@ -1,6 +1,7 @@
 import uuid
 from os.path import join
 from logging import getLogger
+from time import sleep
 
 from raptiformica.actions.prune import ensure_neighbour_removed_from_config_by_host
 from raptiformica.distributed.events import send_reload_meshnet
@@ -13,29 +14,74 @@ from raptiformica.shell.raptiformica import inject
 log = getLogger(__name__)
 
 
-def ensure_shared_secret(service):
+def retrieve_shared_secret(service, attempts=10):
     """
-    Ensure a key 'password' exists in the config for a specific meshnet service.
-    If no key exists, create it with a new (psuedo) random value
-    :param str service: name of the service to ensure a secret for
-    :return dict mapping: the updated config mapping
+    Retrieve the shared secret for a service from the distributed
+    key value store. If it can't be retrieved or is empty, retry
+    it a couple of times just in case there is no consensus in
+    the cluster. If we re-create a new secret we split the
+    network into a new network because all old nodes if any
+    will not be able to authenticate anymore.
+    :param str service: name of the service to retrieve a secret for
+    :param int attempts: How many attempts left to retrieve the
+    shared secret from the distributed key value store.
+    :return dict mapping: the retrieved config mapping
     """
     mapping = get_config_mapping()
     shared_secret_path = "{}/meshnet/{}/password".format(
         conf().KEY_VALUE_PATH, service
     )
+    if not mapping.get(shared_secret_path) and attempts > 1:
+        log.debug(
+            "Failed to retrieve shared secret for {}. Will "
+            "attempt up to {} more times".format(service, attempts)
+        )
+        sleep(1)
+        return retrieve_shared_secret(service, attempts=attempts - 1)
+    return mapping
+
+
+def set_new_shared_secret(service):
+    """
+    Set a new shared secret for the defined service in the
+    distributed key value store.
+    :param str service: name of the service to create a secret for
+    :return dict mapping: the updated config mapping
+    """
+    log.info(
+        "Generating new {} secret. Any other pre-existing older "
+        "machines won't be able to authenticate against this new "
+        "network. Netsplit might occur.".format(service)
+    )
+    shared_secret_path = "{}/meshnet/{}/password".format(
+        conf().KEY_VALUE_PATH, service
+    )
+    mapping = try_update_config_mapping({
+        shared_secret_path: uuid.uuid4().hex
+    })
+    return mapping
+
+
+def ensure_shared_secret(service):
+    """
+    Ensure a key 'password' exists in the config for a specific meshnet service.
+    If no key exists, create it with a new (pseudo) random value
+    :param str service: name of the service to ensure a secret for
+    :return dict mapping: the updated config mapping
+    """
+    mapping = retrieve_shared_secret(service)
+    shared_secret_path = "{}/meshnet/{}/password".format(
+        conf().KEY_VALUE_PATH, service
+    )
     if not mapping.get(shared_secret_path):
-        log.info("Generating new {} secret".format(service))
-        mapping = try_update_config_mapping({
-            shared_secret_path: uuid.uuid4().hex
-        })
+        mapping = set_new_shared_secret(service)
     return mapping
 
 
 def update_cjdns_config():
     """
     Ensure a key 'password' exists in the config for the cjdns item in the meshnet config
-    If no key exists, create it with a new (psuedo) random value
+    If no key exists, create it with a new (pseudo) random value
     :return dict mapping: the updated config mapping
     """
     return ensure_shared_secret('cjdns')
@@ -44,7 +90,7 @@ def update_cjdns_config():
 def update_consul_config():
     """
     Ensure a key 'password' exists in the config for the consul item in the meshnet config
-    If no key exists, create it with a new (psuedo) random value
+    If no key exists, create it with a new (pseudo) random value
     :return dict mapping: the updated config mapping
     """
     return ensure_shared_secret('consul')
