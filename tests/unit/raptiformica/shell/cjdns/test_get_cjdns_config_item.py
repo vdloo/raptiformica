@@ -29,6 +29,7 @@ class TestGetCjdnsConfigItem(TestCase):
             expected_command,
             buffered=True,
             shell=False,
+            timeout=1800
         )
 
     def test_get_cjdns_config_item_runs_get_item_command_for_ipv6_address(self):
@@ -50,6 +51,7 @@ class TestGetCjdnsConfigItem(TestCase):
             expected_command,
             buffered=True,
             shell=False,
+            timeout=1800
         )
 
     def test_get_cjdns_config_item_raises_error_if_getting_config_item_failed(self):
@@ -60,6 +62,6 @@ class TestGetCjdnsConfigItem(TestCase):
             get_cjdns_config_item('publicKey', '1.2.3.4', port=2222)
 
     def test_get_cjdns_config_item_returns_item(self):
-        ret =  get_cjdns_config_item('publicKey', '1.2.3.4', port=2222)
+        ret = get_cjdns_config_item('publicKey', '1.2.3.4', port=2222)
 
         self.assertEqual(ret, 'standard out output')

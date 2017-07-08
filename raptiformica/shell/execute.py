@@ -4,6 +4,9 @@ from shlex import quote
 from subprocess import Popen, PIPE
 from logging import getLogger
 from sys import stdout
+from threading import Timer
+
+from contextlib import contextmanager
 
 from raptiformica.settings import conf
 
@@ -59,13 +62,71 @@ def log_success_factory(message):
     return log_success
 
 
-def execute_process(command, buffered=True, shell=False):
+def write_real_time_output(process):
+    """
+    Write real time output from the running process
+    :param obj process: the running process to do
+    blocking reads on the stdout pipe on.
+    :return None:
+    """
+    log.debug(
+        "Doing blocking reads on the stdout pipe "
+        "of the running process. Will output in real time."
+    )
+    for line in iter(process.stdout.readline, b''):
+        stdout.buffer.write(line)
+        stdout.flush()
+
+
+def terminate_and_kill(process, timeout, command):
+    """
+    Terminate and kill a subprocess.Popen process
+    :param obj process: The object to terminate and kill
+    :param int timeout: The amount of time to allow
+    it to run.
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
+    :return None:
+    """
+    process.terminate()
+    process.kill()
+    raise TimeoutError(
+        "Subprocess timed ou after {} seconds. "
+        "Command was: {}".format(timeout, command)
+    )
+
+
+@contextmanager
+def terminate_on_timeout(process, timeout, command):
+    """
+    Run a thread to watch the passed process. If
+    it is running longer than the allowed amount of
+    time, send a terminate and kill to the process.
+    :param obj process: the running process to kill
+    after the timeout expires.
+    :param int timeout: The amount of time to allow
+    it to run.
+    :param list | str command: The command as a list or as string (when shell).
+    I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
+    :yield obj timer: The timer object
+    """
+    timer = Timer(
+        timeout, terminate_and_kill,
+        args=[process, timeout, command]
+    )
+    timer.start()
+    yield
+    timer.cancel()
+
+
+def execute_process(command, buffered=True, shell=False, timeout=1800):
     """
     Execute a command locally in the shell and return the exit code, standard out and standard error as a tuple
     :param list | str command: The command as a list or as string (when shell).
     I.e. ['/bin/ls', '/root'] or "/bin/ls /root"
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple (exit code, standard out, standard error):
     """
     log.debug("Running command: {}".format(command))
@@ -78,12 +139,11 @@ def execute_process(command, buffered=True, shell=False):
         bufsize=-1 if buffered else 0,
         env=env
     )
-    if not buffered:
-        for line in iter(process.stdout.readline, b''):
-            stdout.buffer.write(line)
-            stdout.flush()
-    standard_out, standard_error = process.communicate()
-    exit_code = process.returncode
+    with terminate_on_timeout(process, timeout, command):
+        if not buffered:
+            write_real_time_output(process)
+        standard_out, standard_error = process.communicate()
+        exit_code = process.returncode
     return exit_code, standard_out, standard_error
 
 
@@ -101,7 +161,7 @@ def make_process_output_print_ready(process_output):
 
 
 def run_command_locally(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
-                        buffered=True, shell=False):
+                        buffered=True, shell=False, timeout=1800):
     """
     Run a command and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
@@ -111,9 +171,12 @@ def run_command_locally(command, success_callback=lambda ret: ret, failure_callb
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     """
-    process_output = execute_process(command, buffered=buffered, shell=shell)
+    process_output = execute_process(
+        command, buffered=buffered, shell=shell, timeout=timeout
+    )
     exit_code, standard_out, standard_error = process_output
     if exit_code != 0:
         failure_callback(process_output)
@@ -125,7 +188,7 @@ def run_command_locally(command, success_callback=lambda ret: ret, failure_callb
 def run_command_remotely(command, host, port=22,
                          success_callback=lambda ret: ret,
                          failure_callback=lambda ret: ret,
-                         buffered=True, shell=False):
+                         buffered=True, shell=False, timeout=1800):
     """
     Run a command remotely and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
@@ -137,6 +200,7 @@ def run_command_remotely(command, host, port=22,
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     """
     ssh_command_as_list = ['/usr/bin/env', 'ssh', '-A',
@@ -154,14 +218,16 @@ def run_command_remotely(command, host, port=22,
         success_callback=success_callback,
         failure_callback=failure_callback,
         buffered=buffered,
-        shell=shell
+        shell=shell,
+        timeout=timeout
     )
 
 
 def run_command(command, host=None, port=22,
                 success_callback=lambda ret: ret,
                 failure_callback=lambda ret: ret,
-                buffered=True, shell=False):
+                buffered=True, shell=False,
+                timeout=1800):
     """
     Run a command and return the exit code, standard output and standard error output.
     If no host is specified, the command will run locally.
@@ -174,6 +240,7 @@ def run_command(command, host=None, port=22,
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     :return:
     """
@@ -182,14 +249,16 @@ def run_command(command, host=None, port=22,
             command, host=host, port=port,
             success_callback=success_callback,
             failure_callback=failure_callback,
-            buffered=buffered, shell=shell
+            buffered=buffered, shell=shell,
+            timeout=timeout
         )
     else:
         return run_command_locally(
             command,
             success_callback=success_callback,
             failure_callback=failure_callback,
-            buffered=buffered, shell=shell
+            buffered=buffered, shell=shell,
+            timeout=timeout
         )
 
 
@@ -252,7 +321,7 @@ def run_command_print_ready_in_directory_factory(directory, command_as_string):
 def run_command_print_ready(command, host=None, port=22,
                             success_callback=lambda ret: ret,
                             failure_callback=lambda ret: ret,
-                            buffered=True, shell=False):
+                            buffered=True, shell=False, timeout=1800):
     """
     Print ready version of run_command. Un-escapes output so it can be printed.
     :param list command | str command: The command as a list or string.
@@ -262,13 +331,14 @@ def run_command_print_ready(command, host=None, port=22,
     :param func success_callback: function that takes the process output tuple, runs on success
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_command(
         command, host=host, port=port,
         success_callback=print_ready_callback_factory(success_callback),
         failure_callback=print_ready_callback_factory(failure_callback),
-        buffered=buffered, shell=shell
+        buffered=buffered, shell=shell, timeout=timeout
     )
 
 
@@ -284,7 +354,8 @@ def check_nonzero_exit(command):
 
 def run_critical_command_print_ready(
         command, host=None, port=22, buffered=True,
-        failure_message='Command failed', shell=False):
+        failure_message='Command failed', shell=False,
+        timeout=1800):
     """
     A wrapper around run_command_print_ready but with a failure callback specified.
     :param list command | str command: The command as a list or string.
@@ -294,6 +365,7 @@ def run_critical_command_print_ready(
     if the exit code is nonzero
     :param bool buffered: Store output in a variable instead of printing it live
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_command_print_ready(
@@ -303,14 +375,14 @@ def run_critical_command_print_ready(
             failure_message
         ),
         buffered=buffered,
-        shell=shell
+        shell=shell,
+        timeout=timeout
     )
 
 
 def run_critical_unbuffered_command_print_ready(
         command, host=None, port=22,
-        failure_message='Command failed', shell=False
-):
+        failure_message='Command failed', shell=False, timeout=1800):
     """
     Wrapper around run_critical_command_remotely_print_ready but with output to
     standard out instead of capturing it.
@@ -320,12 +392,14 @@ def run_critical_unbuffered_command_print_ready(
     :param str failure_message: message to include in the raised failure
     if the exit code is nonzero
     :param bool shell: Run the command as in a shell and treat the command as a string instead of a list
+    :param int timeout: The amount of time the command is allowed to run before terminating it.
     :return tuple process_output (exit code, standard out, standard error):
     """
     return run_critical_command_print_ready(
         command, host=host, port=port,
         failure_message=failure_message,
-        buffered=False, shell=shell
+        buffered=False, shell=shell,
+        timeout=timeout
     )
 
 

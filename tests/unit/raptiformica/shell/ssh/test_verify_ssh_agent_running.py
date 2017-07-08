@@ -23,7 +23,8 @@ class TestVerifySSHAgentRunning(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=True,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_verify_ssh_agent_running_raises_error_if_exit_code_is_nonzero(self):

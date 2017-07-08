@@ -31,7 +31,8 @@ class TestRunResourceCommand(TestCase):
         self.execute_process.assert_called_once_with(
             expected_remote_command,
             buffered=False,
-            shell=True
+            shell=True,
+            timeout=1800
         )
 
     def test_run_resource_command_returns_command_output(self):

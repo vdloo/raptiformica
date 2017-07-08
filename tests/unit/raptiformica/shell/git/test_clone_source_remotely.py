@@ -41,7 +41,8 @@ class TestCloneSourceRemotely(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_clone_source_returns_clone_source_command_exit_code(self):

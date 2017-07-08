@@ -26,7 +26,8 @@ class TestStartDetachedConsulAgent(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
-            buffered=False
+            buffered=False,
+            timeout=1800
         )
 
     def test_start_detached_consul_agent_raises_error_when_starting_detached_consul_agent_failed(self):

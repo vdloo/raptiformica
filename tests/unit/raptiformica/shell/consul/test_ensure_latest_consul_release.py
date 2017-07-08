@@ -42,8 +42,18 @@ class TestEnsureLatestConsulRelease(TestCase):
             'https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_web_ui.zip'
         ]
         expected_calls = [
-            call(expected_binary_command, buffered=False, shell=False),
-            call(expected_web_ui_command, buffered=False, shell=False)
+            call(
+                expected_binary_command,
+                buffered=False,
+                shell=False,
+                timeout=15
+            ),
+            call(
+                expected_web_ui_command,
+                buffered=False,
+                shell=False,
+                timeout=15
+            )
         ]
         self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
 

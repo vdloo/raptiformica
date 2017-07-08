@@ -31,7 +31,8 @@ class TestCreateRemoteRaptiformicaCache(TestCase):
         self.execute_process.assert_called_once_with(
             expected_upload_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_create_remote_raptiformica_cache_returns_exit_code_0_if_command_succeeded(self):

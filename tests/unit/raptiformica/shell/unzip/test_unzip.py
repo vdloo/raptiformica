@@ -32,7 +32,8 @@ class TestUnzip(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_unzip_raises_error_when_unzipping_failed(self):

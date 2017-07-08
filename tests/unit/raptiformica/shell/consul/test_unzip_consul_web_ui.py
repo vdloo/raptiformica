@@ -33,7 +33,8 @@ class TestUnzipConsulWebUI(TestCase):
         self.execute_process.assert_called_once_with(
             expected_command,
             buffered=False,
-            shell=False
+            shell=False,
+            timeout=1800
         )
 
     def test_unzip_consul_web_ui_raises_error_when_ensuring_latest_web_ui_files_fails(self):

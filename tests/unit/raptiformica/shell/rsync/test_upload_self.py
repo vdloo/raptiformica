@@ -32,9 +32,9 @@ class TestUploadSelf(TestCase):
 
         expected_calls = [
             call(conf().PROJECT_DIR, conf().INSTALL_DIR, host='1.2.3.4',
-                 port=22),
+                 port=22, timeout=60),
             call(conf().ABS_CACHE_DIR + '/', join("$HOME", Config.CACHE_DIR), host='1.2.3.4',
-                 port=22)
+                 port=22, timeout=60)
         ]
         self.assertCountEqual(self.upload.mock_calls, expected_calls)
 

@@ -68,7 +68,15 @@ class TestTryMachineCommand(TestCase):
             expected_command_as_list2,
             expected_command_as_list3
         ]
-        expected_calls = map(partial(call, buffered=True, shell=False), expected_command_list)
+        expected_calls = map(
+            partial(
+                call,
+                buffered=True,
+                shell=False,
+                timeout=1800
+            ),
+            expected_command_list
+        )
         self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
 
     def test_try_machine_command_runs_remote_command_on_the_amount_of_specified_hosts_until_one_returns_zero(self):
@@ -97,7 +105,15 @@ class TestTryMachineCommand(TestCase):
             expected_command_as_list1,
             expected_command_as_list2,
         ]
-        expected_calls = map(partial(call, buffered=True, shell=False), expected_command_list)
+        expected_calls = map(
+            partial(
+                call,
+                buffered=True,
+                shell=False,
+                timeout=1800
+            ),
+            expected_command_list
+        )
         self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
 
     def test_try_machine_command_returns_remote_command_output(self):
