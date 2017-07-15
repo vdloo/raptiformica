@@ -216,8 +216,7 @@ def try_delete_config(key, recurse=False):
     # never be synced back to the distributed k v store but
     # should instead be fixed by some form of eventual consistency
     try:
-        path = join(conf().KEY_VALUE_ENDPOINT, key)
-        consul_conn.delete(path, recurse=recurse)
+        consul_conn.delete(key, recurse=recurse)
         sync_shared_config_mapping()
     except API_EXCEPTIONS:
         log.debug(

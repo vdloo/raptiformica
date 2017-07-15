@@ -41,7 +41,7 @@ class TestTryDeleteConfig(TestCase):
         try_delete_config('some/key')
 
         self.delete.assert_called_once_with(
-            'http://localhost:8500/v1/kv/some/key',
+            'some/key',
             recurse=False
         )
 
@@ -54,7 +54,7 @@ class TestTryDeleteConfig(TestCase):
         try_delete_config('some/key', recurse=True)
 
         self.delete.assert_called_once_with(
-            'http://localhost:8500/v1/kv/some/key',
+            'some/key',
             recurse=True
         )
 

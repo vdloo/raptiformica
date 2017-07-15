@@ -1,5 +1,4 @@
-from consul_kv import Connection, DEFAULT_KV_ENDPOINT, DEFAULT_REQUEST_TIMEOUT
-from consul_kv.api import DEFAULT_KV_ENDPOINT
+from consul_kv import Connection, DEFAULT_REQUEST_TIMEOUT, DEFAULT_ENDPOINT
 from tests.testcase import TestCase
 
 
@@ -11,9 +10,9 @@ class TestConnection(TestCase):
         self.get_kv_meta = self.set_up_patch('consul_kv.get_kv_meta')
         self.get_kv_cas = self.set_up_patch('consul_kv.get_kv_cas')
         self.delete_kv = self.set_up_patch('consul_kv.delete_kv')
-        self.kv_endpoint = 'http://some_host:8500/v1/kv/'
+        self.endpoint = 'http://some_host:8500/v1/'
         self.txn_endpoint = 'http://some_host:8500/v1/txn/'
-        self.conn = Connection(endpoint=self.kv_endpoint, timeout=10)
+        self.conn = Connection(endpoint=self.endpoint, timeout=10)
         self.mapping = {
             'some/key/1': 'some_value_1',
             'some/key/2': 'some_value_2'
@@ -23,27 +22,28 @@ class TestConnection(TestCase):
         }
         self.map_dictionary = self.set_up_patch('consul_kv.map_dictionary')
 
-    def test_connection_has_correct_kv_endpoint(self):
-        self.assertEqual(self.conn.kv_endpoint, self.kv_endpoint)
+    def test_connection_has_correct_endpoint(self):
+        self.assertEqual(self.conn.endpoint, self.endpoint)
 
     def test_connection_has_specified_request_timeout(self):
         self.assertEqual(self.conn.timeout, 10)
 
-    def test_connection_uses_default_kv_endpoint_if_none_specified(self):
+    def test_connection_uses_default_endpoint_if_none_specified(self):
         conn = Connection()
 
-        self.assertEqual(conn.kv_endpoint, DEFAULT_KV_ENDPOINT)
+        self.assertEqual(conn.endpoint, DEFAULT_ENDPOINT)
 
     def test_connection_uses_default_request_timeout_if_none_specified(self):
         conn = Connection()
 
         self.assertEqual(conn.timeout, DEFAULT_REQUEST_TIMEOUT)
 
-    def test_connection_put_calls_put_kv_with_kv_endpoint(self):
+    def test_connection_put_calls_put_kv_with_endpoint(self):
         self.conn.put('key1', 'value1')
 
         self.put_kv.assert_called_once_with(
-            'key1', 'value1', None, endpoint=self.kv_endpoint,
+            'key1', 'value1', None,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -51,7 +51,8 @@ class TestConnection(TestCase):
         self.conn.put('key1', 'value1', cas=123)
 
         self.put_kv.assert_called_once_with(
-            'key1', 'value1', 123, endpoint=self.kv_endpoint,
+            'key1', 'value1', 123,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -59,7 +60,8 @@ class TestConnection(TestCase):
         self.conn.put_mapping(self.mapping)
 
         self.put_kv_txn.assert_called_once_with(
-            self.mapping, endpoint=self.txn_endpoint,
+            self.mapping,
+            endpoint=self.endpoint + 'txn/',
             timeout=10
         )
 
@@ -75,11 +77,12 @@ class TestConnection(TestCase):
 
         put_mapping.assert_called_once_with(self.map_dictionary.return_value)
 
-    def test_connection_get_calls_get_kv_with_kv_endpoint(self):
+    def test_connection_get_calls_get_kv_with_endpoint(self):
         self.conn.get('key1')
 
         self.get_kv.assert_called_once_with(
-            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            k='key1', recurse=False,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -87,7 +90,8 @@ class TestConnection(TestCase):
         self.conn.get('key2', recurse=True)
 
         self.get_kv.assert_called_once_with(
-            k='key2', recurse=True, endpoint=self.kv_endpoint,
+            k='key2', recurse=True,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -96,11 +100,12 @@ class TestConnection(TestCase):
 
         self.assertEqual(ret, self.get_kv.return_value)
 
-    def test_connection_get_cas_calls_get_kv_cas_with_kv_endpoint(self):
+    def test_connection_get_cas_calls_get_kv_cas_with_endpoint(self):
         self.conn.get_cas('key1')
 
         self.get_kv_cas.assert_called_once_with(
-            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            k='key1', recurse=False,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -108,7 +113,8 @@ class TestConnection(TestCase):
         self.conn.get_cas('key1', recurse=True)
 
         self.get_kv_cas.assert_called_once_with(
-            k='key1', recurse=True, endpoint=self.kv_endpoint,
+            k='key1', recurse=True,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -117,11 +123,12 @@ class TestConnection(TestCase):
 
         self.assertEqual(ret, self.get_kv_cas.return_value)
 
-    def test_connection_get_meta_calls_get_kv_meta_with_kv_endpoint(self):
+    def test_connection_get_meta_calls_get_kv_meta_with_endpoint(self):
         self.conn.get_meta('key1')
 
         self.get_kv_meta.assert_called_once_with(
-            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            k='key1', recurse=False,
+            endpoint=self.endpoint,
             timeout=10
         )
 
@@ -129,7 +136,8 @@ class TestConnection(TestCase):
         self.conn.get_meta('key1', recurse=True)
 
         self.get_kv_meta.assert_called_once_with(
-            k='key1', recurse=True, endpoint=self.kv_endpoint,
+            k='key1', recurse=True,
+            endpoint=self.endpoint,
             timeout=10
         )
 
@@ -176,11 +184,12 @@ class TestConnection(TestCase):
 
         self.assertEqual(ret, dictionary_map.return_value)
 
-    def test_connection_delete_calls_delete_kv_with_kv_endpoint(self):
+    def test_connection_delete_calls_delete_kv_with_endpoint(self):
         self.conn.delete('key1')
 
         self.delete_kv.assert_called_once_with(
-            k='key1', recurse=False, endpoint=self.kv_endpoint,
+            k='key1', recurse=False,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
 
@@ -188,6 +197,7 @@ class TestConnection(TestCase):
         self.conn.delete('key2', recurse=True)
 
         self.delete_kv.assert_called_once_with(
-            k='key2', recurse=True, endpoint=self.kv_endpoint,
+            k='key2', recurse=True,
+            endpoint=self.endpoint + 'kv/',
             timeout=10
         )
