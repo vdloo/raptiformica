@@ -1,29 +1,18 @@
+from os.path import join
 from consul_kv.api import put_kv, get_kv, get_kv_cas, get_kv_meta, delete_kv, put_kv_txn
 from consul_kv.serializer import map_dictionary, dictionary_map
-from consul_kv.settings import DEFAULT_KV_ENDPOINT, DEFAULT_REQUEST_TIMEOUT
+from consul_kv.settings import DEFAULT_ENDPOINT, DEFAULT_REQUEST_TIMEOUT
 
 
 class Connection(object):
     """
     Client for the consul key value store API
     """
-    kv_endpoint = DEFAULT_KV_ENDPOINT
+    endpoint = DEFAULT_ENDPOINT
     timeout = DEFAULT_REQUEST_TIMEOUT
 
-    @staticmethod
-    def _kv_endpoint_to_txn_endpoint(kv_endpoint):
-        """
-        Rewrite a key/value endpoint to a txn endpoint for atomic updates
-        :param str kv_endpoint: endpoint to replace the kv path for with txn
-        :return str txn_endpoint: the url with the kv path replaced with txn
-        """
-        return kv_endpoint.replace('/v1/kv', '/v1/txn')
-
     def __init__(self, endpoint=None, timeout=None):
-        self.kv_endpoint = endpoint or self.kv_endpoint
-        self.txn_endpoint = self._kv_endpoint_to_txn_endpoint(
-            self.kv_endpoint
-        )
+        self.endpoint = endpoint or self.endpoint
         self.timeout = timeout or DEFAULT_REQUEST_TIMEOUT
 
     def put(self, k, v, cas=None):
@@ -34,7 +23,11 @@ class Connection(object):
         :param str v: value to put
         :return None:
         """
-        return put_kv(k, v, cas, endpoint=self.kv_endpoint, timeout=self.timeout)
+        return put_kv(
+            k, v, cas,
+            endpoint=join(self.endpoint, 'kv/'),
+            timeout=self.timeout
+        )
 
     def put_mapping(self, mapping):
         """
@@ -43,7 +36,9 @@ class Connection(object):
         :return None:
         """
         return put_kv_txn(
-            mapping, endpoint=self.txn_endpoint, timeout=self.timeout
+            mapping,
+            endpoint=join(self.endpoint, 'txn/'),
+            timeout=self.timeout
         )
 
     def put_dict(self, dictionary):
@@ -66,7 +61,8 @@ class Connection(object):
         :return dict mapping: retrieved key/value mapping
         """
         return get_kv_cas(
-            k=k, recurse=recurse, endpoint=self.kv_endpoint,
+            k=k, recurse=recurse,
+            endpoint=join(self.endpoint, 'kv/'),
             timeout=self.timeout
         )
 
@@ -78,7 +74,8 @@ class Connection(object):
         :return dict: raw API response
         """
         return get_kv_meta(
-            k=k, recurse=recurse, endpoint=self.kv_endpoint,
+            k=k, recurse=recurse,
+            endpoint=self.endpoint,
             timeout=self.timeout
         )
 
@@ -90,7 +87,8 @@ class Connection(object):
         :return dict mapping: retrieved key/value mapping
         """
         return get_kv(
-            k=k, recurse=recurse, endpoint=self.kv_endpoint,
+            k=k, recurse=recurse,
+            endpoint=join(self.endpoint, 'kv/'),
             timeout=self.timeout
         )
 
@@ -124,5 +122,6 @@ class Connection(object):
         """
         return delete_kv(
             k=k, recurse=recurse,
-            endpoint=self.kv_endpoint, timeout=self.timeout
+            endpoint=join(self.endpoint, 'kv/'),
+            timeout=self.timeout
         )
