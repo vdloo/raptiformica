@@ -37,7 +37,7 @@ class Connection(object):
         """
         return put_kv_txn(
             mapping,
-            endpoint=join(self.endpoint, 'txn/'),
+            endpoint=join(self.endpoint, 'txn'),
             timeout=self.timeout
         )
 
