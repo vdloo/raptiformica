@@ -27,7 +27,7 @@ class TestPutTxn(TestCase):
         put_kv_txn(self.mapping)
 
         self.request.Request.assert_called_once_with(
-            url='http://localhost:8500/v1/txn/',
+            url='http://localhost:8500/v1/txn',
             data=self.expected_data,
             method='PUT',
             headers={'Content-Type': 'application/json'}

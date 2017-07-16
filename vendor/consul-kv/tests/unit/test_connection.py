@@ -61,7 +61,7 @@ class TestConnection(TestCase):
 
         self.put_kv_txn.assert_called_once_with(
             self.mapping,
-            endpoint=self.endpoint + 'txn/',
+            endpoint=self.endpoint + 'txn',
             timeout=10
         )
 
