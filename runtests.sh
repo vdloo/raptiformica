@@ -43,7 +43,7 @@ test_cmd="
     $VIRTUAL_ENV/bin/autopep8 -r --diff raptiformica;
 "
 
-if [ -z $RUN_ONCE ]; then
+if [ -z $RUN_ONCE ] && [ -z $INTEGRATION ]; then
     LC_NUMERIC="en_US.UTF-8" watch -c -n 0.1 -- "$test_cmd"
 else
     sh -ec "$test_cmd"
