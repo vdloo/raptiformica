@@ -9,6 +9,7 @@ from shutil import rmtree
 
 from os import makedirs
 
+from raptiformica.utils import retry
 from raptiformica.settings import conf
 from raptiformica.settings.load import upload_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
@@ -84,6 +85,7 @@ class IntegrationTestCase(TestCase):
         self.clean_up_cache_dir()
         print("Cleaned up any lingering state\n\n")
 
+    @retry(attempts=10, expect=(AssertionError,))
     def check_consul_consensus_was_established(self, expected_peers=None):
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
         alive_agents = consul_members_output.count("alive")
@@ -162,6 +164,7 @@ class IntegrationTestCase(TestCase):
             all_docker_instances
         ))
 
+    @retry(attempts=10, expect=(AssertionError,))
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
         registered_peers = self.list_registered_peers()
         for registered_peer in registered_peers:
@@ -175,6 +178,7 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
+    @retry(attempts=10, expect=(AssertionError,))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
         expected_value = str(uuid4())
 
