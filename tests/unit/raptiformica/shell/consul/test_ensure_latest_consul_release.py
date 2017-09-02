@@ -1,5 +1,3 @@
-from mock import call
-
 from raptiformica.shell.consul import ensure_latest_consul_release
 from tests.testcase import TestCase
 
@@ -29,33 +27,11 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
-            'https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip'
+            'https://releases.hashicorp.com/consul/0.9.2/consul_0.9.2_linux_amd64.zip'
         ]
-        expected_web_ui_command = [
-            '/usr/bin/env', 'ssh', '-A',
-            '-o', 'ConnectTimeout=5',
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'PasswordAuthentication=no',
-            'root@1.2.3.4',
-            '-p', '2222', 'wget', '-nc',
-            'https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_web_ui.zip'
-        ]
-        expected_calls = [
-            call(
-                expected_binary_command,
-                buffered=False,
-                shell=False,
-                timeout=15
-            ),
-            call(
-                expected_web_ui_command,
-                buffered=False,
-                shell=False,
-                timeout=15
-            )
-        ]
-        self.assertCountEqual(self.execute_process.mock_calls, expected_calls)
+        self.execute_process.assert_called_once_with(
+            expected_binary_command, buffered=False, shell=False, timeout=15
+        )
 
     def test_ensure_latest_consul_release_raises_error_when_ensuring_latest_release_fails(self):
         self.execute_process.return_value = (1, 'standard out output', '')
@@ -63,10 +39,3 @@ class TestEnsureLatestConsulRelease(TestCase):
         with self.assertRaises(RuntimeError):
             ensure_latest_consul_release('1.2.3.4', port=2222)
 
-    def test_ensure_latest_consul_release_raises_error_when_ensuring_web_ui_fails(self):
-        self.execute_process.side_effect = [
-            self.execute_process.return_value, (1, 'standard out output', '')
-        ]
-
-        with self.assertRaises(RuntimeError):
-            ensure_latest_consul_release('1.2.3.4', port=2222)
