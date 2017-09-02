@@ -15,7 +15,6 @@ CONSUL_ARCHES = defaultdict(
     armv7l='https://releases.hashicorp.com/consul/0.9.2/consul_0.9.2_linux_arm.zip'
 )
 CONSUL_RELEASE = CONSUL_ARCHES[conf().MACHINE_ARCH]
-CONSUL_WEB_UI_RELEASE = 'https://releases.hashicorp.com/consul/0.9.2/consul_0.9.2_web_ui.zip'
 CONSUL_KV_REPOSITORY = 'https://github.com/vdloo/consul-kv'
 
 
@@ -52,11 +51,12 @@ def ensure_latest_consul_release(host=None, port=22):
     """
     log.info("Ensuring consul release {} is on disk "
              "on the remote machine".format(CONSUL_RELEASE.split('/')[-1]))
-    for url in (CONSUL_RELEASE, CONSUL_WEB_UI_RELEASE):
-        wget(
-            url, host=host, port=port,
-            failure_message="Failed to retrieve {}".format(url.split('/')[-1])
+    wget(
+        CONSUL_RELEASE, host=host, port=port,
+        failure_message="Failed to retrieve {}".format(
+            CONSUL_RELEASE.split('/')[-1]
         )
+    )
 
 
 def unzip_consul_binary(host=None, port=22):
@@ -74,34 +74,14 @@ def unzip_consul_binary(host=None, port=22):
     )
 
 
-def unzip_consul_web_ui(host=None, port=22):
-    """
-    Unzip the consul web_ui to /usr/etc/consul_web_ui
-    :param str host: hostname or ip of the remote machine, or None for the local machine
-    :param int port: port to use to connect to the remote machine over ssh
-    :return None:
-    """
-    log.info(
-        "Making sure the web_ui is placed in "
-        "{}".format(conf().CONSUL_WEB_UI_DIR)
-    )
-    unzip(
-        zip_file=CONSUL_WEB_UI_RELEASE.split('/')[-1],
-        unpack_dir=conf().CONSUL_WEB_UI_DIR,
-        host=host, port=port,
-        failure_message="Failed to unpack the consul web ui"
-    )
-
-
 def unzip_consul_release(host=None, port=22):
     """
-    Unzip the consul binary to /usr/bin and the web_ui to the INSTALL_DIR
+    Unzip the consul binary to /usr/bin to the INSTALL_DIR
     :param str host: hostname or ip of the remote machine, or None for the local machine
     :param int port: port to use to connect to the remote machine over ssh
     :return None:
     """
     unzip_consul_binary(host=host, port=port)
-    unzip_consul_web_ui(host=host, port=port)
 
 
 def ensure_consul_installed(host=None, port=22):
