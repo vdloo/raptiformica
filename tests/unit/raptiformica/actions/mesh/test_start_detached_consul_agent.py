@@ -22,7 +22,7 @@ class TestStartDetachedConsulAgent(TestCase):
         expected_command = "/usr/bin/env screen -d -m " \
                            "/usr/bin/consul agent " \
                            "-config-dir /etc/consul.d/ " \
-                           "-ui-dir /usr/etc/consul_web_ui"
+                           "-ui"
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
