@@ -41,7 +41,7 @@ def log_failure_factory(message):
         error_message = standard_error if isinstance(
             standard_error, str
         ) else standard_error.decode()
-        log.warning("{}\n{}".format(message, error_message))
+        log.warning("{}\n{}".format(message, error_message.decode('utf-8')))
     return log_failure
 
 
@@ -58,7 +58,7 @@ def log_success_factory(message):
         :return None:
         """
         _, standard_out, _ = process_output
-        log.info("{}: {}".format(message, standard_out))
+        log.info("{} {}".format(message, standard_out.decode('utf-8')))
     return log_success
 
 

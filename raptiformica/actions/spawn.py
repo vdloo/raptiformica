@@ -6,7 +6,6 @@ from raptiformica.settings.load import get_config_mapping
 from raptiformica.settings.types import get_first_compute_type, get_first_server_type
 from raptiformica.shell.cjdns import CJDNS_REPOSITORY
 from raptiformica.shell.compute import start_instance
-from raptiformica.shell.consul import CONSUL_KV_REPOSITORY
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.shell.ssh import verify_ssh_agent_running
