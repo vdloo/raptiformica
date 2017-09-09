@@ -51,7 +51,7 @@ def boot_instance(new_compute_checkout, command):
     :return tuple connection_information: host and port
     """
     log.info("Booting new instance, this can take a while..")
-    partial_run_command = run_command_in_directory_factory(
+    partial_run_command = run_command_print_ready_in_directory_factory(
         new_compute_checkout, command
     )
     exit_code, _, _ = partial_run_command(
