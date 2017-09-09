@@ -13,7 +13,7 @@ class TestBootInstance(TestCase):
             'raptiformica.shell.execute.execute_process'
         )
 
-        self.process_output = (0, 'standard out output', 'standard error output')
+        self.process_output = (0, b'standard out output', b'standard error output')
         self.execute_process.return_value = self.process_output
 
     def test_boot_instance_logs_booting_new_instance_message(self):
@@ -37,7 +37,7 @@ class TestBootInstance(TestCase):
         )
 
     def test_boot_instance_raises_error_when_command_failed(self):
-        self.process_output = (1, '', 'standard error output')
+        self.process_output = (1, b'', b'standard error output')
 
         self.execute_process.return_value = self.process_output
 
