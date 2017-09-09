@@ -55,9 +55,7 @@ def boot_instance(new_compute_checkout, command):
         new_compute_checkout, command
     )
     exit_code, _, _ = partial_run_command(
-        success_callback=log_success_factory(
-            "Booted a new instance of the compute type"
-        ),
+        success_callback=log_success_factory("Booted a new instance"),
         failure_callback=raise_failure_factory(
             "Failed to start the compute type"
         ),
