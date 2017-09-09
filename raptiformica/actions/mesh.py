@@ -158,6 +158,7 @@ def configure_consul_conf():
         'advertise_addr': cjdroute_config['ipv6'],
         'encrypt': shared_secret,
         'disable_remote_exec': True,
+        'enable_script_checks': True,
         'performance': {
             # High performance settings. Machines leave and join the
             # cluster fast and often.

@@ -68,6 +68,7 @@ class TestConfigureConsulConf(TestCase):
             'advertise_addr': 'the_ipv6_address',
             'encrypt': 'a_different_secret',
             'disable_remote_exec': True,
+            'enable_script_checks': True,
             'performance': {
                 # Low sensitivity settings. Machines leave
                 # and join the cluster fast and often.
