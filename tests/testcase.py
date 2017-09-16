@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from mock import patch, Mock
 from shutil import rmtree
+from time import sleep
 
 from os import makedirs
 
@@ -87,6 +88,7 @@ class IntegrationTestCase(TestCase):
 
     @retry(attempts=10, expect=(AssertionError,))
     def check_consul_consensus_was_established(self, expected_peers=None):
+        sleep(1)
         consul_members_output = self.run_raptiformica_command("members", buffered=True)
         alive_agents = consul_members_output.count("alive")
         if expected_peers is None:
@@ -166,6 +168,7 @@ class IntegrationTestCase(TestCase):
 
     @retry(attempts=10, expect=(AssertionError,))
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
+        sleep(1)
         registered_peers = self.list_registered_peers()
         for registered_peer in registered_peers:
             ret = self.run_instance_command(
@@ -180,6 +183,7 @@ class IntegrationTestCase(TestCase):
 
     @retry(attempts=10, expect=(AssertionError,))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
+        sleep(1)
         expected_value = str(uuid4())
 
         # Try to connect to the remote consul instead of using the local cache
