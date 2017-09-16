@@ -14,7 +14,7 @@ from raptiformica.shell.raptiformica import inject
 log = getLogger(__name__)
 
 
-def retrieve_shared_secret(service, attempts=3):
+def retrieve_shared_secret(service, attempts=10):
     """
     Retrieve the shared secret for a service from the distributed
     key value store. If it can't be retrieved or is empty, retry
