@@ -3,6 +3,7 @@ from os import environ
 from os.path import expanduser
 
 from raptiformica.actions.agent import run_agent
+from raptiformica.actions.clean import clean_local_state
 from raptiformica.actions.destroy import destroy_cluster
 from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.join import join_machine
@@ -444,3 +445,24 @@ def modprobe():
         unload_module(args.name)
     else:
         load_module(args.name)
+
+
+def parse_clean_arguments():
+    """
+    Parse the commandline options for removing all the local state
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica clean",
+        description="Clean up all local state if any"
+    )
+    return parse_arguments(parser)
+
+
+def clean():
+    """
+    Clean up all local state if any
+    :return None:
+    """
+    parse_clean_arguments()
+    clean_local_state()
