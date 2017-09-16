@@ -11,6 +11,7 @@ JOIN_ENTRYPOINT="raptiformica_join.py"
 MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
 INJECT_ENTRYPOINT="raptiformica_inject.py"
+CLEAN_ENTRYPOINT="raptiformica_clean.py"
 
 function print_help {
     cat <<'END'
@@ -42,6 +43,9 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
                              distributed network
 
   ssh                        SSH into one of the machines
+
+  clean                      Remove all state on the local 
+                             machine if any.
 END
 }
 
@@ -84,6 +88,10 @@ case $1 in
     ;;
     package)
     RAPTIFORMICA_CMD=$PACKAGE_ENTRYPOINT
+    shift
+    ;;
+    clean)
+    RAPTIFORMICA_CMD=$CLEAN_ENTRYPOINT
     shift
     ;;
     *)
