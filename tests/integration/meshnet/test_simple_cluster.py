@@ -75,6 +75,8 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
                 run_raptiformica_command,
                 args=(self.temp_cache_dir, spawn_command)
             )
+        pool.close()
+        pool.join()
 
 
 class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
