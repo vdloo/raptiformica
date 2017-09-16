@@ -91,7 +91,9 @@ class IntegrationTestCase(TestCase):
     @retry(attempts=10, expect=(AssertionError,))
     def check_consul_consensus_was_established(self, expected_peers=None):
         sleep(1)
-        consul_members_output = self.run_raptiformica_command("members", buffered=True)
+        consul_members_output = run_raptiformica_command(
+            self.temp_cache_dir, "members", buffered=True
+        )
         alive_agents = consul_members_output.count("alive")
         if expected_peers is None:
             self.assertGreaterEqual(
@@ -319,7 +321,8 @@ class IntegrationTestCase(TestCase):
             )
 
     def slave_instance(self, ip_address):
-        self.run_raptiformica_command(
+        run_raptiformica_command(
+            self.temp_cache_dir,
             "slave {}".format(ip_address)
         )
 
