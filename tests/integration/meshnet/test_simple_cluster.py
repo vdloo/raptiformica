@@ -1,4 +1,6 @@
 from multiprocessing.pool import ThreadPool
+from os import environ
+from unittest import SkipTest
 
 from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
@@ -27,7 +29,12 @@ class TestSimpleCluster(IntegrationTestCase):
         docker_ip = self.get_docker_ip(docker_instances[-1])
         self.slave_instance(docker_ip)
 
+    def skip_if_env_override(self):
+        if environ.get('NO_NO_CONCURRENT'):
+            raise SkipTest
+
     def setUp(self):
+        self.skip_if_env_override()
         super(TestSimpleCluster, self).setUp()
         self.amount_of_instances = 3
         self.spawn_docker_instances()
@@ -56,6 +63,10 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
     """
     workers = 3
 
+    def skip_if_env_override(self):
+        if environ.get('NO_FULL_CONCURRENT'):
+            raise SkipTest
+
     def spawn_docker_instances(self):
         spawn_command = "spawn --server-type headless --compute-type docker"
         pool = ThreadPool(self.workers)
@@ -72,3 +83,7 @@ class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
     at the same time instead of one after the other.
     """
     workers = 2
+
+    def skip_if_env_override(self):
+        if environ.get('NO_SEMI_CONCURRENT'):
+            raise SkipTest
