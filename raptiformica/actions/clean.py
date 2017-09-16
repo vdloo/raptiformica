@@ -1,4 +1,5 @@
 from logging import getLogger
+from os.path import expanduser, join
 
 from shutil import rmtree
 
@@ -13,7 +14,7 @@ LOCAL_STATE_DIRS = (
     '/opt/consul',
     '/usr/etc/raptiformica',
     '/usr/etc/raptiformica_default_provisioner',
-    '$HOME/.raptiformica.d',
+    join(expanduser("~"), '.raptiformica.d'),
     '/root/.raptiformica.d'
 )
 
