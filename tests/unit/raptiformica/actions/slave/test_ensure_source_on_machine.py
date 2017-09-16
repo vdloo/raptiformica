@@ -73,6 +73,24 @@ class TestEnsureSourceOnMachine(TestCase):
             self.ensure_latest_source_from_artifacts.mock_calls, expected_calls
         )
 
+    def test_ensure_source_on_machine_ensures_latest_source_from_artifacts_only_if_source(self):
+        self.retrieve_provisioning_configs.return_value = {
+            'raptiformica': {'bootstrap': './deploy.sh'},
+            'vagrantfiles': {
+                'source': 'https://example.com/some/repo/to/the/vagrantfiles.git',
+                'bootstrap': './bla.sh'
+            }
+        }
+
+        ensure_source_on_machine()
+
+        # Not called for 'raptiformica', which is the default provisioner
+        self.ensure_latest_source_from_artifacts.assert_called_once_with(
+            'https://example.com/some/repo/to/the/vagrantfiles.git',
+            'vagrantfiles', host=None, port=22,
+            only_cache=False
+        )
+
     def test_ensure_source_on_machine_ensures_latest_source_for_all_provisioning_configs_with_only_cache(self):
         ensure_source_on_machine(only_cache=True)
 
@@ -143,6 +161,34 @@ class TestEnsureSourceOnMachine(TestCase):
             call(
                 'vagrantfiles',
                 {'source': 'https://example.com/some/repo/to/the/vagrantfiles.git'}
+            )
+        )
+        self.assertCountEqual(self.callback.mock_calls, expected_calls)
+
+    def test_ensure_source_on_machine_performs_callback_for_all_configs_even_if_no_source(self):
+        self.retrieve_provisioning_configs.return_value = {
+            'raptiformica': {'bootstrap': './deploy.sh'},
+            'vagrantfiles': {
+                'source': 'https://example.com/some/repo/to/the/vagrantfiles.git',
+                'bootstrap': './bla.sh'
+            }
+        }
+
+        self.callback = Mock()
+
+        ensure_source_on_machine(callback=self.callback)
+
+        expected_calls = (
+            call(
+                'raptiformica',
+                {'bootstrap': './deploy.sh'}
+            ),
+            call(
+                'vagrantfiles',
+                {
+                    'source': 'https://example.com/some/repo/to/the/vagrantfiles.git',
+                    'bootstrap': './bla.sh'
+                }
             )
         )
         self.assertCountEqual(self.callback.mock_calls, expected_calls)

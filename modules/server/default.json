@@ -2,9 +2,8 @@
   "raptiformica_api_version": "0.1",
   "server": {
     "headless": {
-      "raptiformica_default_provisioner": {
-        "source": "file:///usr/share/raptiformica",
-        "bootstrap": "cd $HOME; export PYTHONPATH=/usr/etc/raptiformica_default_provisioner; /usr/etc/raptiformica_default_provisioner/modules/server/deploy.py"
+      "raptiformica": {
+        "bootstrap": "cd $HOME; export PYTHONPATH=/usr/etc/raptiformica; /usr/etc/raptiformica/modules/server/deploy.py"
       }
     }
   }
