@@ -15,7 +15,8 @@ class TestRetrieveProvisioningConfigs(TestCase):
             'raptiformica.settings.load.get_config_mapping'
         )
         self.mapping = {
-            "raptiformica/compute/vagrant/headless/get_port": "cd headless && vagrant ssh-config | grep Port | awk '{print $NF}'",
+            "raptiformica/compute/vagrant/headless/get_port": "cd headless && vagrant ssh-config "
+                                                              "| grep Port | awk '{print $NF}'",
             "raptiformica/compute/vagrant/headless/source": "https://github.com/vdloo/vagrantfiles",
             "raptiformica/compute/vagrant/headless/start_instance": "cd headless && vagrant up",
             "raptiformica/server/headless/puppetfiles/bootstrap": "./papply.sh manifests/headless.pp",
@@ -46,7 +47,19 @@ class TestRetrieveProvisioningConfigs(TestCase):
                 'bootstrap': './papply.sh manifests/headless.pp',
                 'source': 'https://github.com/vdloo/puppetfiles'
             }
+        }
+        self.assertEqual(ret, expected_config)
 
+    def test_retrieve_provisioning_configs_assumes_dir_exists_if_no_source(self):
+        del self.mapping['raptiformica/server/headless/puppetfiles/source']
+
+        ret = retrieve_provisioning_configs('headless')
+
+        expected_config = {
+            'puppetfiles': {
+                'bootstrap': './papply.sh manifests/headless.pp',
+                'source': None
+            }
         }
         self.assertEqual(ret, expected_config)
 
@@ -66,7 +79,6 @@ class TestRetrieveProvisioningConfigs(TestCase):
                 'bootstrap': './deploy.sh',
                 'source': 'https://github.com/vdloo/raptiformica-map'
             }
-
         }
         self.assertEqual(ret, expected_config)
 

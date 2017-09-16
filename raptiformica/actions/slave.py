@@ -24,7 +24,7 @@ def retrieve_provisioning_configs(server_type=None):
     config = get_config()
     server_types = config[conf().KEY_VALUE_PATH]['server']
     server_type = server_types.get(server_type, {})
-    return {k: {'source': v['source'], 'bootstrap': v['bootstrap']}
+    return {k: {'source': v.get('source'), 'bootstrap': v['bootstrap']}
             for k, v in server_type.items()}
 
 
@@ -48,10 +48,11 @@ def ensure_source_on_machine(host=None, port=22, server_type=None,
     ))
     provisioning_configs = retrieve_provisioning_configs(server_type)
     for name, config in provisioning_configs.items():
-        ensure_latest_source_from_artifacts(
-            config['source'], name, host=host, port=port,
-            only_cache=only_cache
-        )
+        if config.get('source'):
+            ensure_latest_source_from_artifacts(
+                config['source'], name, host=host, port=port,
+                only_cache=only_cache
+            )
         callback(name, config)
 
 

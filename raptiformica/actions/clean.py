@@ -13,7 +13,6 @@ LOCAL_STATE_DIRS = (
     '/usr/bin/consul',
     '/opt/consul',
     '/usr/etc/raptiformica',
-    '/usr/etc/raptiformica_default_provisioner',
     join(expanduser("~"), '.raptiformica.d'),
     '/root/.raptiformica.d'
 )
