@@ -2,6 +2,8 @@ from logging import getLogger
 
 from shutil import rmtree
 
+from raptiformica.actions.mesh import ensure_no_consul_running, stop_detached_cjdroute
+
 log = getLogger(__name__)
 
 LOCAL_STATE_DIRS = (
@@ -32,6 +34,8 @@ def clean_local_state():
     :return None:
     """
     log.info("Cleaning local state")
+    ensure_no_consul_running()
+    stop_detached_cjdroute()
     for path_to_clean in LOCAL_STATE_DIRS:
         log.debug("Removing {} if it exists".format(path_to_clean))
         rmtree(path_to_clean, ignore_errors=True)
