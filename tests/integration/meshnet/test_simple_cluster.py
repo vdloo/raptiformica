@@ -1,4 +1,8 @@
-from tests.testcase import IntegrationTestCase
+from multiprocessing.pool import ThreadPool
+from os import environ
+from unittest import SkipTest
+
+from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
 class TestSimpleCluster(IntegrationTestCase):
@@ -15,21 +19,25 @@ class TestSimpleCluster(IntegrationTestCase):
 
     This simulates a subnet in a data-center for example.
     """
-    def spawn_docker_instance(self):
-        self.run_raptiformica_command(
-            "spawn --server-type headless --compute-type docker"
-        )
+    def spawn_docker_instances(self):
+        spawn_command = "spawn --server-type headless --compute-type docker"
+        for _ in range(self.amount_of_instances):
+            run_raptiformica_command(self.temp_cache_dir, spawn_command)
 
     def reslave_last_docker_instance(self):
         docker_instances = self.list_relevant_docker_instances()
         docker_ip = self.get_docker_ip(docker_instances[-1])
         self.slave_instance(docker_ip)
 
+    def skip_if_env_override(self):
+        if environ.get('NO_NO_CONCURRENT'):
+            raise SkipTest
+
     def setUp(self):
+        self.skip_if_env_override()
         super(TestSimpleCluster, self).setUp()
         self.amount_of_instances = 3
-        for _ in range(self.amount_of_instances):
-            self.spawn_docker_instance()
+        self.spawn_docker_instances()
 
     def verify_cluster_is_operational(self):
         self.check_consul_consensus_was_established(
@@ -46,3 +54,38 @@ class TestSimpleCluster(IntegrationTestCase):
         # after re-slaving one of the machines
         self.reslave_last_docker_instance()
         self.verify_cluster_is_operational()
+
+
+class TestSimpleConcurrentCluster(TestSimpleCluster):
+    """
+    Same as the SimpleCluster case but all instances boot at the same time
+    instead of one after the other.
+    """
+    workers = 3
+
+    def skip_if_env_override(self):
+        if environ.get('NO_FULL_CONCURRENT'):
+            raise SkipTest
+
+    def spawn_docker_instances(self):
+        spawn_command = "spawn --server-type headless --compute-type docker"
+        pool = ThreadPool(self.workers)
+        for _ in range(self.amount_of_instances):
+            pool.apply_async(
+                run_raptiformica_command,
+                args=(self.temp_cache_dir, spawn_command)
+            )
+        pool.close()
+        pool.join()
+
+
+class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
+    """
+    Same as the SimpleCluster case but all two of the three instances boot
+    at the same time instead of one after the other.
+    """
+    workers = 2
+
+    def skip_if_env_override(self):
+        if environ.get('NO_SEMI_CONCURRENT'):
+            raise SkipTest

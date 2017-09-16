@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
-while getopts "1i" opt; do
+while getopts "1icsr" opt; do
     case $opt in
         1) RUN_ONCE=1;;
         i) INTEGRATION=1;;
+        # Skip integration tests that boot all nodes at the same time
+        c) NO_FULL_CONCURRENT=1;;
+        # Skip integration tests that boot all nodes 2 at a time
+        s) NO_SEMI_CONCURRENT=1;;
+        # Skip integration tests that boot all nodes sequentially
+        r) NO_NO_CONCURRENT=1;;
     esac
 done
+
+export NO_FULL_CONCURRENT
+export NO_SEMI_CONCURRENT
+export NO_NO_CONCURRENT
 
 [ -z $INTEGRATION ] && TEST_SUITE="unit" || TEST_SUITE="integration"
 [ -z $INTEGRATION ] && TIME_OUT="--process-timeout=30" || TIME_OUT="--process-timeout=1200"
@@ -48,3 +58,4 @@ if [ -z $RUN_ONCE ] && [ -z $INTEGRATION ]; then
 else
     sh -ec "$test_cmd"
 fi
+

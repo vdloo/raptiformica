@@ -1,4 +1,8 @@
-from tests.testcase import IntegrationTestCase
+from multiprocessing.pool import ThreadPool
+from os import environ
+from unittest import SkipTest
+
+from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
 class TestLinkedCluster(IntegrationTestCase):
@@ -23,19 +27,22 @@ class TestLinkedCluster(IntegrationTestCase):
     not accessible by the first host.
     """
     def spawn_docker_instances(self):
-        self.run_raptiformica_command(
-            "spawn --no-assimilate "
-            "--server-type headless "
-            "--compute-type docker"
-        )
+        spawn_command = "spawn --no-assimilate " \
+                        "--server-type headless " \
+                        "--compute-type docker"
+        for _ in range(self.amount_of_instances):
+            run_raptiformica_command(self.temp_cache_dir, spawn_command)
+
+    def skip_if_env_override(self):
+        if environ.get('NO_NO_CONCURRENT'):
+            raise SkipTest
 
     def setUp(self):
+        self.skip_if_env_override()
         super(TestLinkedCluster, self).setUp()
         self.amount_of_instances = 3
-
         # Spawn 3 un-assimilated Docker instances
-        for _ in range(self.amount_of_instances):
-            self.spawn_docker_instances()
+        self.spawn_docker_instances()
 
         # List the spawned instances and their IPs
         docker_instances = self.list_relevant_docker_instances()
@@ -56,7 +63,8 @@ class TestLinkedCluster(IntegrationTestCase):
 
         # Assimilate one of the instances from the client (which is not in the cluster)
         # so we can later run raptiformica members without having to log in explicitly.
-        self.run_raptiformica_command(
+        run_raptiformica_command(
+            self.temp_cache_dir,
             "slave {} --server-type headless --verbose".format(docker_ips[0])
         )
 
@@ -84,3 +92,40 @@ class TestLinkedCluster(IntegrationTestCase):
     def test_linked_cluster_establishes_mesh_correctly(self):
         self.check_consul_consensus_was_established(expected_peers=self.amount_of_instances)
         self.check_all_registered_peers_can_be_pinged_from_any_instance()
+
+
+class TestLinkedConcurrentCluster(TestLinkedCluster):
+    """
+    Same as the LinkedCluster case but all instances boot at the same time
+    instead of one after the other.
+    """
+    workers = 3
+
+    def skip_if_env_override(self):
+        if environ.get('NO_FULL_CONCURRENT'):
+            raise SkipTest
+
+    def spawn_docker_instances(self):
+        spawn_command = "spawn --no-assimilate " \
+                        "--server-type headless " \
+                        "--compute-type docker"
+        pool = ThreadPool(self.workers)
+        for _ in range(self.amount_of_instances):
+            pool.apply_async(
+                run_raptiformica_command,
+                args=(self.temp_cache_dir, spawn_command)
+            )
+        pool.close()
+        pool.join()
+
+
+class TestLinkedSemiConcurrentCluster(TestLinkedConcurrentCluster):
+    """
+    Same as the LinkedCluster case but all two of the three instances boot
+    at the same time instead of one after the other.
+    """
+    workers = 2
+
+    def skip_if_env_override(self):
+        if environ.get('NO_SEMI_CONCURRENT'):
+            raise SkipTest
