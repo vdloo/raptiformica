@@ -23,16 +23,18 @@ class TestCase(unittest.TestCase):
         return patcher.start()
 
 
+def run_raptiformica_command(cache_dir, parameters, buffered=False):
+    raptiformica_command = "{}/bin/raptiformica {} --cache-dir {} " \
+                           "".format(conf().PROJECT_DIR.rstrip('/'),
+                                     parameters, cache_dir)
+    _, standard_out, standard_error = run_command_print_ready(
+        raptiformica_command,
+        buffered=buffered, shell=True
+    )
+    return standard_out
+
+
 class IntegrationTestCase(TestCase):
-    def run_raptiformica_command(self, parameters, buffered=False):
-        raptiformica_command = "{}/bin/raptiformica {} --cache-dir {} " \
-                               "".format(conf().PROJECT_DIR.rstrip('/'),
-                                           parameters, self.temp_cache_dir)
-        _, standard_out, standard_error = run_command_print_ready(
-            raptiformica_command,
-            buffered=buffered, shell=True
-        )
-        return standard_out
 
     def run_instance_command(self, command_as_string, buffered=False):
         """

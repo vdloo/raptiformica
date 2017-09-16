@@ -1,4 +1,6 @@
-from tests.testcase import IntegrationTestCase
+from multiprocessing.pool import ThreadPool
+
+from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
 class TestSimpleCluster(IntegrationTestCase):
@@ -15,10 +17,10 @@ class TestSimpleCluster(IntegrationTestCase):
 
     This simulates a subnet in a data-center for example.
     """
-    def spawn_docker_instance(self):
-        self.run_raptiformica_command(
-            "spawn --server-type headless --compute-type docker"
-        )
+    def spawn_docker_instances(self):
+        spawn_command = "spawn --server-type headless --compute-type docker"
+        for _ in range(self.amount_of_instances):
+            run_raptiformica_command(self.temp_cache_dir, spawn_command)
 
     def reslave_last_docker_instance(self):
         docker_instances = self.list_relevant_docker_instances()
@@ -28,8 +30,7 @@ class TestSimpleCluster(IntegrationTestCase):
     def setUp(self):
         super(TestSimpleCluster, self).setUp()
         self.amount_of_instances = 3
-        for _ in range(self.amount_of_instances):
-            self.spawn_docker_instance()
+        self.spawn_docker_instances()
 
     def verify_cluster_is_operational(self):
         self.check_consul_consensus_was_established(
@@ -46,3 +47,28 @@ class TestSimpleCluster(IntegrationTestCase):
         # after re-slaving one of the machines
         self.reslave_last_docker_instance()
         self.verify_cluster_is_operational()
+
+
+class TestSimpleConcurrentCluster(TestSimpleCluster):
+    """
+    Same as the SimpleCluster case but all instances boot at the same time
+    instead of one after the other.
+    """
+    workers = 3
+
+    def spawn_docker_instances(self):
+        spawn_command = "spawn --server-type headless --compute-type docker"
+        pool = ThreadPool(self.workers)
+        for _ in range(self.amount_of_instances):
+            pool.apply_async(
+                run_raptiformica_command,
+                args=(self.temp_cache_dir, spawn_command)
+            )
+
+
+class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
+    """
+    Same as the SimpleCluster case but all two of the three instances boot
+    at the same time instead of one after the other.
+    """
+    workers = 2
