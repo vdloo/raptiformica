@@ -9,10 +9,8 @@ from raptiformica.utils import retry
 
 log = getLogger(__name__)
 
-RESOURCE_COMMAND_TIMEOUT = 60
 
-
-@retry(attempts=3, expect=(RuntimeError, TimeoutError))
+@retry(attempts=3, expect=(RuntimeError,))
 def run_resource_command(command, name, host, port=22):
     """
     Run the command in a resource directory
@@ -37,7 +35,6 @@ def run_resource_command(command, name, host, port=22):
             "Successfully ran resource command"
         ),
         buffered=False,
-        shell=True,
-        timeout=RESOURCE_COMMAND_TIMEOUT
+        shell=True
     )
     return exit_code

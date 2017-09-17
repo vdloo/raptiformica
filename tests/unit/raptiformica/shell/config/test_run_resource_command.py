@@ -1,4 +1,4 @@
-from raptiformica.shell.config import run_resource_command, RESOURCE_COMMAND_TIMEOUT
+from raptiformica.shell.config import run_resource_command
 from tests.testcase import TestCase
 
 
@@ -34,7 +34,7 @@ class TestRunResourceCommand(TestCase):
             expected_remote_command,
             buffered=False,
             shell=True,
-            timeout=RESOURCE_COMMAND_TIMEOUT
+            timeout=1800
         )
 
     def test_run_resource_command_returns_command_output(self):
