@@ -1,4 +1,5 @@
 from contextlib import closing
+from random import shuffle
 from socket import socket, AF_INET, SOCK_STREAM
 from logging import getLogger
 
@@ -54,6 +55,7 @@ def find_host_that_can_ping(host):
     """
     log.info("Finding a host in the network that can ping {}".format(host))
     host_and_port_pairs = host_and_port_pairs_from_config()
+    shuffle(host_and_port_pairs)
     neighbour_host_and_port_pairs = [
         pair for pair in host_and_port_pairs
         if pair[0] != host
