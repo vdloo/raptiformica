@@ -6,7 +6,10 @@ class TestEnsureLatestConsulRelease(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.shell.consul.log')
         self.execute_process = self.set_up_patch(
-                'raptiformica.shell.execute.execute_process'
+            'raptiformica.shell.execute.execute_process'
+        )
+        self.remove = self.set_up_patch(
+            'raptiformica.shell.consul.remove'
         )
         self.process_output = (0, 'standard out output', '')
         self.execute_process.return_value = self.process_output
@@ -15,6 +18,19 @@ class TestEnsureLatestConsulRelease(TestCase):
         ensure_latest_consul_release('1.2.3.4', port=2222)
 
         self.assertTrue(self.log.info.called)
+
+    def test_ensure_latest_consul_release_removes_previously_existing_zip(self):
+        ensure_latest_consul_release('1.2.3.4', port=2222)
+
+        self.remove.assert_called_once_with(
+            'consul_0.9.2_linux_amd64.zip'
+        )
+
+    def test_ensure_latest_consul_release_ignores_no_previously_existing_zip(self):
+        self.remove.side_effect = FileNotFoundError
+
+        # Does not raise FileNotFoundError
+        ensure_latest_consul_release('1.2.3.4', port=2222)
 
     def test_ensure_latest_consul_release_downloads_latest_consul_release_with_no_clobber(self):
         ensure_latest_consul_release('1.2.3.4', port=2222)

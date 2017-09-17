@@ -1,5 +1,9 @@
 from collections import defaultdict
+from contextlib import suppress
 from logging import getLogger
+from os import remove
+
+from os.path import isfile
 
 from raptiformica.settings import conf
 from raptiformica.shell.execute import run_multiple_labeled_commands
@@ -51,6 +55,10 @@ def ensure_latest_consul_release(host=None, port=22):
     """
     log.info("Ensuring consul release {} is on disk "
              "on the remote machine".format(CONSUL_RELEASE.split('/')[-1]))
+    with suppress(FileNotFoundError):
+        # remove any previously existing zip in case we tried
+        # before but the zip was corrupted
+        remove(CONSUL_RELEASE.split('/')[-1])
     wget(
         CONSUL_RELEASE, host=host, port=port,
         failure_message="Failed to retrieve {}".format(
@@ -93,6 +101,7 @@ def ensure_consul_installed(host=None, port=22):
     :return None:
     """
     log.info("Ensuring consul is installed")
-    ensure_consul_dependencies(host=host, port=port)
-    ensure_latest_consul_release(host=host, port=port)
-    unzip_consul_release(host=host, port=port)
+    if not isfile('/usr/bin/consul'):
+        ensure_consul_dependencies(host=host, port=port)
+        ensure_latest_consul_release(host=host, port=port)
+        unzip_consul_release(host=host, port=port)
