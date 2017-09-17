@@ -1,3 +1,4 @@
+from contextlib import suppress
 from time import sleep
 from logging import getLogger
 
@@ -14,7 +15,8 @@ def loop_rejoin():
     :return None:
     """
     while True:
-        attempt_join_meshnet()
+        with suppress(Exception):
+            attempt_join_meshnet()
         sleep(30)
 
 

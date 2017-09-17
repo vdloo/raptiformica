@@ -9,13 +9,13 @@ class TestLoopRejoin(TestCase):
         self.attempt_join_meshnet = self.set_up_patch(
             'raptiformica.actions.agent.attempt_join_meshnet'
         )
-        self.attempt_join_meshnet.side_effect = [None, RuntimeError]
         self.sleep = self.set_up_patch(
             'raptiformica.actions.agent.sleep'
         )
+        self.sleep.side_effect = [None, IOError]
 
     def test_loop_rejoin_joins_meshnet_until_loop_terminates(self):
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(IOError):
             loop_rejoin()
 
         expected_calls = (
@@ -25,9 +25,17 @@ class TestLoopRejoin(TestCase):
             self.attempt_join_meshnet.mock_calls, expected_calls
         )
 
-    def test_loop_rejoin_sleeps_between_rejoins(self):
-        with self.assertRaises(RuntimeError):
+    def test_loop_ignores_attempt_join_meshnet_exceptions(self):
+        self.attempt_join_meshnet.side_effect = IOError
+
+        with self.assertRaises(IOError):
             loop_rejoin()
 
-        self.sleep.assert_called_once_with(30)
+        self.attempt_join_meshnet.assert_has_calls([call()] * 2)
+
+    def test_loop_rejoin_sleeps_between_rejoins(self):
+        with self.assertRaises(IOError):
+            loop_rejoin()
+
+        self.sleep.assert_has_calls([call(30)] * 2)
 
