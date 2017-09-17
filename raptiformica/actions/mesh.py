@@ -25,6 +25,7 @@ CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
 CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 CONSUL_CONF_HASH = '/var/run/consul_config_hash'
+CONSUL_JOIN_BATCH_SIZE = 1
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 15
 WAIT_FOR_CONSUL_PORT_TIMEOUT = 15
 WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 15
@@ -812,8 +813,11 @@ def join_consul_neighbours(mapping):
         filter(not_already_known_consul_neighbour, ipv6_addresses)
     )
     pool = ThreadPool()
-    for five_ipv6_addresses in group_n_elements(new_ipv6_addresses, 5):
-        pool.apply_async(run_consul_join, args=(five_ipv6_addresses,))
+    groups = group_n_elements(
+        new_ipv6_addresses, CONSUL_JOIN_BATCH_SIZE
+    )
+    for ipv6_addresses in groups:
+        pool.apply_async(run_consul_join, args=(ipv6_addresses,))
     pool.close()
     pool.join()
 
