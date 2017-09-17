@@ -68,9 +68,9 @@ class TestJoinConsulNeighbours(TestCase):
     def test_join_consul_neighbours_runs_consul_join_using_the_known_neighbours_ipv6_addresses(self):
         join_consul_neighbours(self.mapping)
 
-        run_consul_join_argument = self.run_consul_join.call_args[0][0]
-        self.assertIn('some_ipv6_address', run_consul_join_argument)
-        self.assertIn('some_other_ipv6_address', run_consul_join_argument)
+        self.run_consul_join.has_calls(
+            [call('some_ipv6_address'), call('some_other_ipv6_address')]
+        )
 
     def test_join_consul_neighbours_does_not_join_any_consul_agents_if_no_known_neighbours(self):
         join_consul_neighbours(dict())
@@ -88,7 +88,7 @@ class TestJoinConsulNeighbours(TestCase):
         self.assertNotIn('some_ipv6_address', run_consul_join_argument)
         self.assertIn('some_other_ipv6_address', run_consul_join_argument)
 
-    def test_join_consul_neighbours_joins_neighbours_in_batches_of_five(self):
+    def test_join_consul_neighbours_joins_neighbours_in_batches(self):
         for address_number in range(9):
             ipv6_address_key = 'raptiformica/meshnet/neighbours/' \
                                'neighbour_key_{}.k/cjdns_ipv6_address' \
@@ -101,7 +101,7 @@ class TestJoinConsulNeighbours(TestCase):
             map(lambda call_arg: call_arg[0][0], self.run_consul_join.call_args_list)
         ))
 
-        self.assertEqual(self.run_consul_join.call_count, 3)
+        self.assertEqual(self.run_consul_join.call_count, 11)
         expected_ipv6_addresses = list(map('::{}'.format, range(9)))
         expected_ipv6_addresses.append('some_ipv6_address')
         expected_ipv6_addresses.append('some_other_ipv6_address')
