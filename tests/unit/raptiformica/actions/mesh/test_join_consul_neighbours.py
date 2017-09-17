@@ -1,7 +1,10 @@
+from multiprocessing.pool import ThreadPool
+from unittest.mock import ANY
+
 from mock import call
 from itertools import chain
 
-from raptiformica.actions.mesh import join_consul_neighbours, get_neighbour_hosts
+from raptiformica.actions.mesh import join_consul_neighbours, get_neighbour_hosts, run_consul_join
 from tests.testcase import TestCase
 
 
@@ -103,3 +106,17 @@ class TestJoinConsulNeighbours(TestCase):
         expected_ipv6_addresses.append('some_ipv6_address')
         expected_ipv6_addresses.append('some_other_ipv6_address')
         self.assertCountEqual(expected_ipv6_addresses, join_ipv6_addresses)
+
+    def test_join_consul_neighbours_joins_neighbours_concurrently(self):
+        threadpool = self.set_up_patch('raptiformica.actions.mesh.ThreadPool')
+
+        join_consul_neighbours(self.mapping)
+
+        # Use ncpu amount of cores
+        threadpool.assert_called_once_with()
+        expected_calls = [call(run_consul_join, ANY)] * 3
+        threadpool.return_value.apply_async.has_calls(expected_calls)
+        # Close the pool after queueing all calls
+        threadpool.return_value.close.assert_called_once_with()
+        # Wait for all calls to be completed
+        threadpool.return_value.join.assert_called_once_with()

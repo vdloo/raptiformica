@@ -1,6 +1,7 @@
 import pipes
 from hashlib import md5
 from contextlib import suppress
+from multiprocessing.pool import ThreadPool
 from uuid import UUID
 
 from os import remove
@@ -810,8 +811,11 @@ def join_consul_neighbours(mapping):
     new_ipv6_addresses = list(
         filter(not_already_known_consul_neighbour, ipv6_addresses)
     )
+    pool = ThreadPool()
     for five_ipv6_addresses in group_n_elements(new_ipv6_addresses, 5):
-        run_consul_join(five_ipv6_addresses)
+        pool.apply_async(run_consul_join, args=(five_ipv6_addresses,))
+    pool.close()
+    pool.join()
 
 
 def join_meshnet():
