@@ -739,9 +739,9 @@ def start_meshing_services():
     :return None:
     """
     log.info("Starting meshing services")
+    ensure_raptiformica_agent()
     ensure_cjdns_routing()
     ensure_consul_agent()
-    ensure_raptiformica_agent()
 
 
 def get_neighbour_hosts(mapping):
