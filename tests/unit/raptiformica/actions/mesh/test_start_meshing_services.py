@@ -15,6 +15,11 @@ class TestStartMeshingServices(TestCase):
             'raptiformica.actions.mesh.ensure_raptiformica_agent'
         )
 
+    def test_start_meshing_services_ensures_raptiformica_agent(self):
+        start_meshing_services()
+
+        self.ensure_raptiformica_agent.assert_called_once_with()
+
     def test_start_meshing_services_logs_meshing_services_message(self):
         start_meshing_services()
 
@@ -29,8 +34,3 @@ class TestStartMeshingServices(TestCase):
         start_meshing_services()
 
         self.ensure_consul_agent.assert_called_once_with()
-
-    def test_start_meshing_services_ensures_raptiformica_agent(self):
-        start_meshing_services()
-
-        self.ensure_raptiformica_agent.assert_called_once_with()
