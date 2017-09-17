@@ -26,6 +26,7 @@ CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 CONSUL_CONF_HASH = '/var/run/consul_config_hash'
 CONSUL_JOIN_BATCH_SIZE = 1
+CONSUL_JOIN_TIMEOUT = 60
 WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 15
 WAIT_FOR_CONSUL_PORT_TIMEOUT = 15
 WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 15
@@ -781,7 +782,8 @@ def run_consul_join(ipv6_addresses):
             "neighbours {}".format(ipv6_addresses)
         ),
         shell=True,
-        buffered=False
+        buffered=False,
+        timeout=CONSUL_JOIN_TIMEOUT
     )
 
 

@@ -1,6 +1,6 @@
 from mock import ANY
 
-from raptiformica.actions.mesh import run_consul_join
+from raptiformica.actions.mesh import run_consul_join, CONSUL_JOIN_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -29,6 +29,7 @@ class TestRunConsulJoin(TestCase):
             expected_command,
             failure_callback=self.log_failure_factory.return_value,
             shell=True,
-            buffered=False
+            buffered=False,
+            timeout=CONSUL_JOIN_TIMEOUT
         )
 
