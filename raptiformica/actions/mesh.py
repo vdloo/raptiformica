@@ -2,6 +2,7 @@ import pipes
 from hashlib import md5
 from contextlib import suppress
 from multiprocessing.pool import ThreadPool
+from time import sleep
 from uuid import UUID
 
 from os import remove
@@ -31,6 +32,10 @@ WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 15
 WAIT_FOR_CONSUL_PORT_TIMEOUT = 15
 WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 15
 WAIT_FOR_CONSUL_TIMEOUT = 15
+
+
+class ConsulSharedSecretChanged(RuntimeError):
+    pass
 
 
 def list_neighbours(mapping):
@@ -615,6 +620,22 @@ def consul_shared_secret_changed():
     )
 
 
+@retry(attempts=5, expect=(ConsulSharedSecretChanged,))
+def raise_if_shared_secret_changed():
+    """
+    Raise exception if the consul shared secret changed.
+    Checks a couple of times over a couple of seconds.
+    At any positive result this function will assume OK
+    to dampen ripples in a sufficiently large cluster.
+    :return None:
+    """
+    if consul_shared_secret_changed():
+        sleep(1)
+        raise ConsulSharedSecretChanged(
+            "The consul shared might have become stale"
+        )
+
+
 def write_consul_config_hash():
     """
     Write a hash of the current consul config to /var/run
@@ -650,7 +671,9 @@ def restart_consul_agent_if_necessary():
     Restart consul if the shared secret has changed.
     :return None:
     """
-    if consul_shared_secret_changed():
+    try:
+        raise_if_shared_secret_changed()
+    except ConsulSharedSecretChanged:
         remove_old_consul_keyring()
         restart_consul()
 
