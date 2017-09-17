@@ -23,6 +23,8 @@ class TestUnzipConsulBinary(TestCase):
             '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
             '-o', 'StrictHostKeyChecking=no',
+            '-o', 'ServerAliveInterval=10',
+            '-o', 'ServerAliveCountMax=3',
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
