@@ -10,6 +10,7 @@ from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
 from raptiformica.shell.raptiformica import inject
+from raptiformica.utils import retry
 
 log = getLogger(__name__)
 
@@ -148,6 +149,7 @@ def update_meshnet_config(host, port=22, compute_checkout_uuid=None):
     )
 
 
+@retry(attempts=3, expect=(RuntimeError,))
 def bootstrap_host_to_neighbour(host, port, connected_host, connected_host_port):
     """
     Bootstrap a consul cluster by injecting a host into a neighbours meshnet
