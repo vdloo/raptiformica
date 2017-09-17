@@ -12,6 +12,9 @@ class TestFindHostThatCanPing(TestCase):
         self.host_and_port_pairs_from_config = self.set_up_patch(
             'raptiformica.distributed.ping.host_and_port_pairs_from_config'
         )
+        self.shuffle = self.set_up_patch(
+            'raptiformica.distributed.ping.shuffle'
+        )
         self.host_and_port_pairs_from_config.return_value = [
             ('1.2.3.2', '22'),
             ('1.2.3.3', '22'),
@@ -33,6 +36,13 @@ class TestFindHostThatCanPing(TestCase):
         find_host_that_can_ping('1.2.3.4')
 
         self.host_and_port_pairs_from_config.assert_called_once_with()
+
+    def test_find_host_that_can_ping_shuffles_hosts_to_ping(self):
+        find_host_that_can_ping('1.2.3.4')
+
+        self.shuffle.assert_called_once_with(
+            self.host_and_port_pairs_from_config.return_value
+        )
 
     def test_find_host_that_can_ping_tries_pinging_the_host_from_config_neighbours(self):
         find_host_that_can_ping('1.2.3.4')
