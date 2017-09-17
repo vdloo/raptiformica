@@ -40,3 +40,8 @@ class TestRunResourceCommand(TestCase):
 
         self.assertEqual(ret, 0)
 
+    def test_run_resource_command_raises_on_failure(self):
+        process_output = (1, '', 'Killed')
+        self.execute_process.return_value = process_output
+        with self.assertRaises(RuntimeError):
+            run_resource_command(self.resource_command, 'puppetfiles', '1.2.3.4', port=2222)
