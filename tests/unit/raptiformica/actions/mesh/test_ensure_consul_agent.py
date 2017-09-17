@@ -90,8 +90,10 @@ class TestEnsureConsulAgent(TestCase):
         self.assertEqual(2, self.reload_consul_agent_if_necessary.call_count)
         self.assertEqual(2, self.block_until_consul_becomes_available.call_count)
 
-    def test_ensure_consul_agent_is_only_retried_one_time(self):
-        self.block_until_consul_becomes_available.side_effect = (TimeoutError, TimeoutError)
+    def test_ensure_consul_agent_is_only_retried_five_times(self):
+        self.block_until_consul_becomes_available.side_effect = [
+            TimeoutError
+        ] * 5
 
         with self.assertRaises(TimeoutError):
             ensure_consul_agent()

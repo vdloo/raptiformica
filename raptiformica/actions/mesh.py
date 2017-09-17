@@ -25,9 +25,9 @@ CJDROUTE_CONF_PATH = '/etc/cjdroute.conf'
 CJDROUTE_CONF_HASH = '/var/run/cjdroute_config_hash'
 CONSUL_CONF_PATH = '/etc/consul.d/config.json'
 CONSUL_CONF_HASH = '/var/run/consul_config_hash'
-WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 10
-WAIT_FOR_CONSUL_PORT_TIMEOUT = 10
-WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 10
+WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 15
+WAIT_FOR_CONSUL_PORT_TIMEOUT = 15
+WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 15
 WAIT_FOR_CONSUL_TIMEOUT = 15
 
 
@@ -473,7 +473,7 @@ def write_cjdroute_config_hash():
         config_hash_file.write(binary_config_hash)
 
 
-@retry(attempts=2, expect=(TimeoutError,))
+@retry(attempts=5, expect=(TimeoutError,))
 def ensure_cjdns_routing():
     """
     Start a new cjdroute instance, wait until the distributed
@@ -676,7 +676,7 @@ def restart_consul():
     write_consul_config_hash()
 
 
-@retry(attempts=2, expect=(TimeoutError,))
+@retry(attempts=5, expect=(TimeoutError,))
 def ensure_consul_agent():
     """
     Ensure the consul agent is running with the latest configuration
