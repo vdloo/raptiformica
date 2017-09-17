@@ -244,9 +244,11 @@ class TestEnsureCjdnsRouting(TestCase):
         self.assertEqual(2, self.block_until_tun0_becomes_available.call_count)
         self.assertEqual(1, self.ensure_ipv6_routing.call_count)
 
-    def test_ensure_cjdns_routing_is_only_retried_one_time(self):
+    def test_ensure_cjdns_routing_is_only_retried_five_times(self):
         self.cjdroute_config_hash_outdated.return_value = True
-        self.block_until_tun0_becomes_available.side_effect = (TimeoutError, TimeoutError)
+        self.block_until_tun0_becomes_available.side_effect = [
+            TimeoutError
+        ] * 5
 
         with self.assertRaises(TimeoutError):
             ensure_cjdns_routing()
