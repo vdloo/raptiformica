@@ -206,6 +206,8 @@ def run_command_remotely(command, host, port=22,
     ssh_command_as_list = ['/usr/bin/env', 'ssh', '-A',
                            '-o', 'ConnectTimeout=5',
                            '-o', 'StrictHostKeyChecking=no',
+                           '-o', 'ServerAliveInterval=10',
+                           '-o', 'ServerAliveCountMax=3',
                            '-o', 'UserKnownHostsFile=/dev/null',
                            '-o', 'PasswordAuthentication=no',
                            'root@{}'.format(host), '-p', str(port)]
