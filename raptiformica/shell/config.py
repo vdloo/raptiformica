@@ -3,11 +3,14 @@ from logging import getLogger
 from shlex import quote
 
 from raptiformica.settings import conf
-from raptiformica.shell.execute import log_failure_factory, log_success_factory, run_command_print_ready
+from raptiformica.shell.execute import log_success_factory, run_command_print_ready, \
+    raise_failure_factory
+from raptiformica.utils import retry
 
 log = getLogger(__name__)
 
 
+@retry(attempts=3, expect=(RuntimeError,))
 def run_resource_command(command, name, host, port=22):
     """
     Run the command in a resource directory
@@ -24,7 +27,7 @@ def run_resource_command(command, name, host, port=22):
     )
     exit_code, _, _ = run_command_print_ready(
         configured_resource_command, host=host, port=port,
-        failure_callback=log_failure_factory(
+        failure_callback=raise_failure_factory(
             "Resource command exited nonzero, that might not be a problem. "
             "If something serious went wrong we'll try again next run."
         ),
