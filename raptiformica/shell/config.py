@@ -10,7 +10,7 @@ from raptiformica.utils import retry
 log = getLogger(__name__)
 
 
-@retry(attempts=3, expect=(RuntimeError,))
+@retry(attempts=3, expect=(RuntimeError, TimeoutError))
 def run_resource_command(command, name, host, port=22):
     """
     Run the command in a resource directory
