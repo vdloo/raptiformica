@@ -91,7 +91,7 @@ def terminate_and_kill(process, timeout, command):
     process.terminate()
     process.kill()
     raise TimeoutError(
-        "Subprocess timed ou after {} seconds. "
+        "Subprocess timed out after {} seconds. "
         "Command was: {}".format(timeout, command)
     )
 
