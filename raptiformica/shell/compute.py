@@ -4,11 +4,13 @@ from uuid import uuid4
 
 from raptiformica.settings import conf
 from raptiformica.shell.execute import log_success_factory, raise_failure_factory, \
-    run_command_print_ready_in_directory_factory, run_command_in_directory_factory
+    run_command_print_ready_in_directory_factory
 from raptiformica.shell.git import clone_source
 from raptiformica.utils import ensure_directory
 
 log = getLogger(__name__)
+
+BOOT_INSTANCE_TIMEOUT = 1800
 
 
 def ensure_new_compute_checkout_directory_exists(server_type, compute_type):
@@ -59,6 +61,7 @@ def boot_instance(new_compute_checkout, command):
         failure_callback=raise_failure_factory(
             "Failed to start the compute type"
         ),
+        timeout=BOOT_INSTANCE_TIMEOUT,
         buffered=False
     )
     return exit_code
