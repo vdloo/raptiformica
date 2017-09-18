@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.raptiformica import create_remote_raptiformica_cache
 from tests.testcase import TestCase
 
@@ -34,7 +35,7 @@ class TestCreateRemoteRaptiformicaCache(TestCase):
             expected_upload_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_create_remote_raptiformica_cache_returns_exit_code_0_if_command_succeeded(self):

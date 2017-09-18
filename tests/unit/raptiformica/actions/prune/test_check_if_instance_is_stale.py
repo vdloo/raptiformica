@@ -1,4 +1,5 @@
 from raptiformica.actions.prune import check_if_instance_is_stale
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -36,7 +37,7 @@ class TestCheckIfInstanceIsStale(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_check_if_instance_is_stale_returns_true_if_instance_is_stale(self):

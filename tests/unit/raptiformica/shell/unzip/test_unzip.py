@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.unzip import unzip
 from tests.testcase import TestCase
 
@@ -35,7 +36,7 @@ class TestUnzip(TestCase):
             expected_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_unzip_raises_error_when_unzipping_failed(self):

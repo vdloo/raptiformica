@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.ssh import verify_ssh_agent_running
 from tests.testcase import TestCase
 
@@ -24,7 +25,7 @@ class TestVerifySSHAgentRunning(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_verify_ssh_agent_running_raises_error_if_exit_code_is_nonzero(self):

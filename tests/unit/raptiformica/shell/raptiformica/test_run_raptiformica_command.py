@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.raptiformica import run_raptiformica_command
 from tests.testcase import TestCase
 
@@ -43,7 +44,7 @@ class TestRunRaptiformicaCommand(TestCase):
             expected_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_run_raptiformica_command_raises_error_if_remote_raptiformica_command_fails(self):

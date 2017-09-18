@@ -1,4 +1,5 @@
 from raptiformica.shell.consul import unzip_consul_binary
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -36,7 +37,7 @@ class TestUnzipConsulBinary(TestCase):
             expected_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_unzip_consul_binary_raises_error_when_ensuring_latest_release_fails(self):

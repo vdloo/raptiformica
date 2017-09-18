@@ -1,6 +1,7 @@
 from mock import call
 
 from raptiformica.shell.cjdns import ensure_cjdns_dependencies
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -29,7 +30,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             'pacman -S --noconfirm nodejs base-devel iputils --needed '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_debian_call = call(
             '/usr/bin/env ssh -A '
@@ -45,7 +46,7 @@ class TestEnsureCjdnsDependencies(TestCase):
             'build-essential git python iputils-ping '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
@@ -57,14 +58,14 @@ class TestEnsureCjdnsDependencies(TestCase):
             'type pacman 1> /dev/null && '
             'pacman -S --noconfirm nodejs base-devel iputils --needed '
             '|| /bin/true',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
             'apt-get install -yy nodejs '
             'build-essential git python iputils-ping '
             '|| /bin/true',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)

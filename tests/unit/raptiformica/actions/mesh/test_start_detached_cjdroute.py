@@ -1,4 +1,5 @@
 from raptiformica.actions.mesh import start_detached_cjdroute, CJDROUTE_CONF_PATH
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -26,7 +27,7 @@ class TestStartDetachedCjdroute(TestCase):
             expected_command,
             shell=True,
             buffered=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_start_detached_cjdroute_raises_error_when_starting_detached_cjdroute_failed(self):

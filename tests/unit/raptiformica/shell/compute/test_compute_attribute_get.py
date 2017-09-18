@@ -1,4 +1,5 @@
 from raptiformica.shell.compute import compute_attribute_get
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -34,7 +35,7 @@ class TestComputeAttributeGet(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_compute_attribute_get_returns_stripped_standard_out(self):

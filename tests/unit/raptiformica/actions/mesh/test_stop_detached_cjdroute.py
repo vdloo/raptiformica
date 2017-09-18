@@ -1,4 +1,5 @@
 from raptiformica.actions.mesh import stop_detached_cjdroute
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -27,7 +28,7 @@ class TestStopDetachedCjdroute(TestCase):
             expected_command,
             shell=True,
             buffered=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
         self.assertIn(
             'ps aux |', expected_command,

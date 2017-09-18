@@ -1,6 +1,8 @@
 from functools import partial
 
 from mock import call
+
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 from raptiformica.distributed.exec import try_machine_command
@@ -79,7 +81,7 @@ class TestTryMachineCommand(TestCase):
                 call,
                 buffered=True,
                 shell=False,
-                timeout=1800
+                timeout=COMMAND_TIMEOUT
             ),
             expected_command_list
         )
@@ -120,7 +122,7 @@ class TestTryMachineCommand(TestCase):
                 call,
                 buffered=True,
                 shell=False,
-                timeout=1800
+                timeout=COMMAND_TIMEOUT
             ),
             expected_command_list
         )

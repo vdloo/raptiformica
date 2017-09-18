@@ -12,6 +12,8 @@ from raptiformica.settings import conf
 
 log = getLogger(__name__)
 
+COMMAND_TIMEOUT = 60
+
 
 def raise_failure_factory(message):
     """
@@ -119,7 +121,7 @@ def terminate_on_timeout(process, timeout, command):
     timer.cancel()
 
 
-def execute_process(command, buffered=True, shell=False, timeout=1800):
+def execute_process(command, buffered=True, shell=False, timeout=COMMAND_TIMEOUT):
     """
     Execute a command locally in the shell and return the exit code, standard out and standard error as a tuple
     :param list | str command: The command as a list or as string (when shell).
@@ -161,7 +163,7 @@ def make_process_output_print_ready(process_output):
 
 
 def run_command_locally(command, success_callback=lambda ret: ret, failure_callback=lambda ret: ret,
-                        buffered=True, shell=False, timeout=1800):
+                        buffered=True, shell=False, timeout=COMMAND_TIMEOUT):
     """
     Run a command and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
@@ -188,7 +190,7 @@ def run_command_locally(command, success_callback=lambda ret: ret, failure_callb
 def run_command_remotely(command, host, port=22,
                          success_callback=lambda ret: ret,
                          failure_callback=lambda ret: ret,
-                         buffered=True, shell=False, timeout=1800):
+                         buffered=True, shell=False, timeout=COMMAND_TIMEOUT):
     """
     Run a command remotely and return the exit code.
     Optionally pass a callbacks that take a tuple of (exit_code, standard out, standard error)
@@ -229,7 +231,7 @@ def run_command(command, host=None, port=22,
                 success_callback=lambda ret: ret,
                 failure_callback=lambda ret: ret,
                 buffered=True, shell=False,
-                timeout=1800):
+                timeout=COMMAND_TIMEOUT):
     """
     Run a command and return the exit code, standard output and standard error output.
     If no host is specified, the command will run locally.
@@ -323,7 +325,7 @@ def run_command_print_ready_in_directory_factory(directory, command_as_string):
 def run_command_print_ready(command, host=None, port=22,
                             success_callback=lambda ret: ret,
                             failure_callback=lambda ret: ret,
-                            buffered=True, shell=False, timeout=1800):
+                            buffered=True, shell=False, timeout=COMMAND_TIMEOUT):
     """
     Print ready version of run_command. Un-escapes output so it can be printed.
     :param list command | str command: The command as a list or string.
@@ -357,7 +359,7 @@ def check_nonzero_exit(command):
 def run_critical_command_print_ready(
         command, host=None, port=22, buffered=True,
         failure_message='Command failed', shell=False,
-        timeout=1800):
+        timeout=COMMAND_TIMEOUT):
     """
     A wrapper around run_command_print_ready but with a failure callback specified.
     :param list command | str command: The command as a list or string.
@@ -384,7 +386,7 @@ def run_critical_command_print_ready(
 
 def run_critical_unbuffered_command_print_ready(
         command, host=None, port=22,
-        failure_message='Command failed', shell=False, timeout=1800):
+        failure_message='Command failed', shell=False, timeout=COMMAND_TIMEOUT):
     """
     Wrapper around run_critical_command_remotely_print_ready but with output to
     standard out instead of capturing it.

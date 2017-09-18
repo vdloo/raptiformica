@@ -1,4 +1,5 @@
 from raptiformica.shell.cjdns import get_cjdns_config_item
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -31,7 +32,7 @@ class TestGetCjdnsConfigItem(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_get_cjdns_config_item_runs_get_item_command_for_ipv6_address(self):
@@ -55,7 +56,7 @@ class TestGetCjdnsConfigItem(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_get_cjdns_config_item_raises_error_if_getting_config_item_failed(self):

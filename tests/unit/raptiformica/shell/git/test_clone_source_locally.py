@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.git import clone_source
 from tests.testcase import TestCase
 
@@ -34,7 +35,7 @@ class TestCloneSourceLocally(TestCase):
             expected_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_clone_source_returns_clone_source_command_exit_code(self):
