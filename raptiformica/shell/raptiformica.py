@@ -4,6 +4,7 @@ from shlex import quote
 from raptiformica.settings import conf, Config
 from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.execute import raise_failure_factory, run_command_remotely, run_command_print_ready
+from raptiformica.utils import retry
 
 log = getLogger(__name__)
 
@@ -23,6 +24,7 @@ def create_remote_raptiformica_cache(host, port=22):
     return exit_code
 
 
+@retry(attempts=3, expect=(TimeoutError,))
 def run_raptiformica_command(command_as_string, host, port=22):
     """
     Run a command in the raptiformica directory on a remote machine.

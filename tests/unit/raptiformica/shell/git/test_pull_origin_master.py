@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.git import pull_origin_master
 from tests.testcase import TestCase
 
@@ -32,7 +33,7 @@ class TestPullOriginMaster(TestCase):
             expected_command,
             buffered=False,
             shell=True,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_that_pull_origin_master_returns_pull_origin_master_exit_code(self):

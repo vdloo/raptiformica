@@ -1,3 +1,4 @@
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.git import reset_hard_head
 from tests.testcase import TestCase
 
@@ -33,7 +34,7 @@ class TestResetHardHead(TestCase):
             expected_command,
             buffered=False,
             shell=True,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_that_reset_hard_head_returns_exit_code(self):

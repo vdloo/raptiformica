@@ -1,7 +1,7 @@
 from subprocess import PIPE
 
 from raptiformica.settings import conf
-from raptiformica.shell.execute import execute_process
+from raptiformica.shell.execute import execute_process, COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -67,7 +67,7 @@ class TestExecuteProcess(TestCase):
         execute_process(self.command_as_list)
 
         self.terminate_on_timeout.assert_called_once_with(
-            self.p_open.return_value, 1800, self.command_as_list
+            self.p_open.return_value, COMMAND_TIMEOUT, self.command_as_list
         )
 
     def test_execute_process_terminates_on_specified_timeout(self):

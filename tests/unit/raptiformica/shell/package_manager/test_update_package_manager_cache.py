@@ -1,5 +1,6 @@
 from mock import call
 
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from raptiformica.shell.package_manager import update_package_manager_cache
 from tests.testcase import TestCase
 
@@ -29,7 +30,7 @@ class TestUpdatePackageManagerCache(TestCase):
             'pacman -Syy '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_debian_call = call(
             '/usr/bin/env ssh -A '
@@ -44,7 +45,7 @@ class TestUpdatePackageManagerCache(TestCase):
             'apt-get update -yy '
             '|| /bin/true'
             '\'',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)
@@ -56,13 +57,13 @@ class TestUpdatePackageManagerCache(TestCase):
             'type pacman 1> /dev/null && '
             'pacman -Syy '
             '|| /bin/true',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_debian_call = call(
             'type apt-get 1> /dev/null && '
             'apt-get update -yy '
             '|| /bin/true',
-            buffered=False, shell=True, timeout=1800
+            buffered=False, shell=True, timeout=COMMAND_TIMEOUT
         )
         expected_calls = [expected_archlinux_call, expected_debian_call]
         self.assertCountEqual(expected_calls, self.execute_process.mock_calls)

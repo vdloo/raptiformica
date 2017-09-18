@@ -1,4 +1,5 @@
 from raptiformica.actions.prune import clean_up_stale_instance
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -36,7 +37,7 @@ class TestCleanUpStaleInstance(TestCase):
             expected_command,
             buffered=True,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_clean_up_stale_instance_does_not_raise_error_when_command_failed(self):

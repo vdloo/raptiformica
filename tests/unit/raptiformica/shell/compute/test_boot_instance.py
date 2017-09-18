@@ -1,4 +1,5 @@
 from raptiformica.shell.compute import boot_instance
+from raptiformica.shell.execute import COMMAND_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -33,7 +34,7 @@ class TestBootInstance(TestCase):
             expected_command,
             buffered=False,
             shell=False,
-            timeout=1800
+            timeout=COMMAND_TIMEOUT
         )
 
     def test_boot_instance_raises_error_when_command_failed(self):
