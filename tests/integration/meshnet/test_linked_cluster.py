@@ -117,15 +117,3 @@ class TestLinkedConcurrentCluster(TestLinkedCluster):
             )
         pool.close()
         pool.join()
-
-
-class TestLinkedSemiConcurrentCluster(TestLinkedConcurrentCluster):
-    """
-    Same as the LinkedCluster case but all two of the three instances boot
-    at the same time instead of one after the other.
-    """
-    workers = 2
-
-    def skip_if_env_override(self):
-        if environ.get('NO_SEMI_CONCURRENT'):
-            raise SkipTest
