@@ -1,5 +1,6 @@
 import hashlib
 import json
+from contextlib import suppress
 from time import time
 from copy import deepcopy
 from functools import wraps
@@ -41,7 +42,7 @@ def ensure_directory(directory):
     :param str directory: path to the directory
     :return None:
     """
-    if not path.exists(directory):
+    with suppress(FileExistsError):
         makedirs(directory)
 
 
