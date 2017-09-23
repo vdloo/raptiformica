@@ -15,6 +15,8 @@ from raptiformica.settings import conf
 from raptiformica.settings.load import upload_config_mapping
 from raptiformica.shell.execute import run_command_print_ready, raise_failure_factory
 
+INSTANCE_COMMAND_TIMEOUT = 1200  # 20 minutes
+
 
 class TestCase(unittest.TestCase):
     def set_up_patch(self, patch_target, mock_target=None, **kwargs):
@@ -50,7 +52,9 @@ class IntegrationTestCase(TestCase):
                                          command_as_string)
         _, standard_out, standard_error = run_command_print_ready(
             raptiformica_command,
-            buffered=buffered, shell=True
+            buffered=buffered,
+            shell=True,
+            timeout=INSTANCE_COMMAND_TIMEOUT
         )
         return standard_out
 
