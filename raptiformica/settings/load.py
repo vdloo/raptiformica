@@ -13,7 +13,8 @@ from consul_kv import Connection, map_dictionary, dictionary_map
 from consul_kv.utils import dict_merge
 from raptiformica.settings import conf
 
-from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory
+from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory, \
+    retry
 import raptiformica.distributed.proxy
 
 log = getLogger(__name__)
@@ -235,6 +236,7 @@ def try_delete_config(key, recurse=False):
         cache_config_mapping(mapping)
 
 
+@retry(attempts=5, expect=API_EXCEPTIONS)
 def update_config_mapping(mapping):
     """
     Upload a new mapping to the distributed key value store and
