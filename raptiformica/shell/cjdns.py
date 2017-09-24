@@ -7,12 +7,14 @@ from raptiformica.shell.execute import raise_failure_factory, \
     run_critical_unbuffered_command_print_ready, run_command_print_ready, \
     run_multiple_labeled_commands
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
+from raptiformica.utils import retry
 
 CJDNS_REPOSITORY = "https://github.com/vdloo/cjdns"
 
 log = getLogger(__name__)
 
 
+@retry(attempts=5, expect=(RuntimeError,))
 def get_cjdns_config_item(item, host=None, port=22):
     """
     Retrieve an item from the cjdroute.conf on a remote machine.
