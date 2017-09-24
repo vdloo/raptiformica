@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 userdel terry --force || /bin/true  # remove image maintainer's user
-puppet module install puppetlabs-vcsrepo
-puppet module install maestrodev-wget
-puppet module install saz-sudo
 
 # make sure the keys from the ssh agent can log in as root
 mkdir -p /root/.ssh/

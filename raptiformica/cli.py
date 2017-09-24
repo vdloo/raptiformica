@@ -426,7 +426,7 @@ def parse_install_arguments():
     parser.add_argument(
         'name', type=str,
         help='Name of the module to load or '
-             'unload. Like "vdloo/puppetfiles"'
+             'unload. Like "vdloo/raptiformica-map"'
     )
     parser.add_argument(
         '--remove', '-r', action='store_true',
