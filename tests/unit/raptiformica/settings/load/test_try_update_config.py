@@ -1,3 +1,4 @@
+import socket
 from urllib.error import URLError, HTTPError
 
 from mock import Mock
@@ -65,7 +66,7 @@ class TestTryUpdateConfig(TestCase):
         try_update_config_mapping(self.mapping)
 
         self.get_config.return_value.update.assert_called_once_with(
-                self.mapping
+            self.mapping
         )
 
     def test_try_update_config_updates_cached_mapping_if_connection_refused_error(self):
@@ -74,7 +75,16 @@ class TestTryUpdateConfig(TestCase):
         try_update_config_mapping(self.mapping)
 
         self.get_config.return_value.update.assert_called_once_with(
-                self.mapping
+            self.mapping
+        )
+
+    def test_try_update_config_updates_cached_mapping_if_socket_timeout(self):
+        self.update_config.side_effect = socket.timeout
+
+        try_update_config_mapping(self.mapping)
+
+        self.get_config.return_value.update.assert_called_once_with(
+            self.mapping
         )
 
     def test_try_update_config_caches_updated_mapping_if_http_error(self):

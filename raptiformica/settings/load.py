@@ -1,3 +1,4 @@
+import socket
 from contextlib import suppress, contextmanager
 from fcntl import LOCK_EX, flock, LOCK_UN
 from functools import reduce
@@ -24,7 +25,8 @@ consul_conn = Connection(
 
 API_EXCEPTIONS = (HTTPError, HTTPException, URLError,
                   ConnectionRefusedError, ConnectionResetError,
-                  BadStatusLine, OSError, ValueError)
+                  BadStatusLine, OSError, ValueError,
+                  socket.timeout)
 
 
 @contextmanager
