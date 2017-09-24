@@ -210,13 +210,20 @@ def configure_raptiformica_conf():
         "boot (if the system supports that)"
     )
 
-    servicefiles_path = '/etc/systemd/system/multi-user.target.wants'
+    servicefiles_path = '/usr/lib/systemd/system/'
+    servicefile_path = '{}/raptiformica.service'.format(servicefiles_path)
     if not path.exists(servicefiles_path):
         return
+
     start_detached_agent_command = "/usr/bin/env screen -d -m sh -c '" \
                                    "PYTHONPATH=/usr/etc/raptiformica " \
                                    "python3 /usr/etc/raptiformica/bin/" \
                                    "raptiformica_agent.py'"
+    enable_commands = [] if path.exists(servicefile_path) else [
+        'systemctl daemon-reload',
+        'systemctl enable raptiformica'
+    ]
+
     unit_content = """[Unit]
 Description=Start raptiformica agent
 
@@ -228,8 +235,11 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 """.format(start_detached_agent_command)
-    with open('{}/raptiformica.service'.format(servicefiles_path), 'w+') as f:
+    with open(servicefile_path, 'w+') as f:
         f.write(unit_content)
+
+    for enable_command in enable_commands:
+        run_command_print_ready(enable_command, shell=True, buffered=False)
 
 
 def count_neighbours():
