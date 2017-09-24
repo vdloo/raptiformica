@@ -10,7 +10,7 @@ from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
 from raptiformica.shell.raptiformica import inject
-from raptiformica.utils import retry
+from raptiformica.utils import retry, load_json, write_json
 
 log = getLogger(__name__)
 
@@ -100,9 +100,27 @@ def update_consul_config():
 def get_last_advertised():
     """
     Return the last advertised host name for this machine
-    :return None:
+    :return dict: Last advertised information
     """
-    pass
+    return load_json(conf().LAST_ADVERTISED)
+
+
+def write_last_advertised(host, port):
+    """
+    Write the last advertised host name for this machine
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return dict:
+    """
+    last_advertised_data = {
+        'host': host,
+        'port': port
+    }
+    write_json(last_advertised_data, conf().LAST_ADVERTISED)
+
+    with open(conf().LAST_ADVERTISED, 'w') as f:
+        f.write(host)
+        return f.read().strip()
 
 
 def update_neighbours_config(host=None, port=22, uuid=None, remove=True):
@@ -120,7 +138,10 @@ def update_neighbours_config(host=None, port=22, uuid=None, remove=True):
     cjdns_public_key = cjdns.get_public_key(host, port=port)
     cjdns_ipv6_address = cjdns.get_ipv6_address(host, port=port)
 
-    host = host or get_last_advertised()
+    if not host:
+        last_advertised = get_last_advertised()
+        host = last_advertised['host']
+        port = last_advertised['port']
     neighbour_entry = {
         'host': host,
         'cjdns_port': str(conf().CJDNS_DEFAULT_PORT),

@@ -7,7 +7,7 @@ class TestUpdateNeighboursConfig(TestCase):
         self.cjdns = self.set_up_patch('raptiformica.settings.meshnet.cjdns')
         self.get_last_advertised = self.set_up_patch(
             'raptiformica.settings.meshnet.get_last_advertised',
-            return_value='1.2.3.5'
+            return_value={'port': 22, 'host': '1.2.3.5'}
         )
         self.cjdns.get_public_key.return_value = 'a_public_key.k'
         self.cjdns.get_ipv6_address.return_value = 'ipv6_address'
