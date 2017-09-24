@@ -23,10 +23,24 @@ class TestGetCjdnsConfigItem(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2222',
-            'sh', '-c',
-            '"cat /etc/cjdroute.conf | '
-            'python -c \\"import sys, json; '
-            'print(json.load(sys.stdin)[\'publicKey\'])\\""'
+            'python', '-c',
+            "\"import json; print(json.loads(open("
+            "'/etc/cjdroute.conf').read())['publicKey'])\""
+        ]
+        self.execute_process.assert_called_once_with(
+            expected_command,
+            buffered=True,
+            shell=False,
+            timeout=COMMAND_TIMEOUT
+        )
+
+    def test_get_cjdns_config_item_runs_get_item_command_for_public_key_if_local(self):
+        get_cjdns_config_item('publicKey')
+
+        expected_command = [
+            'python', '-c',
+            "import json; print(json.loads(open("
+            "'/etc/cjdroute.conf').read())['publicKey'])"
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
@@ -47,10 +61,9 @@ class TestGetCjdnsConfigItem(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '2223',
-            'sh', '-c',
-            '"cat /etc/cjdroute.conf | '
-            'python -c \\"import sys, json; '
-            'print(json.load(sys.stdin)[\'ipv6\'])\\""'
+            'python', '-c',
+            "\"import json; print(json.loads(open("
+            "'/etc/cjdroute.conf').read())['ipv6'])\""
         ]
         self.execute_process.assert_called_once_with(
             expected_command,

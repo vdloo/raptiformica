@@ -23,14 +23,13 @@ def get_cjdns_config_item(item, host=None, port=22):
     :param int port: port to use to connect to the remote machine over ssh
     :return str: the item as string
     """
-    get_config_item_command = [
-        'sh', '-c',
-        '"cat /etc/cjdroute.conf | '
-        # todo: refactor this hideous hack. want to keep it without
-        # dependencies though.
-        'python -c \\"import sys, json; '
-        'print(json.load(sys.stdin)[\'{}\'])\\""'.format(item)
-    ]
+    get_item_oneliner = "import json; print(json.loads(" \
+                        "open('/etc/cjdroute.conf')." \
+                        "read())['{}'])".format(item)
+    if host:
+        get_item_oneliner = '"' + get_item_oneliner + '"'
+    get_config_item_command = ['python', '-c', get_item_oneliner]
+
     _, standard_out, _ = run_command_print_ready(
         get_config_item_command, host=host, port=port,
         failure_callback=raise_failure_factory(
