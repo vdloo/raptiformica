@@ -97,7 +97,15 @@ def update_consul_config():
     return ensure_shared_secret('consul')
 
 
-def update_neighbours_config(host, port=22, uuid=None):
+def get_last_advertised():
+    """
+    Return the last advertised host name for this machine
+    :return None:
+    """
+    pass
+
+
+def update_neighbours_config(host=None, port=22, uuid=None, remove=True):
     """
     Update the neighbours config in the k v mapping
     - update the distributed key value store with the neighbour
@@ -105,11 +113,14 @@ def update_neighbours_config(host, port=22, uuid=None):
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str uuid: identifier for a local compute checkout
+    :param bool remove: Ensure neighbour with hostname is removed
+    from the config first before adding.
     :return dict mapping: the updated config mapping
     """
     cjdns_public_key = cjdns.get_public_key(host, port=port)
     cjdns_ipv6_address = cjdns.get_ipv6_address(host, port=port)
 
+    host = host or get_last_advertised()
     neighbour_entry = {
         'host': host,
         'cjdns_port': str(conf().CJDNS_DEFAULT_PORT),
@@ -127,7 +138,8 @@ def update_neighbours_config(host, port=22, uuid=None):
     neighbour_mapping = {
         join(neighbour_path, k): v for k, v in neighbour_entry.items()
     }
-    ensure_neighbour_removed_from_config_by_host(host)
+    if remove:
+        ensure_neighbour_removed_from_config_by_host(host)
     return try_update_config_mapping(neighbour_mapping)
 
 
