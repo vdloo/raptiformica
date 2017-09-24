@@ -7,7 +7,7 @@ from os.path import join
 from raptiformica.settings import conf, Config
 from raptiformica.shell.execute import run_command_print_ready, \
     log_failure_factory, run_command
-from raptiformica.utils import ensure_directory
+from raptiformica.utils import ensure_directory, retry
 
 log = getLogger(__name__)
 
@@ -49,6 +49,7 @@ def clone_source(url, directory, host=None, port=22):
     )
 
 
+@retry(attempts=3, expect=(TimeoutError,))
 def pull_origin_master(directory, host=None, port=22):
     """
     Pull origin master in a directory on the remote machine
