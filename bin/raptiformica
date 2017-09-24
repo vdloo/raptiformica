@@ -8,7 +8,7 @@ DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
 JOIN_ENTRYPOINT="raptiformica_join.py"
-MODPROBE_ENTRYPOINT="raptiformica_modprobe.py"
+INSTALL_ENTRYPOINT="raptiformica_install.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
 INJECT_ENTRYPOINT="raptiformica_inject.py"
 CLEAN_ENTRYPOINT="raptiformica_clean.py"
@@ -33,7 +33,7 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   destroy                    Destroy cluster, clean up cache
 
-  modprobe                   Load or unload a module into
+  install                    Load or unload a module into
                              the system
 
   inject                     Add a host to the local meshnet 
@@ -78,8 +78,8 @@ case $1 in
     RAPTIFORMICA_CMD=$JOIN_ENTRYPOINT
     shift
     ;;
-    modprobe)
-    RAPTIFORMICA_CMD=$MODPROBE_ENTRYPOINT
+    install)
+    RAPTIFORMICA_CMD=$INSTALL_ENTRYPOINT
     shift
     ;;
     inject)

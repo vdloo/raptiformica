@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from raptiformica.cli import modprobe
+from raptiformica.cli import install
 
 if __name__ == '__main__':
-    modprobe()
+    install()
 else:
     raise RuntimeError("This script is an entry point and can not be imported")

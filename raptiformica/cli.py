@@ -414,13 +414,13 @@ def destroy():
     )
 
 
-def parse_modprobe_arguments():
+def parse_install_arguments():
     """
     Parse the commandline options for loading or unloading a module into the system.
     :return obj args: parsed arguments
     """
     parser = ArgumentParser(
-        prog="raptiformica modprobe",
+        prog="raptiformica install",
         description="Load or unload a module into the system"
     )
     parser.add_argument(
@@ -435,12 +435,12 @@ def parse_modprobe_arguments():
     return parse_arguments(parser)
 
 
-def modprobe():
+def install():
     """
     Load or unload a module into the system
     :return None:
     """
-    args = parse_modprobe_arguments()
+    args = parse_install_arguments()
     if args.remove:
         unload_module(args.name)
     else:
