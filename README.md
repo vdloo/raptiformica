@@ -225,7 +225,7 @@ to their neighbours from each node.
 
 Can be installed with
 ```sh
-raptiformica modprobe vdloo/raptiformica-map
+raptiformica install vdloo/raptiformica-map
 ```
 
 #### [consul-kv](https://github.com/vdloo/consul-kv)
@@ -254,7 +254,7 @@ got an i686 running somewhere and it was nice to get this to run on that as well
 
 Can be installed with
 ```sh
-raptiformica modprobe vdloo/raptiformica-docker-32bit
+raptiformica install vdloo/raptiformica-docker-32bit
 ```
 
 #### [android-x86-64-vagrant](https://github.com/vdloo/android-x86-64-vagrant)
@@ -296,7 +296,7 @@ run ```raptiformica slave --help``` under the `--server-type` option.
 
 Can be installed with
 ```sh
-raptiformica modprobe vdloo/puppetfiles
+raptiformica install vdloo/puppetfiles
 ```
 
 Heavily customized server types are not recommended because they might
