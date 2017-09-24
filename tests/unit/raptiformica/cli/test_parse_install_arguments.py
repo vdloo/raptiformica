@@ -25,7 +25,7 @@ class TestParseInstallArguments(TestCase):
                 'name',
                 type=str,
                 help='Name of the module to load or unload. '
-                     'Like "vdloo/puppetfiles"'
+                     'Like "vdloo/raptiformica-map"'
             ),
             call(
                 '--remove', '-r', action='store_true',
