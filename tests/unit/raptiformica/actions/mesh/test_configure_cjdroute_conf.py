@@ -66,7 +66,7 @@ class TestConfigureCjdrouteConf(TestCase):
             configure_cjdroute_conf()
 
     def test_configure_cjdroute_conf_shuffles_neighbours(self):
-        expected_neighbours = {
+        expected_items = {
             '192.168.178.23:4863': {
                 'peerName': '192.168.178.23:4863',
                 'publicKey': 'a_pubkey.k',
@@ -77,12 +77,11 @@ class TestConfigureCjdrouteConf(TestCase):
                 'publicKey': 'a_different_pubkey.k',
                 'password': 'a_secret'
             }
-        }
+        }.items()
+
         configure_cjdroute_conf()
 
-        self.shuffle.assert_called_once_with(
-            expected_neighbours
-        )
+        self.shuffle.assert_called_once_with(expected_items)
 
     def test_configure_cjdroute_conf_writes_cjdroute_config_to_disk(self):
         configure_cjdroute_conf()
@@ -117,6 +116,7 @@ class TestConfigureCjdrouteConf(TestCase):
         }
         self.write_json.assert_called_once_with(
             expected_config,
-            CJDROUTE_CONF_PATH
+            CJDROUTE_CONF_PATH,
+            sort_keys=False
         )
 

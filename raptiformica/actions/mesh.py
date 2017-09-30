@@ -1,4 +1,5 @@
 import pipes
+from collections import OrderedDict
 from hashlib import md5
 from contextlib import suppress
 from multiprocessing.pool import ThreadPool
@@ -117,14 +118,17 @@ def configure_cjdroute_conf():
 
     mapping = get_config_mapping()
     cjdns_secret = get_cjdns_password(mapping)
-    cjdroute_config = load_json(CJDROUTE_CONF_PATH)
+    cjdroute_config = OrderedDict(load_json(CJDROUTE_CONF_PATH))
     cjdroute_config['authorizedPasswords'] = [{
         'password': cjdns_secret,
     }]
     neighbours = parse_cjdns_neighbours(mapping)
-    shuffle(neighbours)
+    neighbour_items = neighbours.items()
+    # A python3 dict is non-deterministic but not random
+    shuffle(neighbour_items)
+    shuffled_neighbours = OrderedDict(neighbour_items)
     cjdroute_config['interfaces']['UDPInterface'] = [{
-        'connectTo': neighbours,
+        'connectTo': shuffled_neighbours,
         'bind': '0.0.0.0:{}'.format(conf().CJDNS_DEFAULT_PORT)
     }]
     cjdroute_config['interfaces']['ETHInterface'] = [{
@@ -133,7 +137,7 @@ def configure_cjdroute_conf():
         'bind': 'all',
         'connectTo': {}
     }]
-    write_json(cjdroute_config, CJDROUTE_CONF_PATH)
+    write_json(cjdroute_config, CJDROUTE_CONF_PATH, sort_keys=False)
 
 
 def configure_consul_conf():
