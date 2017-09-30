@@ -1,4 +1,5 @@
 import socket
+from collections import OrderedDict
 from contextlib import suppress, contextmanager
 from fcntl import LOCK_EX, flock, LOCK_UN
 from functools import reduce
@@ -14,7 +15,7 @@ from consul_kv.utils import dict_merge
 from raptiformica.settings import conf
 
 from raptiformica.utils import load_json, write_json, list_all_files_with_extension_in_directory, ensure_directory, \
-    retry
+    retry, group_n_elements
 import raptiformica.distributed.proxy
 
 log = getLogger(__name__)
@@ -141,11 +142,35 @@ def try_config_request(func):
 def upload_config_mapping(mapped):
     """
     Upload a mapped config to the distributed key value store
-    :param iterable[dict, ..] mapped: list of key value pairs
+    :param dict[key, value] mapped: dict of key value pairs
     :return None:
     """
-    log.debug("Uploading local configs to distributed key value store")
-    try_config_request(lambda: consul_conn.put_mapping(mapped))
+    batches = [
+        # todo: replace OrderedDict with a regular dict,
+        # insertion order is not significant here but it made it
+        # easier to unit test this function. That could also be
+        # solved by reworking the unit tests to accept batches of
+        # any order.
+        OrderedDict(sub) for sub in group_n_elements(
+            list(mapped.items()), n=32
+        )
+    ]
+    batch_count = len(batches)
+    log.debug(
+        "Uploading local configs to "
+        "distributed key value store in {}"
+        "".format(
+            "one batch" if batch_count == 1
+            else "{} batches".format(batch_count)
+        )
+    )
+    for batch in batches:
+        # Note that this only uses transactions for every
+        # 16 key value pairs in the mapping. If you need a
+        # transactional guarantee then upload a subset of the
+        # mapping smaller than the batch threshold. Presumably
+        # all sections of the shared config mapping are commutative.
+        try_config_request(lambda: consul_conn.put_mapping(batch))
 
 
 def download_config_mapping():

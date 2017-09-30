@@ -1,4 +1,5 @@
-from mock import ANY
+from collections import OrderedDict
+from mock import ANY, call
 
 from raptiformica.settings.load import upload_config_mapping
 from tests.testcase import TestCase
@@ -22,6 +23,19 @@ class TestUploadConfigMapping(TestCase):
         upload_config_mapping(self.mapping)
 
         self.put_mapping.assert_called_once_with(self.mapping)
+
+    def test_upload_config_mapping_batches_large_mappings(self):
+        large_mapping = OrderedDict(('key_{}'.format(name), 'bla') for name in range(128))
+
+        upload_config_mapping(large_mapping)
+
+        expected_calls = (
+            call(OrderedDict(('key_{}'.format(name), 'bla') for name in range(32))),
+            call(OrderedDict(('key_{}'.format(name), 'bla') for name in range(32, 64))),
+            call(OrderedDict(('key_{}'.format(name), 'bla') for name in range(64, 96))),
+            call(OrderedDict(('key_{}'.format(name), 'bla') for name in range(96, 128)))
+        )
+        self.put_mapping.assert_has_calls(expected_calls)
 
     def test_upload_config_mapping_uses_try_config_config_wrapper(self):
         try_config_request = self.set_up_patch(
