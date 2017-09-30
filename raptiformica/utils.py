@@ -25,15 +25,19 @@ def load_json(json_file):
         return json.load(stream)
 
 
-def write_json(data, json_file):
+def write_json(data, json_file, sort_keys=True):
     """
     Write data to a json file
     :param mul data: data to dump to json
     :param str json_file: path to the mutable .json config file
+    :param bool sort_keys: Sort keys before writing
     :return None:
     """
     with open(json_file, 'w') as f:
-        json.dump(data, f, indent=4, sort_keys=True)
+        json.dump(
+            data, f, indent=4,
+            sort_keys=sort_keys
+        )
 
 
 def ensure_directory(directory):

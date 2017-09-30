@@ -20,3 +20,11 @@ class TestWriteJson(TestCase):
             self.json_data, self.file_handle,
             indent=4, sort_keys=True
         )
+
+    def test_write_json_writes_json_to_file_without_sorting_keys(self):
+        write_json(self.json_data, 'config.json', sort_keys=False)
+
+        self.json.dump.assert_called_once_with(
+            self.json_data, self.file_handle,
+            indent=4, sort_keys=False
+        )
