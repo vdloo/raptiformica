@@ -18,7 +18,7 @@ from raptiformica.shell.execute import run_command_print_ready, run_command, che
     log_failure_factory, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
 from raptiformica.utils import load_json, write_json, ensure_directory, startswith, wait, group_n_elements, \
-    calculate_checksum, retry
+    calculate_checksum, retry, calculate_lines_checksum
 
 log = getLogger(__name__)
 
@@ -122,6 +122,7 @@ def configure_cjdroute_conf():
         'password': cjdns_secret,
     }]
     neighbours = parse_cjdns_neighbours(mapping)
+    shuffle(neighbours)
     cjdroute_config['interfaces']['UDPInterface'] = [{
         'connectTo': neighbours,
         'bind': '0.0.0.0:{}'.format(conf().CJDNS_DEFAULT_PORT)
@@ -466,7 +467,7 @@ def cjdroute_config_hash_outdated():
         with open(CJDROUTE_CONF_HASH, 'rb') as config_hash_file:
             binary_stored_hash = config_hash_file.read()
             stored_hash = binary_stored_hash.decode('utf-8')
-        return stored_hash != calculate_checksum(CJDROUTE_CONF_PATH)
+        return stored_hash != calculate_lines_checksum(CJDROUTE_CONF_PATH)
     else:
         # There is no config hash yet so it is not up to
         # date because it does not exist
@@ -485,7 +486,7 @@ def write_cjdroute_config_hash():
         "we can only reload when we have to"
     )
     with open(CJDROUTE_CONF_HASH, 'wb') as config_hash_file:
-        config_hash = calculate_checksum(CJDROUTE_CONF_PATH)
+        config_hash = calculate_lines_checksum(CJDROUTE_CONF_PATH)
         binary_config_hash = config_hash.encode('utf-8')
         config_hash_file.write(binary_config_hash)
 

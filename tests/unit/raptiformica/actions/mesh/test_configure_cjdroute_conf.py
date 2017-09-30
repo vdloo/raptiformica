@@ -7,6 +7,7 @@ from tests.testcase import TestCase
 class TestConfigureCjdrouteConf(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
+        self.shuffle = self.set_up_patch('raptiformica.actions.mesh.shuffle')
         self.mapping = {
             "raptiformica/meshnet/cjdns/password": "a_secret",
             "raptiformica/meshnet/consul/password": "a_different_secret",
@@ -63,6 +64,25 @@ class TestConfigureCjdrouteConf(TestCase):
 
         with self.assertRaises(ValueError):
             configure_cjdroute_conf()
+
+    def test_configure_cjdroute_conf_shuffles_neighbours(self):
+        expected_neighbours = {
+            '192.168.178.23:4863': {
+                'peerName': '192.168.178.23:4863',
+                'publicKey': 'a_pubkey.k',
+                'password': 'a_secret'
+            },
+            '192.168.178.24:4863': {
+                'peerName': '192.168.178.24:4863',
+                'publicKey': 'a_different_pubkey.k',
+                'password': 'a_secret'
+            }
+        }
+        configure_cjdroute_conf()
+
+        self.shuffle.assert_called_once_with(
+            expected_neighbours
+        )
 
     def test_configure_cjdroute_conf_writes_cjdroute_config_to_disk(self):
         configure_cjdroute_conf()
