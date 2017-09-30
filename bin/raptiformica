@@ -12,6 +12,7 @@ INSTALL_ENTRYPOINT="raptiformica_install.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
 INJECT_ENTRYPOINT="raptiformica_inject.py"
 CLEAN_ENTRYPOINT="raptiformica_clean.py"
+ADVERTISE_ENTRYPOINT="raptiformica_advertise.py"
 
 function print_help {
     cat <<'END'
@@ -46,6 +47,9 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   clean                      Remove all state on the local 
                              machine if any.
+
+  advertise                  Set the host and port to advertise
+                             on the local machine.
 END
 }
 
@@ -92,6 +96,10 @@ case $1 in
     ;;
     clean)
     RAPTIFORMICA_CMD=$CLEAN_ENTRYPOINT
+    shift
+    ;;
+    advertise)
+    RAPTIFORMICA_CMD=$ADVERTISE_ENTRYPOINT
     shift
     ;;
     *)

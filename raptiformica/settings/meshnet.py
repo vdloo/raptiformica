@@ -112,15 +112,8 @@ def write_last_advertised(host, port):
     :param int port: port to use to connect to the remote machine over ssh
     :return dict:
     """
-    last_advertised_data = {
-        'host': host,
-        'port': port
-    }
+    last_advertised_data = {'host': host, 'port': port}
     write_json(last_advertised_data, conf().LAST_ADVERTISED)
-
-    with open(conf().LAST_ADVERTISED, 'w') as f:
-        f.write(host)
-        return f.read().strip()
 
 
 def update_neighbours_config(host=None, port=22, uuid=None, remove=True):

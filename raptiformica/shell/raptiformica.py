@@ -49,6 +49,28 @@ def run_raptiformica_command(command_as_string, host, port=22):
     return exit_code
 
 
+def advertise(host, port=22):
+    """
+    Run ./bin/raptiformica_advertise.py on a remote machine.
+    Sets the last advertised information on the remote host.
+    With this data the remote host can re-register itself
+    later in case the update_neighbours_config fails in the
+    local process on the machine that is assimilating the
+    remote host.
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int exit_code: Exit code from the ./bin/raptiformica_mesh.py command
+    """
+    log.info("Setting the host and port to advertise on the remote host")
+    # todo: let the remote raptiformica command use the same logging level
+    # as the current process
+    return run_raptiformica_command(
+        "export PYTHONPATH=.; ./bin/raptiformica_advertise.py "
+        "{} --port {}".format(host, port),
+        host, port=port
+    )
+
+
 def mesh(host, port=22, after_mesh=True):
     """
     Run ./bin/raptiformica_mesh.py on a remote machine.

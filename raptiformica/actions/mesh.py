@@ -14,6 +14,7 @@ from os import path
 
 from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping
+from raptiformica.settings.meshnet import update_neighbours_config
 from raptiformica.shell.execute import run_command_print_ready, run_command, check_nonzero_exit, \
     log_failure_factory, raise_failure_factory
 from raptiformica.shell.hooks import fire_hooks
@@ -877,6 +878,7 @@ def attempt_join_meshnet():
     :return None:
     """
     log.info("Joining the machine into the distributed network")
+    update_neighbours_config(remove=False)
     configure_meshing_services()
     start_meshing_services()
     # todo: in the future, if there are not enough neighbours to bootstrap

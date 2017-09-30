@@ -17,7 +17,7 @@ from raptiformica.actions.spawn import spawn_machine
 from raptiformica.actions.ssh_connect import ssh_connect
 from raptiformica.log import setup_logging
 from raptiformica.settings import conf
-from raptiformica.settings.meshnet import update_meshnet_config
+from raptiformica.settings.meshnet import update_meshnet_config, write_last_advertised
 from raptiformica.settings.types import get_server_types, \
     get_first_server_type, get_first_compute_type, get_compute_types
 
@@ -466,3 +466,29 @@ def clean():
     """
     parse_clean_arguments()
     clean_local_state()
+
+
+def parse_advertise_arguments():
+    """
+    Parse the commandline options for advertising a host and port on
+    the local machine.
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica advertise",
+        description="Set the host and port to advertise on the local machine"
+    )
+    parser.add_argument('host', type=str,
+                        help='The host to advertise')
+    parser.add_argument('--port', '-p', type=int, default=22,
+                        help='The port to advertise')
+    return parse_arguments(parser)
+
+
+def advertise():
+    """
+    Set the host and port to advertise on the local machine
+    :return None:
+    """
+    args = parse_advertise_arguments()
+    write_last_advertised(args.host, args.port)
