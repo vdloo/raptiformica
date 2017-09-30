@@ -17,9 +17,11 @@ class TestCjdrouteConfigHashOutdated(TestCase):
         self.set_up_patch(
             'raptiformica.actions.mesh.CJDROUTE_CONF_PATH', self.cjdroute_config_file.name
         )
+        self.uuid1, self.uuid2 = uuid4(), uuid4()
+        self.uuid2 = uuid4()
         self.cjdroute_config_file.write(
             # Write a random bytestring to the config file
-            str(uuid4).encode('utf-8')
+            "{}\n{}\n".format(self.uuid1, self.uuid2).encode('utf-8')
         )
         self.cjdroute_config_file.flush()
 
@@ -42,13 +44,30 @@ class TestCjdrouteConfigHashOutdated(TestCase):
 
         self.assertFalse(ret)
 
+    def test_cjdroute_config_hash_outdated_returns_false_if_hash_still_up_to_date_any_order(self):
+        write_cjdroute_config_hash()
+
+        cjdroute_config_file = NamedTemporaryFile()
+        self.set_up_patch(
+            'raptiformica.actions.mesh.CJDROUTE_CONF_PATH', cjdroute_config_file.name
+        )
+        cjdroute_config_file.write(
+            # Write the same bytestring but with lines in other order
+            "{}\n{}\n".format(self.uuid2, self.uuid1).encode('utf-8')
+        )
+        cjdroute_config_file.flush()
+
+        ret = cjdroute_config_hash_outdated()
+
+        self.assertFalse(ret)
+
     def test_cjdroute_config_hash_outdated_returns_true_if_hash_no_longer_up_to_date(self):
         write_cjdroute_config_hash()
 
         self.cjdroute_config_file.write(
             # Write a random bytestring to the config file
             # again so the hash is no longer up to date
-            str(uuid4).encode('utf-8')
+            "{}\n{}".format(uuid4(), uuid4()).encode('utf-8')
         )
         self.cjdroute_config_file.flush()
 

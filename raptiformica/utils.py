@@ -177,6 +177,7 @@ def calculate_checksum(filename):
     """
     Calculate the sha1 checksum of a file (in chunks)
     :param str filename: The file to calculate the checksum of
+    :param bool any_order: Sort lines before checksumming
     :return str checksum: The calculated checksum
     """
     file_hash = hashlib.sha1()
@@ -185,6 +186,21 @@ def calculate_checksum(filename):
         while len(buf) > 0:
             file_hash.update(buf)
             buf = f.read(128)
+        return file_hash.hexdigest()
+
+
+def calculate_lines_checksum(filename):
+    """
+    Calculate the sha1 checksum of a textfile, lines are sorted
+    before checksumming.
+    :param str filename: The file to calculate the checksum of
+    :return str checksum: The calculated checksum
+    """
+    file_hash = hashlib.sha1()
+    with open(filename, 'rb') as f:
+        lines = f.readlines()
+        sorted_lines = sorted(lines)
+        file_hash.update(b'\n'.join(sorted_lines))
         return file_hash.hexdigest()
 
 

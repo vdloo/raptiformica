@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 from raptiformica.actions.mesh import write_cjdroute_config_hash
-from raptiformica.utils import calculate_checksum
+from raptiformica.utils import calculate_lines_checksum
 from tests.testcase import TestCase
 
 
@@ -18,9 +18,11 @@ class TestWriteCjdrouteConfigHash(TestCase):
         self.set_up_patch(
             'raptiformica.actions.mesh.CJDROUTE_CONF_PATH', self.cjdroute_config_file.name
         )
+        self.uuid1, self.uuid2 = uuid4(), uuid4()
+        self.uuid2 = uuid4()
         self.cjdroute_config_file.write(
             # Write a random bytestring to the config file
-            str(uuid4).encode('utf-8')
+            "{}\n{}\n".format(self.uuid1, self.uuid2).encode('utf-8')
         )
         self.cjdroute_config_file.flush()
 
@@ -36,7 +38,23 @@ class TestWriteCjdrouteConfigHash(TestCase):
     def test_write_cjdroute_config_hash_writes_hash_of_cjdroute_config(self):
         write_cjdroute_config_hash()
 
-        expected_hash = calculate_checksum(self.cjdroute_config_file.name)
+        expected_hash = calculate_lines_checksum(self.cjdroute_config_file.name)
+        written_hash = self.config_hash_file.read().decode('utf-8')
+
+        self.assertEqual(expected_hash, written_hash)
+
+    def test_write_cjdroute_config_hash_writes_hash_of_cjdroute_config_any_order(self):
+        cjdroute_config_file = NamedTemporaryFile()
+        self.set_up_patch(
+            'raptiformica.actions.mesh.CJDROUTE_CONF_PATH', cjdroute_config_file.name
+        )
+        cjdroute_config_file.write(
+            # Write the same bytestring but with lines in other order
+            "{}\n{}\n".format(self.uuid2, self.uuid1).encode('utf-8')
+        )
+        write_cjdroute_config_hash()
+
+        expected_hash = calculate_lines_checksum(cjdroute_config_file.name)
         written_hash = self.config_hash_file.read().decode('utf-8')
 
         self.assertEqual(expected_hash, written_hash)
