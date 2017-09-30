@@ -123,7 +123,7 @@ def configure_cjdroute_conf():
         'password': cjdns_secret,
     }]
     neighbours = parse_cjdns_neighbours(mapping)
-    neighbour_items = neighbours.items()
+    neighbour_items = list(neighbours.items())
     # A python3 dict is non-deterministic but not random
     shuffle(neighbour_items)
     shuffled_neighbours = OrderedDict(neighbour_items)
