@@ -283,7 +283,7 @@ def sync_shared_config_mapping():
     """
     try:
         mapping = download_config_mapping()
-    except HTTPError:
+    except (ValueError, HTTPError):
         mapping = get_local_config_mapping()
         mapping = update_config_mapping(mapping)
     cache_config_mapping(mapping)
