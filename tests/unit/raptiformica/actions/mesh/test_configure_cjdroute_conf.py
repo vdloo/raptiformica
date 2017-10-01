@@ -66,7 +66,7 @@ class TestConfigureCjdrouteConf(TestCase):
             configure_cjdroute_conf()
 
     def test_configure_cjdroute_conf_shuffles_neighbours(self):
-        expected_items = {
+        expected_items = list({
             '192.168.178.23:4863': {
                 'peerName': '192.168.178.23:4863',
                 'publicKey': 'a_pubkey.k',
@@ -77,7 +77,7 @@ class TestConfigureCjdrouteConf(TestCase):
                 'publicKey': 'a_different_pubkey.k',
                 'password': 'a_secret'
             }
-        }.items()
+        }.items())
 
         configure_cjdroute_conf()
 
