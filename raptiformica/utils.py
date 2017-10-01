@@ -155,7 +155,7 @@ def retry(attempts=2, expect=(RuntimeError,)):
                         )
                         raise
                     else:
-                        log.info(
+                        log.debug(
                             "Caught expected exception, have {} attempts "
                             "left".format(attempts_left)
                         )
