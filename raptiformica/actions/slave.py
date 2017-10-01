@@ -7,7 +7,7 @@ from raptiformica.settings.types import get_first_server_type
 from raptiformica.shell.config import run_resource_command
 from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.shell.hooks import fire_hooks
-from raptiformica.shell.raptiformica import mesh
+from raptiformica.shell.raptiformica import mesh, advertise
 from raptiformica.shell.rsync import upload_self, download_artifacts
 
 log = getLogger(__name__)
@@ -85,6 +85,7 @@ def assimilate_machine(host, port=22, uuid=None):
     """
     log.info("Preparing to machine to be joined into the distributed network")
     download_artifacts(host, port=port)
+    advertise(host, port=port)
     ensure_route_to_new_neighbour(host, port=port, compute_checkout_uuid=uuid)
 
 

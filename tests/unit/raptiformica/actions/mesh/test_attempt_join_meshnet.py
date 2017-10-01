@@ -5,6 +5,9 @@ from tests.testcase import TestCase
 class TestAttemptJoinMeshnet(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
+        self.update_neighbours_config = self.set_up_patch(
+            'raptiformica.actions.mesh.update_neighbours_config'
+        )
         self.configure_meshing_services = self.set_up_patch(
             'raptiformica.actions.mesh.configure_meshing_services'
         )
@@ -18,6 +21,11 @@ class TestAttemptJoinMeshnet(TestCase):
         attempt_join_meshnet()
 
         self.assertTrue(self.log.info.called)
+
+    def test_attempt_join_meshnet_updates_neighbour_config_to_ensure_self_is_registered(self):
+        attempt_join_meshnet()
+
+        self.update_neighbours_config.assert_called_once_with(remove=False)
 
     def test_attempt_join_meshnet_configures_meshing_services(self):
         attempt_join_meshnet()

@@ -10,7 +10,7 @@ from raptiformica.settings import conf
 from raptiformica.settings.load import get_config_mapping, try_update_config_mapping
 from raptiformica.shell import cjdns
 from raptiformica.shell.raptiformica import inject
-from raptiformica.utils import retry
+from raptiformica.utils import retry, load_json, write_json
 
 log = getLogger(__name__)
 
@@ -97,7 +97,26 @@ def update_consul_config():
     return ensure_shared_secret('consul')
 
 
-def update_neighbours_config(host, port=22, uuid=None):
+def get_last_advertised():
+    """
+    Return the last advertised host name for this machine
+    :return dict: Last advertised information
+    """
+    return load_json(conf().LAST_ADVERTISED)
+
+
+def write_last_advertised(host, port):
+    """
+    Write the last advertised host name for this machine
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return dict:
+    """
+    last_advertised_data = {'host': host, 'port': port}
+    write_json(last_advertised_data, conf().LAST_ADVERTISED)
+
+
+def update_neighbours_config(host=None, port=22, uuid=None, remove=True):
     """
     Update the neighbours config in the k v mapping
     - update the distributed key value store with the neighbour
@@ -105,11 +124,17 @@ def update_neighbours_config(host, port=22, uuid=None):
     :param str host: hostname or ip of the remote machine
     :param int port: port to use to connect to the remote machine over ssh
     :param str uuid: identifier for a local compute checkout
+    :param bool remove: Ensure neighbour with hostname is removed
+    from the config first before adding.
     :return dict mapping: the updated config mapping
     """
     cjdns_public_key = cjdns.get_public_key(host, port=port)
     cjdns_ipv6_address = cjdns.get_ipv6_address(host, port=port)
 
+    if not host:
+        last_advertised = get_last_advertised()
+        host = last_advertised['host']
+        port = last_advertised['port']
     neighbour_entry = {
         'host': host,
         'cjdns_port': str(conf().CJDNS_DEFAULT_PORT),
@@ -127,7 +152,8 @@ def update_neighbours_config(host, port=22, uuid=None):
     neighbour_mapping = {
         join(neighbour_path, k): v for k, v in neighbour_entry.items()
     }
-    ensure_neighbour_removed_from_config_by_host(host)
+    if remove:
+        ensure_neighbour_removed_from_config_by_host(host)
     return try_update_config_mapping(neighbour_mapping)
 
 

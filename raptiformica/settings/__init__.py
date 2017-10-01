@@ -14,6 +14,7 @@ class Config(object):
     MACHINES_DIR = join(EPHEMERAL_DIR, 'machines')
     BASE_CONFIG = join(PROJECT_DIR, '.base_config.json')
     MUTABLE_CONFIG = join(ABS_CACHE_DIR, 'mutable_config.json')
+    LAST_ADVERTISED = join(ABS_CACHE_DIR, 'last_advertised')
     CONFIG_CACHE_LOCK = '/tmp/raptiformica_config_cache.lock'
     PACKAGE_MANGER_UPDATED = '/tmp/raptiformica_last_updated_package_manager'
     PACKAGE_MANAGER_CACHE_OUTDATED = 600
@@ -38,6 +39,7 @@ class Config(object):
         self.ABS_CACHE_DIR = join(expanduser("~"), self.CACHE_DIR)
         self.EPHEMERAL_DIR = join(self.ABS_CACHE_DIR, 'var')
         self.MUTABLE_CONFIG = join(self.ABS_CACHE_DIR, 'mutable_config.json')
+        self.LAST_ADVERTISED = join(self.ABS_CACHE_DIR, 'last_advertised')
         self.MACHINES_DIR = join(self.EPHEMERAL_DIR, 'machines')
         self.USER_MODULES_DIR = join(self.ABS_CACHE_DIR, 'modules')
         self.USER_ARTIFACTS_DIR = join(self.ABS_CACHE_DIR, 'artifacts')
