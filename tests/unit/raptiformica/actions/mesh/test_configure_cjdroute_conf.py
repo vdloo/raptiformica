@@ -81,7 +81,7 @@ class TestConfigureCjdrouteConf(TestCase):
 
         configure_cjdroute_conf()
 
-        self.shuffle.assert_called_once_with(expected_items)
+        self.assertCountEqual(expected_items, self.shuffle.call_args[0][0])
 
     def test_configure_cjdroute_conf_writes_cjdroute_config_to_disk(self):
         configure_cjdroute_conf()
