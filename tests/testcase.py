@@ -2,6 +2,7 @@ import unittest
 from functools import partial
 from os.path import expanduser
 from os.path import join
+from urllib.error import URLError
 from uuid import uuid4
 
 from mock import patch, Mock
@@ -189,7 +190,7 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
-    @retry(attempts=60, expect=(AssertionError,))
+    @retry(attempts=60, expect=(AssertionError, URLError))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
         sleep(2)
         expected_value = str(uuid4())
