@@ -2,6 +2,7 @@ from multiprocessing.pool import ThreadPool
 from os import environ
 from unittest import SkipTest
 
+from raptiformica.settings.meshnet import ensure_shared_secret
 from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
