@@ -163,17 +163,25 @@ class IntegrationTestCase(TestCase):
         )
         return exit_code == 0
 
-    def list_relevant_docker_instances(self):
+    @retry(attempts=30, expect=(RuntimeError,))
+    def list_relevant_docker_instances(self, expected=3):
         """
         Find the running docker instances on the host that belong
         to this running testcase
+        :param int expected: The amount of instances expected to find
         :return list[str, ..]: List of docker IDs
         """
+        sleep(2)
         all_docker_instances = self.list_docker_instances()
-        return list(filter(
+        relevant_instances = list(filter(
             self.docker_instance_is_relevant,
             all_docker_instances
         ))
+        if len(relevant_instances) < expected:
+            raise RuntimeError(
+                "Did not find enough relevant instances"
+            )
+        return relevant_instances
 
     @retry(attempts=10, expect=(AssertionError,))
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
@@ -190,7 +198,7 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
-    @retry(attempts=60, expect=(AssertionError, URLError))
+    @retry(attempts=30, expect=(AssertionError, URLError))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
         sleep(2)
         expected_value = str(uuid4())
