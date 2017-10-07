@@ -2,6 +2,7 @@ from multiprocessing.pool import ThreadPool
 from os import environ
 from unittest import SkipTest
 
+from raptiformica.settings.meshnet import ensure_shared_secret
 from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
@@ -92,6 +93,10 @@ class TestTreeConcurrentCluster(TestTreeCluster):
             raise SkipTest
 
     def spawn_docker_instances(self):
+        # Must create shared secret beforehand otherwise the
+        # testcase does not know which instances are relevant
+        ensure_shared_secret('cjdns')
+
         spawn_command = "spawn --no-assimilate " \
                         "--server-type headless " \
                         "--compute-type docker"
