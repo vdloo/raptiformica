@@ -60,7 +60,7 @@ class IntegrationTestCase(TestCase):
         return standard_out
 
     def kill_all_dockers(self):
-        dockers_to_kill = self.list_relevant_docker_instances()
+        dockers_to_kill = self.list_relevant_docker_instances(expected=0)
         kill_all_dockers_command = "echo {} | " \
                                    "sudo xargs --no-run-if-empty docker " \
                                    "kill".format(' '.join(dockers_to_kill))
