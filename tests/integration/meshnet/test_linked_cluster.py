@@ -45,7 +45,7 @@ class TestLinkedCluster(IntegrationTestCase):
         self.spawn_docker_instances()
 
         # List the spawned instances and their IPs
-        docker_instances = self.list_relevant_docker_instances()
+        docker_instances = self.list_relevant_docker_instances(self.amount_of_instances)
         docker_ips = list(map(self.get_docker_ip, docker_instances))
 
         # Ensure the requirements are installed
