@@ -136,7 +136,7 @@ class IntegrationTestCase(TestCase):
 
     def list_docker_instances(self):
         list_docker_instances_command = "sudo docker ps | " \
-                                        "grep raptiformica | " \
+                                        "grep my_init | " \
                                         "awk '{print$1}'"
         _, standard_out, standard_error = run_command_print_ready(
             list_docker_instances_command,
@@ -146,7 +146,7 @@ class IntegrationTestCase(TestCase):
 
     def docker_instance_is_relevant(self, instance_id):
         """
-        Check if a docker instance is relevant oo this
+        Check if a docker instance is relevant to this
         testcase
         :param str instance_id: The docker ID to check
         :return bool relevant: True if relevant, False if not

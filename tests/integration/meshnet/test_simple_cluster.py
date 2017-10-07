@@ -2,6 +2,7 @@ from multiprocessing.pool import ThreadPool
 from os import environ
 from unittest import SkipTest
 
+from raptiformica.settings.meshnet import ensure_shared_secret
 from tests.testcase import IntegrationTestCase, run_raptiformica_command
 
 
@@ -68,6 +69,10 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
             raise SkipTest
 
     def spawn_docker_instances(self):
+        # Must create shared secret beforehand otherwise the
+        # testcase does not know which instances are relevant
+        ensure_shared_secret('cjdns')
+
         spawn_command = "spawn --server-type headless --compute-type docker"
         pool = ThreadPool(self.workers)
         for _ in range(self.amount_of_instances):
