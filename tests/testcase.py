@@ -189,9 +189,9 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
-    @retry(attempts=10, expect=(AssertionError,))
+    @retry(attempts=60, expect=(AssertionError,))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
-        sleep(1)
+        sleep(2)
         expected_value = str(uuid4())
 
         # Try to connect to the remote consul instead of using the local cache
