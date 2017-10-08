@@ -1,5 +1,6 @@
 from multiprocessing.pool import ThreadPool
 from os import environ
+from time import sleep
 from unittest import SkipTest
 
 from raptiformica.settings.meshnet import ensure_shared_secret
@@ -80,6 +81,7 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
                 run_raptiformica_command,
                 args=(self.temp_cache_dir, spawn_command)
             )
+            sleep(20)
         pool.close()
         pool.join()
 
