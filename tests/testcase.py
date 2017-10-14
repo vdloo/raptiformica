@@ -1,3 +1,4 @@
+import socket
 import unittest
 from functools import partial
 from os.path import expanduser
@@ -198,7 +199,7 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
-    @retry(attempts=30, expect=(AssertionError, URLError))
+    @retry(attempts=30, expect=(AssertionError, URLError, socket.timeout, socket.error))
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
         sleep(2)
         expected_value = str(uuid4())
