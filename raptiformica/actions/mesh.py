@@ -816,7 +816,7 @@ def run_consul_join(ipv6_addresses):
     log.info("running: {}".format(consul_join_command))
     run_command_print_ready(
         consul_join_command,
-        failure_callback=log_failure_factory(
+        failure_callback=raise_failure_factory(
             "Failed to join the configured "
             "neighbours {}".format(ipv6_addresses)
         ),
@@ -824,6 +824,16 @@ def run_consul_join(ipv6_addresses):
         buffered=False,
         timeout=CONSUL_JOIN_TIMEOUT
     )
+
+
+@retry(attempts=3, expect=(RuntimeError,))
+def try_run_consul_join(ipv6_addresses):
+    """
+    Try and soft fail joining all specified ipv6 addresses.
+    :param list ipv6_addresses: Known neighbour hosts
+    :return None:
+    """
+    return run_consul_join(ipv6_addresses=ipv6_addresses)
 
 
 def not_already_known_consul_neighbour(ipv6_address):
@@ -844,7 +854,8 @@ def not_already_known_consul_neighbour(ipv6_address):
 
 def join_consul_neighbours(mapping):
     """
-    Consul join all known neighbours. Will join up to 5 peers at once.
+    Consul join all known neighbours. Will join as many instances at
+    the same time as threads in the threadpool.
     :param dict mapping: Key value mapping with the config data
     :return None:
     """
@@ -858,7 +869,7 @@ def join_consul_neighbours(mapping):
         new_ipv6_addresses, CONSUL_JOIN_BATCH_SIZE
     )
     for ipv6_addresses in groups:
-        pool.apply_async(run_consul_join, args=(ipv6_addresses,))
+        pool.apply_async(try_run_consul_join, args=(ipv6_addresses,))
     pool.close()
     pool.join()
 
