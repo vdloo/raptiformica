@@ -94,9 +94,9 @@ class IntegrationTestCase(TestCase):
         self.clean_up_cache_dir()
         print("Cleaned up any lingering state\n\n")
 
-    @retry(attempts=60, expect=(AssertionError,))
+    @retry(attempts=30, expect=(AssertionError,))
     def check_consul_consensus_was_established(self, expected_peers=None):
-        sleep(1)
+        sleep(5)
         consul_members_output = run_raptiformica_command(
             self.temp_cache_dir, "members", buffered=True
         )
