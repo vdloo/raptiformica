@@ -23,7 +23,7 @@ class TestEnsureLatestConsulRelease(TestCase):
         ensure_latest_consul_release('1.2.3.4', port=2222)
 
         self.remove.assert_called_once_with(
-            'consul_0.9.2_linux_amd64.zip'
+            'consul_0.9.3_linux_amd64.zip'
         )
 
     def test_ensure_latest_consul_release_ignores_no_previously_existing_zip(self):
@@ -45,7 +45,7 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'wget', '-nc',
-            'https://releases.hashicorp.com/consul/0.9.2/consul_0.9.2_linux_amd64.zip'
+            'https://releases.hashicorp.com/consul/0.9.3/consul_0.9.3_linux_amd64.zip'
         ]
         self.execute_process.assert_called_once_with(
             expected_binary_command, buffered=False, shell=False, timeout=15
