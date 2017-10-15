@@ -1,10 +1,9 @@
-from multiprocessing.pool import ThreadPool
 from unittest.mock import ANY
 
 from mock import call
 from itertools import chain
 
-from raptiformica.actions.mesh import join_consul_neighbours, get_neighbour_hosts, run_consul_join
+from raptiformica.actions.mesh import join_consul_neighbours, get_neighbour_hosts, try_run_consul_join
 from tests.testcase import TestCase
 
 
@@ -37,8 +36,8 @@ class TestJoinConsulNeighbours(TestCase):
         )
         self.not_already_known_consul_neighbour.return_value = True
         self.get_neighbour_hosts.side_effect = get_neighbour_hosts
-        self.run_consul_join = self.set_up_patch(
-            'raptiformica.actions.mesh.run_consul_join'
+        self.try_run_consul_join = self.set_up_patch(
+            'raptiformica.actions.mesh.try_run_consul_join'
         )
 
     def test_join_consul_neighbours_gets_neighbour_hosts(self):
@@ -68,14 +67,14 @@ class TestJoinConsulNeighbours(TestCase):
     def test_join_consul_neighbours_runs_consul_join_using_the_known_neighbours_ipv6_addresses(self):
         join_consul_neighbours(self.mapping)
 
-        self.run_consul_join.has_calls(
+        self.try_run_consul_join.has_calls(
             [call('some_ipv6_address'), call('some_other_ipv6_address')]
         )
 
     def test_join_consul_neighbours_does_not_join_any_consul_agents_if_no_known_neighbours(self):
         join_consul_neighbours(dict())
 
-        self.assertFalse(self.run_consul_join.called)
+        self.assertFalse(self.try_run_consul_join.called)
 
     def test_join_consul_neighbours_does_not_join_neighbours_that_are_already_known(self):
         def pretend_some_ipv6_address_is_already_known(ipv6):
@@ -84,9 +83,9 @@ class TestJoinConsulNeighbours(TestCase):
         self.not_already_known_consul_neighbour.side_effect = pretend_some_ipv6_address_is_already_known
         join_consul_neighbours(self.mapping)
 
-        run_consul_join_argument = self.run_consul_join.call_args[0][0]
-        self.assertNotIn('some_ipv6_address', run_consul_join_argument)
-        self.assertIn('some_other_ipv6_address', run_consul_join_argument)
+        try_run_consul_join_argument = self.try_run_consul_join.call_args[0][0]
+        self.assertNotIn('some_ipv6_address', try_run_consul_join_argument)
+        self.assertIn('some_other_ipv6_address', try_run_consul_join_argument)
 
     def test_join_consul_neighbours_joins_neighbours_in_batches(self):
         for address_number in range(9):
@@ -98,10 +97,10 @@ class TestJoinConsulNeighbours(TestCase):
         join_consul_neighbours(self.mapping)
 
         join_ipv6_addresses = list(chain.from_iterable(
-            map(lambda call_arg: call_arg[0][0], self.run_consul_join.call_args_list)
+            map(lambda call_arg: call_arg[0][0], self.try_run_consul_join.call_args_list)
         ))
 
-        self.assertEqual(self.run_consul_join.call_count, 11)
+        self.assertEqual(self.try_run_consul_join.call_count, 11)
         expected_ipv6_addresses = list(map('::{}'.format, range(9)))
         expected_ipv6_addresses.append('some_ipv6_address')
         expected_ipv6_addresses.append('some_other_ipv6_address')
@@ -114,7 +113,7 @@ class TestJoinConsulNeighbours(TestCase):
 
         # Use ncpu amount of cores
         threadpool.assert_called_once_with()
-        expected_calls = [call(run_consul_join, ANY)] * 3
+        expected_calls = [call(try_run_consul_join, ANY)] * 3
         threadpool.return_value.apply_async.has_calls(expected_calls)
         # Close the pool after queueing all calls
         threadpool.return_value.close.assert_called_once_with()
