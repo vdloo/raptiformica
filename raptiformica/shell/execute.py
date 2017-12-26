@@ -12,7 +12,7 @@ from raptiformica.settings import conf
 
 log = getLogger(__name__)
 
-COMMAND_TIMEOUT = 180
+COMMAND_TIMEOUT = 500
 
 
 def raise_failure_factory(message):
