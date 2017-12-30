@@ -20,7 +20,7 @@ class TestAgentAlreadyRunning(TestCase):
                            "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
                            "awk '{print $2}' | xargs --no-run-if-empty -I {} " \
                            "sh -c \"grep -q docker /proc/{}/cgroup 2> /dev/null " \
-                           "&& grep -qv docker /proc/1/cgroup || echo {}\" | " \
+                           "&& ! grep -q name=systemd:/docker /proc/1/cgroup || echo {}\" | " \
                            "wc -l | { read li; test $li -gt 0; }"
         self.check_nonzero_exit.assert_called_once_with(
             expected_command
@@ -35,7 +35,7 @@ class TestAgentAlreadyRunning(TestCase):
                            "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
                            "awk '{print $2}' | xargs --no-run-if-empty -I {} " \
                            "sh -c \"grep -q docker /proc/{}/cgroup 2> /dev/null " \
-                           "&& grep -qv docker /proc/1/cgroup || echo {}\" | " \
+                           "&& ! grep -q name=systemd:/docker /proc/1/cgroup || echo {}\" | " \
                            "wc -l | { read li; test $li -gt 1; }"
         self.check_nonzero_exit.assert_called_once_with(
             expected_command

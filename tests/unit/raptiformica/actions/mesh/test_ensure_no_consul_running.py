@@ -22,7 +22,7 @@ class TestEnsureNoConsulRunning(TestCase):
         expected_command = "ps aux | grep [c]onsul | awk '{print $2}' | " \
                            "xargs --no-run-if-empty -I {} " \
                            "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                           "grep -qv docker /proc/1/cgroup || kill -2 {}\""
+                           "! grep -q name=systemd:/docker /proc/1/cgroup || kill -2 {}\""
         self.run_command_print_ready.assert_called_once_with(
             expected_command,
             shell=True,
@@ -47,7 +47,7 @@ class TestEnsureNoConsulRunning(TestCase):
         )
         self.assertIn(
             "-I {} sh -c \"grep -q docker /proc/{}/cgroup && "
-            "grep -qv docker /proc/1/cgroup || kill -2 {}\"",
+            "! grep -q name=systemd:/docker /proc/1/cgroup || kill -2 {}\"",
             expected_command,
             'Should only kill processes not in Docker containers unless '
             'running inside a Docker, those could have their own raptiformica '
