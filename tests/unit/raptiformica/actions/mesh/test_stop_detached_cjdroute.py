@@ -23,7 +23,7 @@ class TestStopDetachedCjdroute(TestCase):
         expected_command = "ps aux | grep [c]jdroute | awk '{print $2}' | " \
                            "xargs --no-run-if-empty -I {} " \
                            "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                           "grep -qv docker /proc/1/cgroup || kill {}\""
+                           "! grep -q name=systemd:/docker /proc/1/cgroup || kill {}\""
         self.execute_process.assert_called_once_with(
             expected_command,
             shell=True,
@@ -49,7 +49,7 @@ class TestStopDetachedCjdroute(TestCase):
         )
         self.assertIn(
             "-I {} sh -c \"grep -q docker /proc/{}/cgroup && "
-            "grep -qv docker /proc/1/cgroup || kill {}\"",
+            "! grep -q name=systemd:/docker /proc/1/cgroup || kill {}\"",
             expected_command,
             'Should only kill processes not in Docker containers unless '
             'running inside a Docker, those could have their own raptiformica '

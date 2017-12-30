@@ -40,7 +40,7 @@ def agent_already_running():
                     "grep -v screen -i | grep python3 | grep -v 'sh -c' | " \
                     "awk '{{print $2}}' | xargs --no-run-if-empty -I {{}} " \
                     "sh -c \"grep -q docker /proc/{{}}/cgroup 2> /dev/null " \
-                    "&& grep -qv docker /proc/1/cgroup || echo {{}}\" | " \
+                    "&& ! grep -q name=systemd:/docker /proc/1/cgroup || echo {{}}\" | " \
                     "wc -l | {{ read li; test $li -gt {}; }}" \
                     "".format(allowed_procs)
     return check_nonzero_exit(check_running)

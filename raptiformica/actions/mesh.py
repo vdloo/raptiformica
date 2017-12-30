@@ -287,7 +287,7 @@ def stop_detached_cjdroute():
     kill_running = "ps aux | grep [c]jdroute | awk '{print $2}' | " \
                    "xargs --no-run-if-empty -I {} " \
                    "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                   "grep -qv docker /proc/1/cgroup || kill {}\""
+                   "! grep -q name=systemd:/docker /proc/1/cgroup || kill {}\""
     run_command_print_ready(
         kill_running,
         shell=True,
@@ -305,7 +305,6 @@ def check_if_port_available_factory(port):
     def check_if_port_available():
         """
         Check if a port is in use
-        :param int port: The port to check
         :return bool not_in_use: True if not in use, False if in use
         """
         check_port_command = "netstat -tuna | grep {:d}".format(port)
@@ -523,7 +522,7 @@ def ensure_no_consul_running():
     kill_running = "ps aux | grep [c]onsul | awk '{print $2}' | " \
                    "xargs --no-run-if-empty -I {} " \
                    "sh -c \"grep -q docker /proc/{}/cgroup && " \
-                   "grep -qv docker /proc/1/cgroup || kill -2 {}\""  # SIGINT
+                   "! grep -q name=systemd:/docker /proc/1/cgroup || kill -2 {}\""  # SIGINT
     run_command_print_ready(
         kill_running,
         shell=True,
