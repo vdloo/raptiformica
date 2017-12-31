@@ -16,7 +16,7 @@ class TestCheckIfPortAvailableFactory(TestCase):
         check_if_port_available_factory(mock_port)()
 
         self.check_nonzero_exit.assert_called_once_with(
-            "netstat -tuna | grep {:d}".format(mock_port)
+            'netstat -tuna | grep -E "{:d}\s"'.format(mock_port)
         )
 
     def test_check_if_port_available_factory_returns_true_if_port_available(self):
