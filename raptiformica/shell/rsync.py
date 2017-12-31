@@ -77,7 +77,7 @@ def upload(source, destination, host, port=22, timeout=1800):
     return exit_code
 
 
-@retry(attempts=3, expect=(TimeoutError,))
+@retry(attempts=3, expect=(TimeoutError, RuntimeError))
 def upload_self(host, port=22):
     """
     Upload the source code of the current raptiformica checkout to the remote host.

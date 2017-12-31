@@ -88,7 +88,7 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
 
 class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
     """
-    Same as the SimpleCluster case but all two of the three instances boot
+    Same as the SimpleCluster case but two of the three instances boot
     at the same time instead of one after the other.
     """
     workers = 2
