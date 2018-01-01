@@ -33,7 +33,8 @@ def run_raptiformica_command(cache_dir, parameters, buffered=False):
                                      parameters, cache_dir)
     _, standard_out, standard_error = run_command_print_ready(
         raptiformica_command,
-        buffered=buffered, shell=True
+        buffered=buffered, shell=True,
+        timeout=1800
     )
     return standard_out
 
