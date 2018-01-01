@@ -32,6 +32,8 @@ class TestSimpleCluster(IntegrationTestCase):
         self.slave_instance(docker_ip)
 
     def skip_if_env_override(self):
+        if environ.get('NO_NORMAL_CLUSTER'):
+            raise SkipTest
         if environ.get('NO_NO_CONCURRENT'):
             raise SkipTest
 
@@ -66,6 +68,8 @@ class TestSimpleConcurrentCluster(TestSimpleCluster):
     workers = 3
 
     def skip_if_env_override(self):
+        if environ.get('NO_NORMAL_CLUSTER'):
+            raise SkipTest
         if environ.get('NO_FULL_CONCURRENT'):
             raise SkipTest
 
@@ -94,5 +98,7 @@ class TestSimpleSemiConcurrentCluster(TestSimpleConcurrentCluster):
     workers = 2
 
     def skip_if_env_override(self):
+        if environ.get('NO_NORMAL_CLUSTER'):
+            raise SkipTest
         if environ.get('NO_SEMI_CONCURRENT'):
             raise SkipTest

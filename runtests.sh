@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-while getopts "1icsr" opt; do
+while getopts "1icsrltn" opt; do
     case $opt in
         1) RUN_ONCE=1;;
         i) INTEGRATION=1;;
@@ -11,12 +11,21 @@ while getopts "1icsr" opt; do
         s) NO_SEMI_CONCURRENT=1;;
         # Skip integration tests that boot all nodes sequentially
         r) NO_NO_CONCURRENT=1;;
+        # Skip integration tests that set up the cluster in a linked formation
+        l) NO_LINKED_CLUSTER=1;;
+        # Skip integration tests that set up the cluster in a tree formation
+        t) NO_TREE_CLUSTER=1;;
+        # Skip integration tests that set up the cluster in a normal formation
+        n) NO_NORMAL_CLUSTER=1;;
     esac
 done
 
 export NO_FULL_CONCURRENT
 export NO_SEMI_CONCURRENT
 export NO_NO_CONCURRENT
+export NO_LINKED_CLUSTER
+export NO_TREE_CLUSTER
+export NO_NORMAL_CLUSTER
 
 [ -z $INTEGRATION ] && TEST_SUITE="unit" || TEST_SUITE="integration"
 [ -z $INTEGRATION ] && TIME_OUT="--process-timeout=30" || TIME_OUT="--process-timeout=1200"

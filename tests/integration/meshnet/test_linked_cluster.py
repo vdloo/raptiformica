@@ -36,6 +36,8 @@ class TestLinkedCluster(IntegrationTestCase):
             run_raptiformica_command(self.temp_cache_dir, spawn_command)
 
     def skip_if_env_override(self):
+        if environ.get('NO_LINKED_CLUSTER'):
+            raise SkipTest
         if environ.get('NO_NO_CONCURRENT'):
             raise SkipTest
 
@@ -104,6 +106,8 @@ class TestLinkedConcurrentCluster(TestLinkedCluster):
     workers = 3
 
     def skip_if_env_override(self):
+        if environ.get('NO_LINKED_CLUSTER'):
+            raise SkipTest
         if environ.get('NO_FULL_CONCURRENT'):
             raise SkipTest
 
