@@ -635,7 +635,7 @@ def consul_shared_secret_changed():
     )
 
 
-@retry(attempts=5, expect=(ConsulSharedSecretChanged,))
+@retry(attempts=30, expect=(ConsulSharedSecretChanged,))
 def raise_if_shared_secret_changed():
     """
     Raise exception if the consul shared secret changed.
