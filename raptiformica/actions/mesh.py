@@ -647,7 +647,7 @@ def raise_if_shared_secret_changed():
     if consul_shared_secret_changed():
         sleep(1)
         raise ConsulSharedSecretChanged(
-            "The consul shared might have become stale"
+            "The consul shared secret might have become stale"
         )
 
 
