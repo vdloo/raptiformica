@@ -10,7 +10,6 @@ from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.utils import retry
 
 CJDNS_REPOSITORY = "https://github.com/vdloo/cjdns"
-CJDNS_SETUP_TIMEOUT = 1200
 
 log = getLogger(__name__)
 
@@ -113,7 +112,7 @@ def cjdns_setup(host=None, port=22):
         cjdns_setup_command, host=host, port=port,
         failure_message="Failed to ensure that CJDNS was built, "
                         "configured and installed",
-        shell=True, timeout=CJDNS_SETUP_TIMEOUT
+        shell=True
     )
     return exit_code
 
