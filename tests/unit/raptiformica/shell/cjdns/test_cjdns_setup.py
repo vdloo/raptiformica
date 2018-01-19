@@ -1,5 +1,4 @@
-from raptiformica.shell.cjdns import cjdns_setup
-from raptiformica.shell.execute import COMMAND_TIMEOUT
+from raptiformica.shell.cjdns import cjdns_setup, CJDNS_SETUP_TIMEOUT
 from tests.testcase import TestCase
 
 
@@ -34,7 +33,7 @@ class TestCjdnsSetup(TestCase):
             expected_command,
             buffered=False,
             shell=True,
-            timeout=COMMAND_TIMEOUT
+            timeout=CJDNS_SETUP_TIMEOUT
         )
 
     def test_cjdns_setup_raises_error_when_cjdns_setup_script_fails(self):
