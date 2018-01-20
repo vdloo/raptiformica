@@ -204,7 +204,10 @@ def calculate_lines_checksum(filename):
     with open(filename, 'rb') as f:
         lines = f.readlines()
         sorted_lines = sorted(lines)
-        file_hash.update(b'\n'.join(sorted_lines))
+        sorted_lines_stripped_trailing_comma = [
+            sl.rstrip(b',') for sl in sorted_lines
+        ]
+        file_hash.update(b'\n'.join(sorted_lines_stripped_trailing_comma))
         return file_hash.hexdigest()
 
 
