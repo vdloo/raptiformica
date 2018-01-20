@@ -145,7 +145,6 @@ def configure_consul_conf():
     """
     Configure the consul config according to the
     information in the inherited mutable config.
-    :param dict config: the mutable config
     :return:
     """
     log.info("Configuring consul config")
