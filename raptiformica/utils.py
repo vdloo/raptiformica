@@ -193,6 +193,7 @@ def calculate_checksum(filename):
         return file_hash.hexdigest()
 
 
+# TODO: add unit tests for this function
 def calculate_lines_checksum(filename):
     """
     Calculate the sha1 checksum of a textfile, lines are sorted
