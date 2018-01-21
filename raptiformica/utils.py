@@ -203,12 +203,12 @@ def calculate_lines_checksum(filename):
     file_hash = hashlib.sha1()
     with open(filename, 'rb') as f:
         lines = f.readlines()
-        sorted_lines = sorted(lines)
-        sorted_lines_stripped_trailing_comma = [
-            sl.encode('utf-8').rstrip(b',') if hasattr(sl, 'encode')
-            else sl.rstrip(b',') for sl in sorted_lines
+        stripped_trailing_comma_lines = [
+            sl.encode('utf-8').rstrip(b',\n') if hasattr(sl, 'encode')
+            else sl.rstrip(b',\n') for sl in lines
         ]
-        file_hash.update(b'\n'.join(sorted_lines_stripped_trailing_comma))
+        sorted_lines = sorted(stripped_trailing_comma_lines)
+        file_hash.update(b'\n'.join(sorted_lines))
         return file_hash.hexdigest()
 
 
