@@ -208,6 +208,7 @@ class IntegrationTestCase(TestCase):
         # Try to connect to the remote consul instead of using the local cache
         conf().set_forwarded_remote_consul_once(set_to=False)
 
+        print('attempting to store data in the distributed key value store')
         upload_config_mapping({'test/some/key/in/some/path': expected_value})
         ret = self.run_instance_command(
             '"consul kv get -recurse | grep test"', buffered=True
