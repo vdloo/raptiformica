@@ -28,7 +28,7 @@ export NO_TREE_CLUSTER
 export NO_NORMAL_CLUSTER
 
 [ -z $INTEGRATION ] && TEST_SUITE="unit" || TEST_SUITE="integration"
-[ -z $INTEGRATION ] && TIME_OUT="--process-timeout=30" || TIME_OUT="--process-timeout=1800"
+[ -z $INTEGRATION ] && TIME_OUT="--process-timeout=30" || TIME_OUT="--process-timeout=2700"
 
 # Do not use the nose.proxy otherwise we can't run Popen with unbuffered output
 # fixes: nose.proxy.AttributeError: '_io.StringIO' object has no attribute 'buffer'
