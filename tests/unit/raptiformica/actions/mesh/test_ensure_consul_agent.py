@@ -7,6 +7,9 @@ from tests.testcase import TestCase
 class TestEnsureConsulAgent(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
+        self.flush_consul_agent_if_necessary = self.set_up_patch(
+            'raptiformica.actions.mesh.flush_consul_agent_if_necessary'
+        )
         self.check_if_consul_is_available = self.set_up_patch(
             'raptiformica.actions.mesh.check_if_consul_is_available'
         )
@@ -27,6 +30,11 @@ class TestEnsureConsulAgent(TestCase):
         ensure_consul_agent()
 
         self.log.info.assert_called_once_with(ANY)
+
+    def test_ensure_consul_agent_flushes_consul_agent_if_necessary(self):
+        ensure_consul_agent()
+
+        self.flush_consul_agent_if_necessary.assert_called_once_with()
 
     def test_ensure_consul_agent_checks_if_consul_is_available(self):
         ensure_consul_agent()
