@@ -17,7 +17,7 @@ def loop_rejoin():
     while True:
         with suppress(Exception):
             attempt_join_meshnet()
-        sleep(30)
+        sleep(10)
 
 
 def _get_program_name():
