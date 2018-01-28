@@ -37,5 +37,5 @@ class TestLoopRejoin(TestCase):
         with self.assertRaises(IOError):
             loop_rejoin()
 
-        self.sleep.assert_has_calls([call(30)] * 2)
+        self.sleep.assert_has_calls([call(10)] * 2)
 
