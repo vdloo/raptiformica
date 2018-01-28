@@ -30,7 +30,7 @@ class TestRaiseIfSharedSecretChanged(TestCase):
         with suppress(ConsulSharedSecretChanged):
             raise_if_shared_secret_changed()
 
-        self.assertEqual(self.sleep.call_count, 30)
+        self.assertEqual(self.sleep.call_count, 15)
 
     def test_raise_if_shared_secret_changed_raises_exception_if_changed(self):
         self.consul_shared_secret_changed.return_value = True
