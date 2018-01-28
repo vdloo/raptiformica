@@ -34,6 +34,7 @@ WAIT_FOR_VIRTUAL_NETWORK_ADAPTER_TIMEOUT = 15
 WAIT_FOR_CONSUL_PORT_TIMEOUT = 15
 WAIT_FOR_CJDROUTE_PORT_TIMEOUT = 15
 WAIT_FOR_CONSUL_TIMEOUT = 15
+CONSUL_STATE_DIRS = ['/opt/consul']
 
 
 class ConsulSharedSecretChanged(RuntimeError):
@@ -680,6 +681,49 @@ def remove_old_consul_keyring():
         remove('/opt/consul/serf/local.keyring')
 
 
+def consul_outage_detected():
+    """
+    Check if consul reports an outage. If so, we need to automatically resolve it.
+    See: https://www.consul.io/docs/guides/outage.html
+    :return bool outage: True if no leader can be elected.
+    """
+    log.debug("Checking if the local consul agent reports an outage state")
+    command = ['consul', 'kv', 'get', '/raptiformica/raptiformica_api_version']
+    _, _, standard_error = run_command(
+        command, timeout=WAIT_FOR_CONSUL_TIMEOUT
+    )
+    return standard_error and "Unexpected response code: 500" in standard_error
+
+
+def remove_consul_local_state():
+    """
+    Remove all local consul state. If there was a consul outage some data might
+    now be lost. That should be OK because the consensus is best effort and any
+    state stored in the distributed key value store should be commutative and
+    persisted on disk periodically. Once a new quorum has been established the
+    state from disk will be pushed to the kv store once again. Any other nodes
+    with other local data will push (over) the same store until an equilibrium
+    has been reached.
+    :return None:
+    """
+    for path_to_clean in CONSUL_STATE_DIRS:
+        rmtree(path_to_clean, ignore_errors=True)
+
+
+def flush_consul_agent_if_necessary():
+    """
+    Flush consul if the agent reports that there is no leader
+    since it was last (re)started or reloaded
+    :return None:
+    """
+    if consul_outage_detected():
+        log.info(
+            "Consul outage detected. Removing local state "
+            "to re-establish a fresh quorum. Data loss imminent."
+        )
+        remove_consul_local_state()
+
+
 def restart_consul_agent_if_necessary():
     """
     Restart consul if the shared secret has changed.
@@ -724,6 +768,7 @@ def ensure_consul_agent():
     :return None:
     """
     log.info("Ensuring consul agent is running with an up to date configuration")
+    flush_consul_agent_if_necessary()
     consul_running = check_if_consul_is_available()
     if consul_running:
         restart_consul_agent_if_necessary()
