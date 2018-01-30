@@ -716,7 +716,7 @@ def flush_consul_agent_if_necessary():
     since it was last (re)started or reloaded
     :return None:
     """
-    if consul_outage_detected():
+    if enough_neighbours() and consul_outage_detected():
         log.info(
             "Consul outage detected. Removing local state "
             "to re-establish a fresh quorum. Data loss imminent."
