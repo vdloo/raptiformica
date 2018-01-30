@@ -15,7 +15,7 @@ from raptiformica.utils import retry, load_json, write_json
 log = getLogger(__name__)
 
 
-def retrieve_shared_secret(service, attempts=10):
+def retrieve_shared_secret(service, attempts=3):
     """
     Retrieve the shared secret for a service from the distributed
     key value store. If it can't be retrieved or is empty, retry
@@ -37,7 +37,6 @@ def retrieve_shared_secret(service, attempts=10):
             "Failed to retrieve shared secret for {}. Will "
             "attempt up to {} more times".format(service, attempts)
         )
-        sleep(1)
         return retrieve_shared_secret(service, attempts=attempts - 1)
     return mapping
 
