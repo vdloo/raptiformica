@@ -4,6 +4,10 @@ from tests.testcase import TestCase
 
 class TestFlushConsulAgentIfNecessary(TestCase):
     def setUp(self):
+        self.enough_neighbours = self.set_up_patch(
+            'raptiformica.actions.mesh.enough_neighbours'
+        )
+        self.enough_neighbours.return_value = True
         self.consul_outage_detected = self.set_up_patch(
             'raptiformica.actions.mesh.consul_outage_detected'
         )
@@ -23,6 +27,12 @@ class TestFlushConsulAgentIfNecessary(TestCase):
         flush_consul_agent_if_necessary()
 
         self.remove_consul_local_state.assert_called_once_with()
+
+    def test_flush_consul_agent_if_necessary_does_not_remove_local_state_if_detected_but_not_enough_neighbours(self):
+        self.enough_neighbours.return_value = False
+        self.consul_outage_detected.return_value = True
+
+        flush_consul_agent_if_necessary()
 
     def test_flush_consul_agent_if_necessary_does_not_remove_consul_local_state_if_not_detected(self):
         flush_consul_agent_if_necessary()
