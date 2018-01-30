@@ -356,7 +356,7 @@ def purge_local_config_mapping():
     Remove the local config mapping if it exists
     :return None:
     """
-    log.info("Puring locally cached config")
+    log.info("Purging locally cached config")
     with suppress(FileNotFoundError):
         remove(conf().MUTABLE_CONFIG)
 
