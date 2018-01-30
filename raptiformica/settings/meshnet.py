@@ -37,7 +37,6 @@ def retrieve_shared_secret(service, attempts=3):
             "Failed to retrieve shared secret for {}. Will "
             "attempt up to {} more times".format(service, attempts)
         )
-        sleep(1)
         return retrieve_shared_secret(service, attempts=attempts - 1)
     return mapping
 
