@@ -1,7 +1,6 @@
 import uuid
 from os.path import join
 from logging import getLogger
-from time import sleep
 
 from raptiformica.actions.prune import ensure_neighbour_removed_from_config_by_host
 from raptiformica.distributed.events import send_reload_meshnet
