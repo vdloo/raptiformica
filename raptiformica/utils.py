@@ -150,7 +150,7 @@ def retry(attempts=2, expect=(RuntimeError,), wait_before_retry=None):
                     return func(*args, **kwargs)
                 except expect:
                     if attempts_left <= 0:
-                        log.warning(
+                        log.debug(
                             "Ran out of attempts for this function! Not "
                             "catching expected exception anymore."
                         )
