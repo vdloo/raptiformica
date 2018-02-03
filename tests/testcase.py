@@ -317,19 +317,24 @@ class IntegrationTestCase(TestCase):
         :param list NATted_ips: list of the NATted IPs to slave
         :return None:
         """
-        for NATted_ip in NATted_ips:
-            slave_instance_command = "ssh -oStrictHostKeyChecking=no " \
-                                     "-oUserKnownHostsFile=/dev/null " \
-                                     "-A root@{} raptiformica " \
-                                     "slave {} --verbose" \
-                                     "".format(docker_ip, NATted_ip)
-            run_command_print_ready(
+
+        @retry(3, expect=(RuntimeError,), wait_before_retry=1)
+        def slave_instance_from_firewalled_environment(command):
+            command(
                 slave_instance_command, buffered=False, shell=True,
                 failure_callback=raise_failure_factory(
                     "Failed to slave the NATted ip {}. Could not set up "
                     "the scenario for TestTreeCluster :(".format(NATted_ip)
                 )
             )
+
+        for NATted_ip in NATted_ips:
+            slave_instance_command = "ssh -oStrictHostKeyChecking=no " \
+                                     "-oUserKnownHostsFile=/dev/null " \
+                                     "-A root@{} raptiformica " \
+                                     "slave {} --verbose" \
+                                     "".format(docker_ip, NATted_ip)
+            slave_instance_from_firewalled_environment(slave_instance_command)
 
     def slave_instance(self, ip_address):
         run_raptiformica_command(
