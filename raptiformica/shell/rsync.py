@@ -57,7 +57,7 @@ def upload(source, destination, host, port=22, timeout=1800):
         '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
         source, 'root@{}:{}'.format(host, destination),
         '--exclude=.venv', '--exclude=*.pyc',
-        '--exclude=var',
+        '--exclude=var', '--exclude=last_advertised',
         '-e', 'ssh -p {} '
               '-oStrictHostKeyChecking=no '
               '-oUserKnownHostsFile=/dev/null'.format(port)
