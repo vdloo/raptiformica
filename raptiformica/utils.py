@@ -121,12 +121,13 @@ def wait(predicate, timeout=5):
             sleep(1)
 
 
-def retry(attempts=2, expect=(RuntimeError,)):
+def retry(attempts=2, expect=(RuntimeError,), wait_before_retry=None):
     """
     Decorator that retries the wrapped body until the attempts
     run out when the expected exception is encountered.
     :param int attempts: Amount of tries to perform
     :param iterable expect: Iterable of exceptions to expect
+    :param int wait_before_retry: The amount of seconds to sleep before retry
     :return func decorator: The decorator
     """
     def retry_decorator(func):
@@ -159,6 +160,8 @@ def retry(attempts=2, expect=(RuntimeError,)):
                             "Caught expected exception, have {} attempts "
                             "left".format(attempts_left)
                         )
+                        if wait_before_retry:
+                            sleep(wait_before_retry)
         return wraps(func)(retry_wrapper)
     return retry_decorator
 

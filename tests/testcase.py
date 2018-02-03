@@ -8,7 +8,6 @@ from uuid import uuid4
 
 from mock import patch, Mock
 from shutil import rmtree
-from time import sleep
 
 from os import makedirs
 
@@ -95,9 +94,8 @@ class IntegrationTestCase(TestCase):
         self.clean_up_cache_dir()
         print("Cleaned up any lingering state\n\n")
 
-    @retry(attempts=60, expect=(AssertionError,))
+    @retry(attempts=60, expect=(AssertionError,), wait_before_retry=1)
     def check_consul_consensus_was_established(self, expected_peers=None):
-        sleep(1)
         consul_members_output = run_raptiformica_command(
             self.temp_cache_dir, "members", buffered=True
         )
@@ -165,7 +163,7 @@ class IntegrationTestCase(TestCase):
         )
         return exit_code == 0
 
-    @retry(attempts=30, expect=(RuntimeError,))
+    @retry(attempts=30, expect=(RuntimeError,), wait_before_retry=2)
     def list_relevant_docker_instances(self, expected=3):
         """
         Find the running docker instances on the host that belong
@@ -173,7 +171,6 @@ class IntegrationTestCase(TestCase):
         :param int expected: The amount of instances expected to find
         :return list[str, ..]: List of docker IDs
         """
-        sleep(2)
         all_docker_instances = self.list_docker_instances()
         relevant_instances = list(filter(
             self.docker_instance_is_relevant,
@@ -185,9 +182,8 @@ class IntegrationTestCase(TestCase):
             )
         return relevant_instances
 
-    @retry(attempts=10, expect=(AssertionError,))
+    @retry(attempts=10, expect=(AssertionError,), wait_before_retry=1)
     def check_all_registered_peers_can_be_pinged_from_any_instance(self):
-        sleep(1)
         registered_peers = self.list_registered_peers()
         for registered_peer in registered_peers:
             ret = self.run_instance_command(
@@ -200,9 +196,8 @@ class IntegrationTestCase(TestCase):
                 )
             )
 
-    @retry(attempts=30, expect=(AssertionError, URLError, socket.timeout, socket.error))
+    @retry(attempts=30, expect=(AssertionError, URLError, socket.timeout, socket.error), wait_before_retry=2)
     def check_data_can_be_stored_in_the_distributed_kv_store(self):
-        sleep(2)
         expected_value = str(uuid4())
 
         # Try to connect to the remote consul instead of using the local cache
