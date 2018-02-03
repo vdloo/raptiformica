@@ -320,8 +320,8 @@ class IntegrationTestCase(TestCase):
 
         @retry(3, expect=(RuntimeError,), wait_before_retry=1)
         def slave_instance_from_firewalled_environment(command):
-            command(
-                slave_instance_command, buffered=False, shell=True,
+            run_command_print_ready(
+                command, buffered=False, shell=True,
                 failure_callback=raise_failure_factory(
                     "Failed to slave the NATted ip {}. Could not set up "
                     "the scenario for TestTreeCluster :(".format(NATted_ip)
