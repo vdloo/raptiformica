@@ -26,7 +26,7 @@ class TestWget(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4', '-p', '22',
-            'wget', '-nc', 'https://www.example.com/some_url.zip'
+            'wget', '-4', '-nc', 'https://www.example.com/some_url.zip'
         ]
         self.execute_process.assert_called_once_with(
             expected_command,
