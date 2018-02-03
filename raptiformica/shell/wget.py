@@ -17,6 +17,6 @@ def wget(url, host=None, port=22, failure_message='Failed retrieving file'):
     :return None:
     """
     run_critical_unbuffered_command_print_ready(
-        ['wget', '-nc', url], host=host, port=port,
+        ['wget', '-4', '-nc', url], host=host, port=port,
         failure_message=failure_message, timeout=WGET_TIMEOUT
     )

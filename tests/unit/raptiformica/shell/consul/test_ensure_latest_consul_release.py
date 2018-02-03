@@ -44,7 +44,7 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
-            '-p', '2222', 'wget', '-nc',
+            '-p', '2222', 'wget', '-4', '-nc',
             'https://releases.hashicorp.com/consul/1.0.2/consul_1.0.2_linux_amd64.zip'
         ]
         self.execute_process.assert_called_once_with(
