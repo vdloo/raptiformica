@@ -155,7 +155,7 @@ class IntegrationTestCase(TestCase):
         # in the guest, that means the docker belongs to this test case
         check_relevant_command = 'sudo docker exec {} cat /root/.raptiformica.d/mutable_config.json | ' \
                                  'grep -q "$(grep raptiformica/meshnet/cjdns/password ' \
-                                 '{}/mutable_config.json)"' \
+                                 '{}/mutable_config.json | cut -d \'"\' -f4)"' \
                                  ''.format(instance_id, self.abs_temp_cache_dir)
         exit_code, _, __ = run_command_print_ready(
             check_relevant_command,
