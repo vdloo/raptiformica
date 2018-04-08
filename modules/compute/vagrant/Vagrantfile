@@ -13,9 +13,6 @@ PACKAGED_DIR = File.join(ENV['HOME'], '.raptiformica.d/var/packaged/vagrant')
 FileUtils.mkdir_p(PACKAGED_DIR)
 PACKAGED_CATALOG = File.join(PACKAGED_DIR, 'images/catalog.json')
 
-BASE_BOX_URL = 'http://cloud.terry.im/vagrant/archlinux-x86_64.box'
-BOX_URL = File.exists?(PACKAGED_CATALOG) ? PACKAGED_CATALOG : BASE_BOX_URL
-
 if ! File.exists?(PACKAGED_CATALOG)
     # remove external virtualbox-guest-dkms in Archlinux boxes before running vagrant-vbguest
     require_relative 'inline/remove-guest-dkms.rb'
@@ -27,8 +24,7 @@ Vagrant.configure('2') do |config|
     config.ssh.forward_agent = true
     VAGRANT_SCRIPT_DIR = File.dirname(__FILE__) << '/'
 
-    config.vm.box = File.exists?(PACKAGED_CATALOG) ? 'compute_headless_vagrant' : 'archlinux_x86_64'
-    config.vm.box_url = BOX_URL
+    config.vm.box = File.exists?(PACKAGED_CATALOG) ? 'compute_headless_vagrant' : 'archlinux/archlinux'
     config.vm.provision "shell" do |s|
         s.path  = VAGRANT_SCRIPT_DIR + 'deps/archlinux_deps.sh'
     end
