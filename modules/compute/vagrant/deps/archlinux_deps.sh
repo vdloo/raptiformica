@@ -5,7 +5,7 @@ echo -e 'Server = http://mirror.nl.leaseweb.net/archlinux/$repo/os/$arch\nServer
 pacman -Sy archlinux-keyring --noconfirm --needed
 pacman -Sy --noconfirm
 
-pacman -S ruby rsync git icu puppet acl libmariadbclient nodejs base-devel iputils wget unzip screen --noconfirm --needed
+pacman -S ruby python3 rsync git icu puppet acl libmariadbclient nodejs base-devel iputils wget unzip screen --noconfirm --needed
 puppet module install puppetlabs-vcsrepo
 puppet module install maestrodev-wget
 puppet module install saz-sudo
