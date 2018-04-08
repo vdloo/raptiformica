@@ -57,6 +57,7 @@ def upload(source, destination, host, port=22, timeout=1800):
         '/usr/bin/env', 'rsync', '-q', '--force', '-avz',
         source, 'root@{}:{}'.format(host, destination),
         '--exclude=.venv', '--exclude=*.pyc',
+        '--exclude=modules/compute/vagrant/.vagrant',
         '--exclude=var', '--exclude=last_advertised',
         '-e', 'ssh -p {} '
               '-oStrictHostKeyChecking=no '
