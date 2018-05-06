@@ -134,3 +134,18 @@ def slave(host_to_slave, host_to_slave_port, host, port=22, server_type=None):
         ),
         host, port=port
     )
+
+
+def clean(host, port=22):
+    """
+    Clean up all local state if any on a remote machine
+    Slave a host into the meshnet config on a remote machine
+    :param str host: hostname or ip of the remote machine
+    :param int port: port to use to connect to the remote machine over ssh
+    :return int exit_code: Exit code from the ./bin/raptiformica_clean.py command
+    """
+    log.info("Cleaning up local state on the remote machine")
+    return run_raptiformica_command(
+        "export PYTHONPATH=.; ./bin/raptiformica_clean.py --verbose",
+        host, port=port
+    )

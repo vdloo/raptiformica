@@ -4,6 +4,7 @@ from os.path import expanduser
 
 from raptiformica.actions.agent import run_agent
 from raptiformica.actions.clean import clean_local_state
+from raptiformica.actions.deploy import deploy_network
 from raptiformica.actions.destroy import destroy_cluster
 from raptiformica.actions.hook import trigger_handlers
 from raptiformica.actions.join import join_machine
@@ -83,6 +84,41 @@ def slave():
         after_assimilate=not args.no_after_assimilate,
         after_mesh=not args.no_after_mesh,
         provision=not args.no_provision,
+        server_type=args.server_type
+    )
+
+
+def parse_deploy_arguments():
+    """
+    Parse the commandline options for setting up or re-creating an entire network based on a config file.
+    :return obj args: parsed arguments
+    """
+    parser = ArgumentParser(
+        prog="raptiformica deploy",
+        description='Set up or re-create an entire network based on a config file'
+    )
+    parser.add_argument('inventory', type=str,
+                        help='Path to the inventory file. Contents like: '
+                             '\'[{"dst": "1.2.3.4"}, {"dst": "2.3.4.5", "port": "2222"}, '
+                             '{"dst": "2.3.4.6", "via": "2.3.4.5"}, '
+                             '{"dst": "2.3.4.7", "via": "2.3.4.6"}]\'')
+    parser.add_argument('--server-type', type=str, default=get_first_server_type(),
+                        choices=get_server_types(),
+                        help='Specify a server type. Default is '
+                             '{}'.format(get_first_server_type()))
+    return parse_arguments(parser)
+
+
+def deploy():
+    """
+    Provision and assimilate machines into the network by means
+    of a list of IPs and hosts. Can be used to set up or re-create
+    an entire network based on a config file.
+    :return None:
+    """
+    args = parse_deploy_arguments()
+    deploy_network(
+        args.inventory,
         server_type=args.server_type
     )
 

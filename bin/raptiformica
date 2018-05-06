@@ -7,6 +7,7 @@ PRUNE_ENTRYPOINT="raptiformica_prune.py"
 DESTROY_ENTRYPOINT="raptiformica_destroy.py"
 MEMBERS_ENTRYPOINT="raptiformica_members.py"
 SLAVE_ENTRYPOINT="raptiformica_slave.py"
+DEPLOY_ENTRYPOINT="raptiformica_deploy.py"
 JOIN_ENTRYPOINT="raptiformica_join.py"
 INSTALL_ENTRYPOINT="raptiformica_install.py"
 SSH_ENTRYPOINT="raptiformica_ssh.py"
@@ -23,6 +24,11 @@ Usage: raptiformica [CMD..] [OPTIONS] [-h]
 
   slave                      Provision and assimilate a 
                              machine into the network
+
+  deploy                     Takes a list of IPs or hosts to 
+                             run slave on. Can be used to 
+                             completely set up or re-reate 
+                             a network.
 
   join                       Provision and join this machine 
                              into an existing network
@@ -76,6 +82,10 @@ case $1 in
     ;;
     slave)
     RAPTIFORMICA_CMD=$SLAVE_ENTRYPOINT
+    shift
+    ;;
+    deploy)
+    RAPTIFORMICA_CMD=$DEPLOY_ENTRYPOINT
     shift
     ;;
     join)
