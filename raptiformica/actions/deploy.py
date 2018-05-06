@@ -65,12 +65,15 @@ def deploy_network(inventory, server_type=None):
             "Attempting to clean up any local state on {} if "
             "any".format(inventory_host['dst'])
         )
-        with suppress(RuntimeError):
+        # Broad exception clauses because host might be down.
+        # If so, we'll get it next time.
+        with suppress(Exception):
             clean(inventory_host['dst'], port=inventory_host.get('port', 22))
 
         log.info("Slaving {}".format(inventory_host['dst']))
-        slave_machine(
-            inventory_host['dst'],
-            port=inventory_host.get('port', 22),
-            server_type=server_type
-        )
+        with suppress(Exception):
+            slave_machine(
+                inventory_host['dst'],
+                port=inventory_host.get('port', 22),
+                server_type=server_type
+            )
