@@ -152,26 +152,13 @@ tries to solve that problem by making it easy to mesh those machines
 together and form a virtual data center as a plateau to build your
 infrastructure on.
 
-### All machines can bootstrap
-
-As long as there is at least one machine left alive, the entire platform
-should be able to automatically be re-created as soon as new resources
-become available. When enough machines perish, data could be lost but the 
-core description of the platform should always still present on each
-surviving machine. The last machine should then be able to spawn and/or slave
-and provision newly available machines and join them in to the network.
-
-
 ### No dependencies
 
 At least in the bootstrapping part of the application. Only a python
 3 interpreter and a checkout of raptiformica should be enough to run the
 core code. This way it is enough to only rsync the code of an instance to 
 a new machine in order to get things running. It is OK to have dependencies
-in plugins or processes interfacing with the raptiformica APIs. For example,
-at some point I want to implement an OpenStack TaskFlow based decentralized
-job processing system that will manage waking up and shutting down resources
-based on the amount of queued work on the cluster.
+in plugins or processes interfacing with the raptiformica APIs. 
 
 ### No provisioning logic in the core code
 
@@ -236,13 +223,12 @@ cluster config from the collective memory of all nodes.
 
 #### [jobrunner](https://github.com/vdloo/jobrunner)
 
-This will eventually become the decentralized job processing
-system that can run on top of raptiformica. This will allow the
-network to distribute work across nodes and keep a persistent
-record of state of a process so that at the moment a node loses
-connection to the cluster another can continue the work where the
-other node left of, or reschedule a service to the next available
-machine based on certain criteria.
+Example of a decentralized job processing system that can run 
+on top of raptiformica. This could allow the network to distribute 
+work across nodes and keep a persistent record of state of a process 
+so that at the moment a node loses connection to the cluster another 
+can continue the work where the other node left of, or reschedule a 
+service to the next available machine based on certain criteria.
 
 ### [raptiformica-docker-32-bit](https://github.com/vdloo/raptiformica-docker-32bit)
 
