@@ -1,123 +1,66 @@
 from mock import call
 
-from raptiformica.actions.slave import slave_machine
+from raptiformica.actions.deploy import deploy_network
 from tests.testcase import TestCase
 
 
-class TestSlaveMachine(TestCase):
+class TestDeployNetwork(TestCase):
     def setUp(self):
-        self.log = self.set_up_patch('raptiformica.actions.slave.log')
-        self.update_cjdns_config = self.set_up_patch('raptiformica.actions.slave.update_cjdns_config')
-        self.upload_self = self.set_up_patch('raptiformica.actions.slave.upload_self')
-        self.provision_machine = self.set_up_patch('raptiformica.actions.slave.provision_machine')
-        self.fire_hooks = self.set_up_patch('raptiformica.actions.slave.fire_hooks')
-        self.assimilate_machine = self.set_up_patch('raptiformica.actions.slave.assimilate_machine')
-        self.deploy_meshnet = self.set_up_patch('raptiformica.actions.slave.deploy_meshnet')
-        self.get_first_server_type = self.set_up_patch(
-            'raptiformica.actions.slave.get_first_server_type'
-        )
-        self.get_first_server_type.return_value = 'headless'
+        self.inventory_hosts = [
+            {'dst': '1.2.3.4'},
+            {'dst': '2.3.4.5', 'port': 2222}
+        ]
+        self.log = self.set_up_patch('raptiformica.actions.deploy.log')
+        self.read_inventory_file = self.set_up_patch('raptiformica.actions.deploy.read_inventory_file')
+        self.read_inventory_file.return_value = self.inventory_hosts
+        self.clean = self.set_up_patch('raptiformica.actions.deploy.clean')
+        self.slave_machine = self.set_up_patch('raptiformica.actions.deploy.slave_machine')
 
-    def test_slave_machine_logs_slaving_machine_message(self):
-        slave_machine('1.2.3.4')
+    def test_deploy_network_logs_deploying_network_message(self):
+        deploy_network('~/.raptiformica_inventory')
 
         self.assertTrue(self.log.info.called)
 
-    def test_slave_machine_ensures_cjdns_config_up_front(self):
-        slave_machine('1.2.3.4')
+    def test_deploy_network_reads_inventory_file(self):
+        deploy_network('~/.raptiformica_inventory')
 
-        # By creating the secret if it does not exist yet before uploading
-        # the raptiformica config dir to the remote host it can be tracked
-        # which machine originated from which client.
-        self.update_cjdns_config.assert_called_once_with()
+        self.read_inventory_file.assert_called_once_with(
+            '~/.raptiformica_inventory'
+        )
 
-    def test_slave_machine_uploads_raptiformica_to_the_remote_host(self):
-        slave_machine('1.2.3.4')
+    def test_deploy_network_raises_runtime_error_if_via(self):
+        self.inventory_hosts = [
+            {'dst': '1.2.3.4', 'via': '2.3.4.5'},
+            {'dst': '2.3.4.5', 'port': 2222}
+        ]
+        self.read_inventory_file.return_value = self.inventory_hosts
 
-        self.upload_self.assert_called_once_with('1.2.3.4', port=22)
+        with self.assertRaises(RuntimeError):
+            deploy_network('~/.raptiformica_inventory')
 
-    def test_slave_machine_uploads_raptiformica_to_the_remote_host_using_a_specified_port(self):
-        slave_machine('1.2.3.4', port=2222, server_type='headless')
-
-        self.upload_self.assert_called_once_with('1.2.3.4', port=2222)
-
-    def test_slave_machine_fires_after_slave_hooks_after_slaving_remote_machine(self):
-        slave_machine('1.2.3.4', port=2222, server_type='headless')
+    def test_deploy_network_cleans_hosts(self):
+        deploy_network('~/.raptiformica_inventory')
 
         expected_calls = [
-            call('after_slave'),
-            call('after_assimilate')
+            call('1.2.3.4', port=22),
+            call('2.3.4.5', port=2222),
         ]
-        self.assertCountEqual(self.fire_hooks.mock_calls, expected_calls)
+        self.assertCountEqual(expected_calls, self.clean.mock_calls)
 
-    def test_slave_machine_provisions_host_if_provision(self):
-        slave_machine('1.2.3.4')
+    def test_deploy_network_slaves_hosts(self):
+        deploy_network('~/.raptiformica_inventory')
 
-        self.provision_machine.assert_called_once_with(
-            '1.2.3.4', port=22, server_type=self.get_first_server_type.return_value
-        )
+        expected_calls = [
+            call('1.2.3.4', port=22, server_type=None),
+            call('2.3.4.5', port=2222, server_type=None),
+        ]
+        self.assertCountEqual(expected_calls, self.slave_machine.mock_calls)
 
-    def test_slave_machine_does_not_provision_host_if_provision_is_false(self):
-        slave_machine('1.2.3.4', provision=False)
+    def test_deploy_network_slaves_hosts_as_specified_server_type(self):
+        deploy_network('~/.raptiformica_inventory', server_type='workstation')
 
-        self.assertFalse(self.provision_machine.called)
-
-    def test_slave_machine_provisions_host_with_specified_server_type(self):
-        slave_machine('1.2.3.4', port=2222, server_type='headless')
-
-        self.provision_machine.assert_called_once_with(
-            '1.2.3.4', port=2222, server_type='headless'
-        )
-
-    def test_slave_machine_assimilates_machine_if_assimilate(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=True)
-
-        self.assimilate_machine.assert_called_once_with(
-            '1.2.3.4', port=2222, uuid=None
-        )
-
-    def test_slave_machine_assimilates_machines_if_assimilate_with_optional_uuid(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=True, uuid='some_uuid_1234')
-
-        self.assimilate_machine.assert_called_once_with(
-            '1.2.3.4', port=2222, uuid='some_uuid_1234'
-        )
-
-    def test_slave_machine_does_not_assimilate_if_assimilate_is_false(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=False)
-
-        self.assertFalse(self.assimilate_machine.called)
-
-    def test_slave_machine_deploys_meshnet_if_assimilate(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=True)
-
-        self.deploy_meshnet.assert_called_once_with(
-            '1.2.3.4', port=2222, after_mesh=True
-        )
-
-    def test_slave_machine_does_not_perform_after_mesh_hooks_if_specified(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=True, after_mesh=False)
-
-        self.deploy_meshnet.assert_called_once_with(
-            '1.2.3.4', port=2222, after_mesh=False
-        )
-
-    def test_slave_machine_does_not_deploy_meshnet_if_assimilate_is_false(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=False)
-
-        self.assertFalse(self.deploy_meshnet.called)
-
-    def test_slave_machine_does_not_perform_after_assimilate_hooks_if_assimilate_is_false(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=False)
-
-    def test_slave_machine_does_not_perform_after_assimilate_hooks_if_assimilate_is_false_and_perform_assimilate(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=False, after_assimilate=True)
-
-        expected_call = call('after_assimilate')
-        self.assertNotIn(expected_call, self.fire_hooks.mock_calls)
-
-    def test_slave_machine_performs_after_assimilate_hooks_if_assimilate_and_after_assimilate(self):
-        slave_machine('1.2.3.4', port=2222, assimilate=True, after_assimilate=True)
-
-        expected_call = call('after_assimilate')
-        self.assertIn(expected_call, self.fire_hooks.mock_calls)
+        expected_calls = [
+            call('1.2.3.4', port=22, server_type='workstation'),
+            call('2.3.4.5', port=2222, server_type='workstation'),
+        ]
+        self.assertCountEqual(expected_calls, self.slave_machine.mock_calls)
