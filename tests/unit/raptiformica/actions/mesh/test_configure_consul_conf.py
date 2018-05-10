@@ -7,6 +7,8 @@ from tests.testcase import TestCase
 class TestConfigureConsulConf(TestCase):
     def setUp(self):
         self.log = self.set_up_patch('raptiformica.actions.mesh.log')
+        self.gethostname = self.set_up_patch('raptiformica.actions.mesh.gethostname')
+        self.gethostname.return_value = 'myhostname'
         self.mapping = {
             "raptiformica/meshnet/cjdns/password": "a_secret",
             "raptiformica/meshnet/consul/password": "a_different_secret",
@@ -60,7 +62,7 @@ class TestConfigureConsulConf(TestCase):
             'data_dir': '/opt/consul',
             'datacenter': 'raptiformica',
             'log_level': 'INFO',
-            'node_name': 'the_ipv6_address',
+            'node_name': 'myhostname',
             # deterministic node ID derived from the IPv6 address
             'node_id': '1d08bba2-6d04-b253-d647-a7fd84e2002a',
             'server': True,

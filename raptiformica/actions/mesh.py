@@ -1,4 +1,5 @@
 import pipes
+from socket import gethostname
 from collections import OrderedDict
 from hashlib import md5
 from contextlib import suppress
@@ -164,7 +165,7 @@ def configure_consul_conf():
         'data_dir': '/opt/consul',
         'datacenter': 'raptiformica',
         'log_level': 'INFO',
-        'node_name': cjdroute_config['ipv6'],
+        'node_name': gethostname(),
         # deterministic node ID derived from the IPv6 address
         'node_id': node_id,
         'server': True,
