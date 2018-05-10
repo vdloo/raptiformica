@@ -97,6 +97,7 @@ def parse_deploy_arguments():
         prog="raptiformica deploy",
         description='Set up or re-create an entire network based on a config file'
     )
+    concurrent = conf().DEPLOY_CONCURRENCY
     parser.add_argument('inventory', type=str,
                         help='Path to the inventory file. Contents like: '
                              '\'[{"dst": "1.2.3.4"}, {"dst": "2.3.4.5", "port": "2222"}, '
@@ -110,6 +111,10 @@ def parse_deploy_arguments():
                         help='Modules to install if any. '
                              'For example vdloo/raptiformica-map',
                         nargs='+', dest='modules', default=list())
+    parser.add_argument('--concurrent',
+                        help='How many machines to deploy to concurrently. '
+                             'Defaults to {}'.format(concurrent),
+                        type=int, default=concurrent)
     return parse_arguments(parser)
 
 

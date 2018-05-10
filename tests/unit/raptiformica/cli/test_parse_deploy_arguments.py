@@ -39,6 +39,8 @@ class TestParseDeployArguments(TestCase):
                       ''.format(self.get_first_server_type.return_value)),
             call('--modules', help=ANY, nargs='+',
                  dest='modules', default=list()),
+            call( '--concurrent', help=ANY,
+                  type=int, default=5)
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,

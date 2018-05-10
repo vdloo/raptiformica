@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from contextlib import suppress
+from multiprocessing.pool import Pool, ThreadPool
 
 from raptiformica.actions.slave import slave_machine
 from raptiformica.shell.raptiformica import clean
@@ -38,13 +39,41 @@ def read_inventory_file(inventory):
     return inventory_hosts
 
 
-def deploy_network(inventory, server_type=None):
+def _deploy_to_host(host, server_type):
+    """
+    Remove any previously existing raptiformica
+    state from a remote host and (re)deploy to it.
+
+    :param dict host: The host to deploy to
+    :param str server_type: The server type
+    :return None:
+    """
+    log.info(
+        "Attempting to clean up any local state on {} if "
+        "any".format(host['dst'])
+    )
+    # Broad exception clauses because host might be down.
+    # If so, we'll get it next time.
+    with suppress(Exception):
+        clean(host['dst'], port=host.get('port', 22))
+
+    log.info("Slaving {}".format(host['dst']))
+    with suppress(Exception):
+        slave_machine(
+            host['dst'],
+            port=host.get('port', 22),
+            server_type=server_type
+        )
+
+
+def deploy_network(inventory, server_type=None, concurrent=5):
     """
     Deploy or re-create the raptiformica network to the hostnames or IPs
     from the passed inventory file. Will wipe any existing raptiformica
     configuration on those machines and deploy a new network.
     :param str inventory: The inventory file
     :param str server_type: name of the server type to provision the machine as
+    :param int concurrent: The amount of hosts to deploy to concurrently
     :return None:
     """
     inventory_hosts = read_inventory_file(inventory)
@@ -60,20 +89,11 @@ def deploy_network(inventory, server_type=None):
         "Will deploy a new network on {} "
         "hosts".format(len(inventory_hosts))
     )
-    for inventory_host in inventory_hosts:
-        log.info(
-            "Attempting to clean up any local state on {} if "
-            "any".format(inventory_host['dst'])
+    pool = ThreadPool(processes=concurrent)
+    pool.starmap(
+        _deploy_to_host,
+        zip(
+            inventory_hosts,
+            [server_type] * len(inventory_hosts)
         )
-        # Broad exception clauses because host might be down.
-        # If so, we'll get it next time.
-        with suppress(Exception):
-            clean(inventory_host['dst'], port=inventory_host.get('port', 22))
-
-        log.info("Slaving {}".format(inventory_host['dst']))
-        with suppress(Exception):
-            slave_machine(
-                inventory_host['dst'],
-                port=inventory_host.get('port', 22),
-                server_type=server_type
-            )
+    )
