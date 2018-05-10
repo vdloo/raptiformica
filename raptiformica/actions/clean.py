@@ -9,7 +9,6 @@ log = getLogger(__name__)
 
 LOCAL_STATE_DIRS = (
     '/usr/etc/cjdns',
-    '/usr/bin/consul',
     '/opt/consul',
     '/usr/etc/raptiformica',
     join(expanduser("~"), '.raptiformica.d'),
