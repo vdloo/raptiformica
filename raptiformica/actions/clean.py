@@ -8,7 +8,6 @@ from raptiformica.actions.mesh import ensure_no_consul_running, stop_detached_cj
 log = getLogger(__name__)
 
 LOCAL_STATE_DIRS = (
-    '/usr/bin/cjdroute',
     '/usr/etc/cjdns',
     '/usr/bin/consul',
     '/opt/consul',
