@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from contextlib import suppress
-from multiprocessing.pool import Pool, ThreadPool
+from multiprocessing.pool import ThreadPool
 
 from raptiformica.actions.slave import slave_machine
 from raptiformica.shell.raptiformica import clean
