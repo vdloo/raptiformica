@@ -28,6 +28,7 @@ class Config(object):
     CONSUL_DEFAULT_PORT = 8300
     MACHINE_ARCH = uname()[4]
     FORWARDED_CONSUL_ONCE_ALREADY = False
+    DEPLOY_CONCURRENCY = 5
 
     def set_cache_dir(self, cache_dir):
         """

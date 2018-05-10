@@ -64,3 +64,17 @@ class TestDeployNetwork(TestCase):
             call('2.3.4.5', port=2222, server_type='workstation'),
         ]
         self.assertCountEqual(expected_calls, self.slave_machine.mock_calls)
+
+    def test_deploy_network_can_deploy_serially(self):
+        pool = self.set_up_patch('raptiformica.actions.deploy.ThreadPool')
+
+        deploy_network('~/.raptiformica_inventory', concurrent=1)
+
+        pool.assert_called_once_with(processes=1)
+
+    def test_deploy_network_deploys_concurrently_by_default(self):
+        pool = self.set_up_patch('raptiformica.actions.deploy.ThreadPool')
+
+        deploy_network('~/.raptiformica_inventory')
+
+        pool.assert_called_once_with(processes=5)
