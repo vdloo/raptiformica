@@ -60,7 +60,7 @@ def write_config_mapping(config, config_file):
     :param str config_file: The mutable config file
     :return None:
     """
-    ensure_directory(conf().ABS_CACHE_DIR)
+    ensure_directory(conf().USER_ARTIFACTS_DIR)
     # Lock the config cache file so two processes can't
     # write to the file at the same time and corrupt the json
     with config_cache_lock():
