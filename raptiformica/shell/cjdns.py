@@ -12,7 +12,7 @@ from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.utils import retry
 
 CJDNS_REPOSITORY = "https://github.com/vdloo/cjdns"
-CJDROUTE_PATH = "/usr/bin/cjroute"
+CJDROUTE_PATH = "/usr/bin/cjdroute"
 
 log = getLogger(__name__)
 
