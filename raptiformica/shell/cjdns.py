@@ -2,6 +2,8 @@ from os import path
 from logging import getLogger
 from shlex import quote
 
+from os.path import isfile
+
 from raptiformica.settings import conf
 from raptiformica.shell.execute import raise_failure_factory, \
     run_critical_unbuffered_command_print_ready, run_command_print_ready, \
@@ -10,6 +12,7 @@ from raptiformica.shell.git import ensure_latest_source_from_artifacts
 from raptiformica.utils import retry
 
 CJDNS_REPOSITORY = "https://github.com/vdloo/cjdns"
+CJDROUTE_PATH = "/usr/bin/cjroute"
 
 log = getLogger(__name__)
 
@@ -126,8 +129,12 @@ def ensure_cjdns_installed(host=None, port=22):
     :return None:
     """
     log.info("Ensuring CJDNS is installed")
-    ensure_latest_source_from_artifacts(
-        CJDNS_REPOSITORY, "cjdns", host=host, port=port
-    )
-    ensure_cjdns_dependencies(host=host, port=port)
-    cjdns_setup(host=host, port=port)
+    if isfile(CJDROUTE_PATH):
+        log.debug("cjdroute is available")
+    else:
+        log.debug("cjdroute not available, installing now")
+        ensure_latest_source_from_artifacts(
+            CJDNS_REPOSITORY, "cjdns", host=host, port=port
+        )
+        ensure_cjdns_dependencies(host=host, port=port)
+        cjdns_setup(host=host, port=port)
