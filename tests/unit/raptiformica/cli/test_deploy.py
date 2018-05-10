@@ -1,4 +1,4 @@
-from mock import Mock
+from mock import Mock, call
 
 from raptiformica.cli import deploy
 from tests.testcase import TestCase
@@ -11,7 +11,14 @@ class TestDeploy(TestCase):
         )
         self.parse_deploy_arguments.return_value = Mock(
             inventory='~/.raptiformica_inventory',
-            server_type='headless'
+            server_type='headless',
+            modules=[
+                'vdloo/simulacra',
+                'vdloo/raptiformica-map'
+            ]
+        )
+        self.load_module = self.set_up_patch(
+            'raptiformica.cli.load_module'
         )
         self.deploy_network = self.set_up_patch(
             'raptiformica.cli.deploy_network'
@@ -21,6 +28,24 @@ class TestDeploy(TestCase):
         deploy()
 
         self.parse_deploy_arguments.assert_called_once_with()
+
+    def test_deploy_loads_modules_if_any(self):
+        deploy()
+
+        expected_calls = [
+            call('vdloo/simulacra'),
+            call('vdloo/raptiformica-map'),
+        ]
+        self.assertEqual(
+            expected_calls, self.load_module.mock_calls
+        )
+
+    def test_deploy_does_not_load_modules_if_none(self):
+        self.parse_deploy_arguments.return_value.modules = []
+
+        deploy()
+
+        self.assertFalse(self.load_module.called)
 
     def test_deploy_deploys_network(self):
         deploy()

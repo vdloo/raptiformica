@@ -32,9 +32,13 @@ class TestParseDeployArguments(TestCase):
 
         expected_calls = [
             call('inventory', type=str, help=ANY),
-            call('--server-type', type=str, default=self.get_first_server_type.return_value,
+            call('--server-type', type=str,
+                 default=self.get_first_server_type.return_value,
                  choices=self.get_server_types.return_value,
-                 help='Specify a server type. Default is {}'.format(self.get_first_server_type.return_value)),
+                 help='Specify a server type. Default is {}'
+                      ''.format(self.get_first_server_type.return_value)),
+            call('--modules', help=ANY, nargs='+',
+                 dest='modules', default=list()),
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,

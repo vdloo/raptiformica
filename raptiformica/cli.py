@@ -106,6 +106,10 @@ def parse_deploy_arguments():
                         choices=get_server_types(),
                         help='Specify a server type. Default is '
                              '{}'.format(get_first_server_type()))
+    parser.add_argument('--modules',
+                        help='Modules to install if any. '
+                             'For example vdloo/raptiformica-map',
+                        nargs='+', dest='modules', default=list())
     return parse_arguments(parser)
 
 
@@ -117,6 +121,8 @@ def deploy():
     :return None:
     """
     args = parse_deploy_arguments()
+    for module_name in args.modules:
+        load_module(module_name)
     deploy_network(
         args.inventory,
         server_type=args.server_type
