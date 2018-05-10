@@ -116,7 +116,7 @@ def download_artifacts(host, port=22):
     :return bool status: True if success, False if failure
     """
     log.info("Downloading artifacts from the remote host")
-    download_partial = partial(download, host=host, port=port, timeout=60)
+    download_partial = partial(download, host=host, port=port, timeout=180)
     download_artifacts_exit_code = download_partial(
         join(Config.CACHE_DIR, 'artifacts'), conf().ABS_CACHE_DIR
     )
