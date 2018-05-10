@@ -17,7 +17,7 @@ class Config(object):
     LAST_ADVERTISED = join(ABS_CACHE_DIR, 'last_advertised')
     CONFIG_CACHE_LOCK = '/tmp/raptiformica_config_cache.lock'
     PACKAGE_MANGER_UPDATED = '/tmp/raptiformica_last_updated_package_manager'
-    PACKAGE_MANAGER_CACHE_OUTDATED = 600
+    PACKAGE_MANAGER_CACHE_OUTDATED = 1800
     MODULES_DIR = join(PROJECT_DIR, 'modules')
     USER_MODULES_DIR = join(ABS_CACHE_DIR, 'modules')
     USER_ARTIFACTS_DIR = join(ABS_CACHE_DIR, 'artifacts')
