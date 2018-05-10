@@ -20,5 +20,5 @@ RUN apt-get update && apt-get install -y \
     puppet
 RUN puppet module install puppetlabs-vcsrepo
 RUN puppet module install maestrodev-wget
-RUN puppet module install saz-sudo
+RUN puppet module install saz-sudo --version=4.2.0
 
