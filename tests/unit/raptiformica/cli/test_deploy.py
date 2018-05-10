@@ -15,7 +15,8 @@ class TestDeploy(TestCase):
             modules=[
                 'vdloo/simulacra',
                 'vdloo/raptiformica-map'
-            ]
+            ],
+            concurrent=3
         )
         self.load_module = self.set_up_patch(
             'raptiformica.cli.load_module'
@@ -51,5 +52,7 @@ class TestDeploy(TestCase):
         deploy()
 
         self.deploy_network.assert_called_once_with(
-            '~/.raptiformica_inventory', server_type='headless'
+            '~/.raptiformica_inventory',
+            server_type='headless',
+            concurrent=3
         )

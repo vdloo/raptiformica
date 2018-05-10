@@ -130,7 +130,8 @@ def deploy():
         load_module(module_name)
     deploy_network(
         args.inventory,
-        server_type=args.server_type
+        server_type=args.server_type,
+        concurrent=args.concurrent
     )
 
 
