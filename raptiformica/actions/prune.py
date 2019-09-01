@@ -172,13 +172,21 @@ def _get_neighbour_by_key(key, value):
     :return list [str, ..[: : List of keys in the neighbours with the value
     for the specified key
     """
-    config = get_config()
-    meshnet_config = config[conf().KEY_VALUE_PATH].get('meshnet', {})
-    neighbours = meshnet_config.get('neighbours', {})
-    return [
-        '{}/meshnet/neighbours/{}/'.format(conf().KEY_VALUE_PATH, k)
-        for k, v in neighbours.items() if v[key] == value
-    ]
+    try:
+        config = get_config()
+        meshnet_config = config[conf().KEY_VALUE_PATH].get('meshnet', {})
+        neighbours = meshnet_config.get('neighbours', {})
+        return [
+            '{}/meshnet/neighbours/{}/'.format(conf().KEY_VALUE_PATH, k)
+            for k, v in neighbours.items() if v[key] == value
+        ]
+    except KeyError as e:
+        log.warning(
+            "Failed to get neighbour key because "
+            "of a KeyError, returning empty list: {}"
+            "".format(e)
+        )
+        return list()
 
 
 # todo: remove this function if it remains unused in the future

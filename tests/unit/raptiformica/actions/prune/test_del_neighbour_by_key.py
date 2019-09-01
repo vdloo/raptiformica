@@ -71,3 +71,12 @@ class TestDelNeighbourByKey(TestCase):
         _del_neighbour_by_key('uuid', "not_a_matching_uuid")
 
         self.assertFalse(self.try_delete_config.called)
+
+    def test_del_neighbour_by_key_does_not_throw_exception_if_config_borked(self):
+        self.mapping = {
+            "bork/bork": "bork",
+        }
+        self.get_config.return_value = self.mapping
+
+        # Does not raise
+        _del_neighbour_by_key('uuid', "not_a_matching_uuid")

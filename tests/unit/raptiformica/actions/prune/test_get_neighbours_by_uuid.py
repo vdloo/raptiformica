@@ -53,12 +53,6 @@ class TestGetNeighboursByUuid(TestCase):
 
         self.assertCountEqual(ret, tuple())
 
-    def test_get_neighbour_by_uuid_raises_key_error_if_no_meshnet_configured(self):
-        self.get_config.return_value = {}
-
-        with self.assertRaises(KeyError):
-            get_neighbours_by_uuid('eb442c6170694b12b277c9e88d714cf2')
-
     def test_get_neighbours_by_uuid_returns_empty_iterable_if_no_neighbours(self):
         self.get_config.return_value = {
             conf().KEY_VALUE_PATH: {
