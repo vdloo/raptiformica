@@ -1,3 +1,4 @@
+from functools import partial
 from logging import getLogger
 
 from contextlib import suppress
@@ -39,13 +40,24 @@ def read_inventory_file(inventory):
     return inventory_hosts
 
 
-def _deploy_to_host(host, server_type):
+# TODO: add unit tests for this function in the file
+# tests/unit/raptiformica/actions/deploy/test_deploy_to_host.py
+def _deploy_to_host(
+        host, server_type, provision=False,
+        assimilate=False, after_assimilate=False,
+        after_mesh=False
+):
     """
     Remove any previously existing raptiformica
     state from a remote host and (re)deploy to it.
 
     :param dict host: The host to deploy to
     :param str server_type: The server type
+    :param bool provision: whether or not we should assimilate the remote machine
+    :param bool assimilate: whether or not we should assimilate the remote machine
+    :param bool after_assimilate: whether or not we should perform the after
+    assimilation hooks
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :return None:
     """
     log.info(
@@ -62,11 +74,17 @@ def _deploy_to_host(host, server_type):
         slave_machine(
             host['dst'],
             port=host.get('port', 22),
-            server_type=server_type
+            server_type=server_type,
+            provision=provision,
+            assimilate=assimilate,
+            after_assimilate=after_assimilate,
+            after_mesh=after_mesh
         )
 
 
-def deploy_network(inventory, server_type=None, concurrent=5):
+def deploy_network(inventory, server_type=None, concurrent=5,
+                   provision=False, assimilate=False,
+                   after_assimilate=False, after_mesh=False):
     """
     Deploy or re-create the raptiformica network to the hostnames or IPs
     from the passed inventory file. Will wipe any existing raptiformica
@@ -74,6 +92,11 @@ def deploy_network(inventory, server_type=None, concurrent=5):
     :param str inventory: The inventory file
     :param str server_type: name of the server type to provision the machine as
     :param int concurrent: The amount of hosts to deploy to concurrently
+    :param bool provision: whether or not we should assimilate the remote machine
+    :param bool assimilate: whether or not we should assimilate the remote machine
+    :param bool after_assimilate: whether or not we should perform the after
+    assimilation hooks
+    :param bool after_mesh: Whether or not to perform the after_mesh hooks
     :return None:
     """
     inventory_hosts = read_inventory_file(inventory)
@@ -90,8 +113,15 @@ def deploy_network(inventory, server_type=None, concurrent=5):
         "hosts".format(len(inventory_hosts))
     )
     pool = ThreadPool(processes=concurrent)
-    pool.starmap(
+    deploy_to_host = partial(
         _deploy_to_host,
+        provision=provision,
+        assimilate=assimilate,
+        after_assimilate=after_assimilate,
+        after_mesh=after_mesh
+    )
+    pool.starmap(
+        deploy_to_host,
         zip(
             inventory_hosts,
             [server_type] * len(inventory_hosts)

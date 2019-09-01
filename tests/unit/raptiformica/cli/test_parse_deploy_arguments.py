@@ -32,15 +32,37 @@ class TestParseDeployArguments(TestCase):
 
         expected_calls = [
             call('inventory', type=str, help=ANY),
-            call('--server-type', type=str,
-                 default=self.get_first_server_type.return_value,
-                 choices=self.get_server_types.return_value,
-                 help='Specify a server type. Default is {}'
-                      ''.format(self.get_first_server_type.return_value)),
-            call('--modules', help=ANY, nargs='+',
-                 dest='modules', default=list()),
-            call( '--concurrent', help=ANY,
-                  type=int, default=5)
+            call(
+                '--server-type', type=str,
+                default=self.get_first_server_type.return_value,
+                choices=self.get_server_types.return_value,
+                help='Specify a server type. Default is {}'
+                     ''.format(self.get_first_server_type.return_value)
+            ),
+            call(
+                '--modules', help=ANY, nargs='+',
+                dest='modules', default=list()
+            ),
+            call(
+                '--concurrent', help=ANY,
+                type=int, default=5
+            ),
+            call(
+                '--no-provision', action='store_true',
+                default=False, help=ANY
+            ),
+            call(
+                '--no-assimilate', action='store_true',
+                default=False, help=ANY
+            ),
+            call(
+                '--no-after-assimilate', action='store_true',
+                default=False, help=ANY
+            ),
+            call(
+                '--no-after-mesh', action='store_true',
+                default=False, help=ANY
+            ),
         ]
         self.assertEqual(
             self.argument_parser.return_value.add_argument.mock_calls,

@@ -51,8 +51,16 @@ class TestDeployNetwork(TestCase):
         deploy_network('~/.raptiformica_inventory')
 
         expected_calls = [
-            call('1.2.3.4', port=22, server_type=None),
-            call('2.3.4.5', port=2222, server_type=None),
+            call(
+                '1.2.3.4', port=22, server_type=None,
+                provision=False, assimilate=False,
+                after_assimilate=False, after_mesh=False
+            ),
+            call(
+                '2.3.4.5', port=2222, server_type=None,
+                provision=False, assimilate=False,
+                after_assimilate=False, after_mesh=False
+            ),
         ]
         self.assertCountEqual(expected_calls, self.slave_machine.mock_calls)
 
@@ -60,8 +68,16 @@ class TestDeployNetwork(TestCase):
         deploy_network('~/.raptiformica_inventory', server_type='workstation')
 
         expected_calls = [
-            call('1.2.3.4', port=22, server_type='workstation'),
-            call('2.3.4.5', port=2222, server_type='workstation'),
+            call(
+                '1.2.3.4', port=22, server_type='workstation',
+                provision=False, assimilate=False,
+                after_assimilate=False, after_mesh=False
+            ),
+            call(
+                '2.3.4.5', port=2222, server_type='workstation',
+                provision=False, assimilate=False,
+                after_assimilate=False, after_mesh=False
+            ),
         ]
         self.assertCountEqual(expected_calls, self.slave_machine.mock_calls)
 
