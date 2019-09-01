@@ -115,6 +115,14 @@ def parse_deploy_arguments():
                         help='How many machines to deploy to concurrently. '
                              'Defaults to {}'.format(concurrent),
                         type=int, default=concurrent)
+    parser.add_argument('--no-provision', action='store_true', default=False,
+                        help='Do not run the provisioning scripts for the specified server type')
+    parser.add_argument('--no-assimilate', action='store_true', default=False,
+                        help='Do not join or set up the distributed network.')
+    parser.add_argument('--no-after-assimilate', action='store_true', default=False,
+                        help='Do not perform the after assimilation hooks')
+    parser.add_argument('--no-after-mesh', action='store_true', default=False,
+                        help='Do not perform the after mesh hooks')
     return parse_arguments(parser)
 
 
@@ -131,7 +139,11 @@ def deploy():
     deploy_network(
         args.inventory,
         server_type=args.server_type,
-        concurrent=args.concurrent
+        concurrent=args.concurrent,
+        assimilate=not args.no_assimilate,
+        after_assimilate=not args.no_after_assimilate,
+        after_mesh=not args.no_after_mesh,
+        provision=not args.no_provision
     )
 
 

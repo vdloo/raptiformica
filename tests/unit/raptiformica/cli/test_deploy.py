@@ -16,7 +16,11 @@ class TestDeploy(TestCase):
                 'vdloo/simulacra',
                 'vdloo/raptiformica-map'
             ],
-            concurrent=3
+            concurrent=3,
+            no_assimilate=False,
+            no_after_assimilate=False,
+            no_after_mesh=False,
+            no_provision=False
         )
         self.load_module = self.set_up_patch(
             'raptiformica.cli.load_module'
@@ -54,5 +58,9 @@ class TestDeploy(TestCase):
         self.deploy_network.assert_called_once_with(
             '~/.raptiformica_inventory',
             server_type='headless',
-            concurrent=3
+            concurrent=3,
+            assimilate=True,
+            after_assimilate=True,
+            after_mesh=True,
+            provision=True
         )
