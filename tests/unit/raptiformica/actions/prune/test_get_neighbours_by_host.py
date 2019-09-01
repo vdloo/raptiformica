@@ -56,12 +56,6 @@ class TestGetNeighboursByHost(TestCase):
 
         self.assertCountEqual(ret, tuple())
 
-    def test_get_neighbour_by_host_raises_key_error_if_no_meshnet_configured(self):
-        self.get_config.return_value = {}
-
-        with self.assertRaises(KeyError):
-            get_neighbours_by_host('1.2.3.6')
-
     def test_get_neighbours_by_host_returns_empty_iterable_if_no_neighbours(self):
         self.get_config.return_value = {
             conf().KEY_VALUE_PATH: {
