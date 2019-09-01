@@ -15,6 +15,7 @@ def main():
     update_local_package_manager_cache_if_necessary()
     ensure_cjdns_installed()
     ensure_consul_installed()
+    
 
 if __name__ == '__main__':
     main()
