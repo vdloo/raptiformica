@@ -12,6 +12,7 @@ if [ ! -f /usr/bin/cjdroute ]; then
             cp ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/cjdroute .
         else
             echo 'compiling new cjdoute'
+	    export NO_TEST=1
             lsb_release -a 2>&1 | grep Raspbian -i -q && sed -i 's/-march=native/-mcpu=cortex-a53/g' node_build/make.js || /bin/true
             lsb_release -a 2>&1 | grep Raspbian -i -q && Seccomp_NO=1 ./do || ./do
             mkdir -p ~/.raptiformica.d/artifacts/$(uname -m)/cjdns/
