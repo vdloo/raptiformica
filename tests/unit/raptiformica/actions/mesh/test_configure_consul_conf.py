@@ -82,6 +82,7 @@ class TestConfigureConsulConf(TestCase):
             },
             "leave_on_terminate": True,
             "skip_leave_on_interrupt": False,
+            "disable_update_check": True,
             "reconnect_timeout": "8h",  # The value must be >= 8 hours.
             "reconnect_timeout_wan": "8h",
             "translate_wan_addrs": False,
