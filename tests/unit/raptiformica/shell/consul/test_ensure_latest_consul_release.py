@@ -1,3 +1,4 @@
+from raptiformica.settings import conf
 from raptiformica.shell.consul import ensure_latest_consul_release
 from tests.testcase import TestCase
 
@@ -35,6 +36,10 @@ class TestEnsureLatestConsulRelease(TestCase):
     def test_ensure_latest_consul_release_downloads_latest_consul_release_with_no_clobber(self):
         ensure_latest_consul_release('1.2.3.4', port=2222)
 
+        if conf().MACHINE_ARCH == 'armv7l':
+            consul_zip = 'consul_1.0.2_linux_armv7l.zip'
+        else:
+            consul_zip = 'consul_1.0.2_linux_amd64.zip'
         expected_binary_command = [
             '/usr/bin/env', 'ssh', '-A',
             '-o', 'ConnectTimeout=5',
@@ -45,7 +50,9 @@ class TestEnsureLatestConsulRelease(TestCase):
             '-o', 'PasswordAuthentication=no',
             'root@1.2.3.4',
             '-p', '2222', 'wget', '-4', '-nc',
-            'https://releases.hashicorp.com/consul/1.0.2/consul_1.0.2_linux_amd64.zip'
+            'https://releases.hashicorp.com/consul/1.0.2/{}'.format(
+                consul_zip
+            )
         ]
         self.execute_process.assert_called_once_with(
             expected_binary_command, buffered=False, shell=False, timeout=15
